@@ -7,21 +7,14 @@ export default function IntroAnimation() {
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    // 同じタブで既に表示済みならスキップ
-    const alreadyShown = sessionStorage.getItem("introShown");
-
-    if (alreadyShown) {
-      setShow(false);
-      return;
-    }
-
+    // 1.4秒後にフェードアウト開始
     const fadeTimer = setTimeout(() => {
       setFadeOut(true);
     }, 1400);
 
+    // 1.9秒後に完全に非表示
     const hideTimer = setTimeout(() => {
       setShow(false);
-      sessionStorage.setItem("introShown", "true");
     }, 1900);
 
     return () => {
@@ -30,9 +23,7 @@ export default function IntroAnimation() {
     };
   }, []);
 
-  if (!show) {
-    return null;
-  }
+  if (!show) return null;
 
   return (
     <div
