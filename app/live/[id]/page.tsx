@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { lives } from "../../../data/lives";
+import AttendedButton from "../../../components/AttendedButton";
 
 type LiveId = (typeof lives)[number]["id"];
 
@@ -56,6 +57,9 @@ export default async function LivePage({
 
           {live.venue}
         </p>
+
+        {/* 参戦記録 */}
+<AttendedButton liveId={live.id} />
 
         {/* 本編 */}
         <section className="mt-10">
