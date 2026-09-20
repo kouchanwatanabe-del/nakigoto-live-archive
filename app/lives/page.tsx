@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { lives } from "../../data/lives";
+import AttendedIconButton from "../../components/AttendedIconButton";
 
 type Live = (typeof lives)[number];
 
@@ -33,6 +34,9 @@ export default function LivesPage() {
         const titleMatch =
           live.title.toLowerCase().includes(q);
 
+        const cityMatch =
+          live.city.toLowerCase().includes(q);
+
         const venueMatch =
           live.venue.toLowerCase().includes(q);
 
@@ -54,6 +58,7 @@ export default function LivesPage() {
         const keywordMatch =
           q === "" ||
           titleMatch ||
+          cityMatch ||
           venueMatch ||
           tourMatch ||
           setlistMatch ||
@@ -157,42 +162,62 @@ export default function LivesPage() {
           )}
         </div>
 
-       {/* ライブ一覧 */}
-<div className="mt-4 space-y-2.5">
-  {filteredLives.map((live: Live) => (
-    <Link
-      key={live.id}
-      href={`/live/${live.id}`}
-      className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B] hover:shadow-md"
-    >
-      <div className="min-w-0">
+        {/* ライブ一覧 */}
+        <div className="mt-4 space-y-2.5">
+          {filteredLives.map((live: Live) => (
+            <div
+              key={live.id}
+              className="relative rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-[#14526B] hover:shadow-md"
+            >
 
-        {/* 日付 */}
-        <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
-          {live.date}
-        </p>
+              {/* ライブ詳細へのリンク */}
+              <Link
+                href={`/live/${live.id}`}
+                className="block px-4 py-3 pr-16"
+              >
 
-        {/* 公演名 */}
-        <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
-          {live.title}
-        </h2>
+                {/* 日付 */}
+                <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
+                  {live.date}
+                </p>
 
-        {/* 会場 */}
-        <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
-          {live.venue}
-        </p>
+                {/* 公演名 */}
+                <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
+                  {live.title}
+                </h2>
 
-        {/* ツアー */}
-        <div className="mt-2">
-          <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-            {live.tour}
-          </span>
+                {/* 都市・会場 */}
+                <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
+                  <span className="font-medium text-[#14526B]">
+                    {live.city}
+                  </span>
+
+                  <span className="mx-2 text-zinc-300">
+                    ｜
+                  </span>
+
+                  {live.venue}
+                </p>
+
+                {/* ツアー */}
+                {live.tour && (
+                  <div className="mt-2">
+                    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+                      {live.tour}
+                    </span>
+                  </div>
+                )}
+
+              </Link>
+
+              {/* 参戦ボタン */}
+              <div className="absolute right-3 top-3">
+                <AttendedIconButton liveId={live.id} />
+              </div>
+
+            </div>
+          ))}
         </div>
-
-      </div>
-    </Link>
-  ))}
-</div>
 
         {/* 検索結果なし */}
         {filteredLives.length === 0 && (
