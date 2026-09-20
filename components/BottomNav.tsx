@@ -2,6 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  House,
+  CalendarDays,
+  Music2,
+  Heart,
+} from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
@@ -10,22 +16,22 @@ export default function BottomNav() {
     {
       href: "/",
       label: "HOME",
-      icon: "⌂",
+      icon: House,
     },
     {
       href: "/lives",
       label: "LIVE",
-      icon: "◫",
+      icon: CalendarDays,
     },
     {
       href: "/songs",
       label: "MUSIC",
-      icon: "♫",
+      icon: Music2,
     },
     {
       href: "/collection",
       label: "COLLECTION",
-      icon: "★",
+      icon: Heart,
     },
   ];
 
@@ -41,6 +47,8 @@ export default function BottomNav() {
                   pathname.startsWith("/live/")
                 : pathname.startsWith(tab.href);
 
+          const Icon = tab.icon;
+
           return (
             <Link
               key={tab.href}
@@ -52,9 +60,10 @@ export default function BottomNav() {
               }`}
             >
               {/* アイコン */}
-              <span className="text-xl leading-none">
-                {tab.icon}
-              </span>
+              <Icon
+                size={20}
+                strokeWidth={2}
+              />
 
               {/* ラベル */}
               <span className="mt-1.5 text-[11px]">
