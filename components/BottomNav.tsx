@@ -30,33 +30,34 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-4 left-1/2 z-50 w-[95%] max-w-md -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white p-2 shadow-lg">
+    <nav className="fixed bottom-3 left-1/2 z-50 w-[90%] max-w-sm -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-lg">
       <div className="grid grid-cols-4 gap-1">
         {tabs.map((tab) => {
           const active =
             tab.href === "/"
               ? pathname === "/"
               : tab.href === "/lives"
-                ? pathname === "/lives" || pathname.startsWith("/live/")
+                ? pathname === "/lives" ||
+                  pathname.startsWith("/live/")
                 : pathname.startsWith(tab.href);
 
           return (
             <Link
               key={tab.href}
               href={tab.href}
-              className={`flex min-h-[68px] flex-col items-center justify-center rounded-xl py-2 transition ${
+              className={`flex min-h-[58px] flex-col items-center justify-center rounded-xl py-1.5 transition ${
                 active
                   ? "bg-[#14526B] text-white"
                   : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900"
               }`}
             >
               {/* アイコン */}
-              <span className="text-2xl leading-none">
+              <span className="text-xl leading-none">
                 {tab.icon}
               </span>
 
               {/* ラベル */}
-              <span className="mt-2 text-xs">
+              <span className="mt-1.5 text-[11px]">
                 {tab.label}
               </span>
             </Link>
