@@ -2,7 +2,7 @@ export const lives = [
   {
     id: "2026-09-04",
     date: "2026.09.04",
-    title: "自主企画 ” ニンゲン's 感謝祭",
+    title: "自主企画 ” ニンゲン's 感謝祭”",
     city: "東京",
     venue: "shibuya eggman",
     tour: "3カ月連続コンセプトワンマン",
