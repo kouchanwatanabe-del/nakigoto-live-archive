@@ -44,7 +44,16 @@ export default async function LivePage({
           {live.title}
         </h1>
 
+        {/* 都市・会場 */}
         <p className="mt-3 text-zinc-500">
+          <span className="font-medium text-[#14526B]">
+            {live.city}
+          </span>
+
+          <span className="mx-2 text-zinc-300">
+            ｜
+          </span>
+
           {live.venue}
         </p>
 
