@@ -19,7 +19,8 @@ export default function Home() {
           {/* 左側 */}
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.25em] text-zinc-500">
-              UNOFFICIAL LIVE ARCHIVE
+              UNOFFICIAL 
+              LIVE ARCHIVE
             </p>
 
             <h1 className="mt-3 text-5xl font-black tracking-tight text-[#14526B]">
