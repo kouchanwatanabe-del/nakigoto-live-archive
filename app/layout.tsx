@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import BottomNav from "../components/BottomNav";
-import "./globals.css";
 import IntroAnimation from "../components/IntroAnimation";
+import PageTransition from "../components/PageTransition";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,12 +22,19 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className} min-h-dvh bg-white`}>
-  <IntroAnimation />
 
-  {children}
+        {/* リロード時のオープニング */}
+        <IntroAnimation />
 
-  <BottomNav />
-</body>
+        {/* ページ切り替えアニメーション */}
+        <PageTransition>
+          {children}
+        </PageTransition>
+
+        {/* 下部ナビ */}
+        <BottomNav />
+
+      </body>
     </html>
   );
 }

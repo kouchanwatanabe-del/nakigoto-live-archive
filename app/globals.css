@@ -53,3 +53,19 @@ body {
 .intro-line {
   animation: introLine 1.3s ease-out both;
 }
+/* ページ切り替えアニメーション */
+@keyframes pageEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-enter {
+  animation: pageEnter 0.3s ease-out both;
+}
