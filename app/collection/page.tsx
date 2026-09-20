@@ -6,9 +6,14 @@ import { lives } from "../../data/lives";
 
 type Live = (typeof lives)[number];
 
+type Tab = "lives" | "heard" | "unheard";
+
 export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
+
+  // 最初に表示するタブ
+  const [activeTab, setActiveTab] = useState<Tab>("lives");
 
   useEffect(() => {
     const saved = localStorage.getItem("attendedLives");
@@ -48,7 +53,7 @@ export default function CollectionPage() {
   const heardSongCounts: Record<string, number> = {};
 
   attendedLives.forEach((live) => {
-    // 同じ公演で同じ曲が2回あっても1回としてカウント
+    // 同じ公演で同じ曲が複数回あっても1回としてカウント
     const songs = [
       ...new Set([
         ...live.setlist,
@@ -65,6 +70,7 @@ export default function CollectionPage() {
   // 聴いた曲
   const heardSongs = Object.entries(heardSongCounts)
     .sort((a, b) => {
+      // 聴いた回数が多い順
       if (b[1] !== a[1]) {
         return b[1] - a[1];
       }
@@ -75,9 +81,11 @@ export default function CollectionPage() {
   // まだ聴けていない曲
   const unheardSongs = allSongs
     .filter((song) => !heardSongCounts[song])
-    .sort((a, b) => a.localeCompare(b, "ja"));
+    .sort((a, b) =>
+      a.localeCompare(b, "ja")
+    );
 
-  // 聴けた割合
+  // コンプリート率
   const completion =
     allSongs.length > 0
       ? Math.round(
@@ -151,8 +159,9 @@ export default function CollectionPage() {
 
             </section>
 
-            {/* 達成率 */}
+            {/* コンプリート率 */}
             <section className="mt-5">
+
               <div className="flex items-center justify-between">
                 <p className="text-[12px] font-medium text-zinc-500">
                   楽曲コンプリート率
@@ -171,70 +180,146 @@ export default function CollectionPage() {
                   }}
                 />
               </div>
+
             </section>
 
-            {/* 参戦記録なし */}
-            {attendedLives.length === 0 && (
-              <div className="mt-8 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
-                <p className="text-[14px] font-medium text-zinc-600">
-                  まだ参戦記録がありません
-                </p>
+            {/* タブ */}
+            <div className="mt-8 grid grid-cols-3 rounded-xl bg-zinc-100 p-1">
 
-                <Link
-                  href="/lives"
-                  className="mt-3 inline-block text-[13px] font-medium text-[#14526B] hover:underline"
-                >
-                  ライブを探す →
-                </Link>
-              </div>
-            )}
+              {/* 参戦ライブ */}
+              <button
+                type="button"
+                onClick={() => setActiveTab("lives")}
+                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
+                  activeTab === "lives"
+                    ? "bg-[#14526B] text-white shadow-sm"
+                    : "text-zinc-500"
+                }`}
+              >
+                参戦ライブ
+                <span className="ml-1 opacity-70">
+                  {attendedLives.length}
+                </span>
+              </button>
 
-            {/* 参戦ライブ */}
-            {attendedLives.length > 0 && (
-              <section className="mt-10">
+              {/* 聴いた曲 */}
+              <button
+                type="button"
+                onClick={() => setActiveTab("heard")}
+                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
+                  activeTab === "heard"
+                    ? "bg-[#14526B] text-white shadow-sm"
+                    : "text-zinc-500"
+                }`}
+              >
+                聴いた曲
+                <span className="ml-1 opacity-70">
+                  {heardSongs.length}
+                </span>
+              </button>
 
-                <h2 className="mb-3 text-[20px] font-bold text-[#14526B]">
-                  参戦したライブ
-                </h2>
+              {/* 未聴曲 */}
+              <button
+                type="button"
+                onClick={() => setActiveTab("unheard")}
+                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
+                  activeTab === "unheard"
+                    ? "bg-[#14526B] text-white shadow-sm"
+                    : "text-zinc-500"
+                }`}
+              >
+                未聴曲
+                <span className="ml-1 opacity-70">
+                  {unheardSongs.length}
+                </span>
+              </button>
 
-                <div className="space-y-2.5">
-                  {attendedLives.map((live: Live) => (
-                    <Link
-                      key={live.id}
-                      href={`/live/${live.id}`}
-                      className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B] hover:shadow-md"
-                    >
-                      <p className="text-[12px] font-medium text-[#14526B]">
-                        {live.date}
-                      </p>
+            </div>
 
-                      <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900">
-                        {live.title}
-                      </h3>
+            {/* ========================= */}
+            {/* 参戦ライブ タブ */}
+            {/* ========================= */}
 
-                      <p className="mt-1.5 truncate text-[12px] text-zinc-500">
-                        <span className="font-medium text-[#14526B]">
-                          {live.city}
-                        </span>
+            {activeTab === "lives" && (
+              <section className="mt-6">
 
-                        <span className="mx-2 text-zinc-300">
-                          ｜
-                        </span>
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-[20px] font-bold text-[#14526B]">
+                    参戦したライブ
+                  </h2>
 
-                        {live.venue}
-                      </p>
-                    </Link>
-                  ))}
+                  <span className="text-[12px] text-zinc-400">
+                    {attendedLives.length}公演
+                  </span>
                 </div>
+
+                {attendedLives.length > 0 ? (
+                  <div className="space-y-2.5">
+
+                    {attendedLives.map((live: Live) => (
+                      <Link
+                        key={live.id}
+                        href={`/live/${live.id}`}
+                        className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B] hover:shadow-md"
+                      >
+
+                        {/* 日付 */}
+                        <p className="text-[12px] font-medium text-[#14526B]">
+                          {live.date}
+                        </p>
+
+                        {/* 公演名 */}
+                        <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900">
+                          {live.title}
+                        </h3>
+
+                        {/* 都市・会場 */}
+                        <p className="mt-1.5 truncate text-[12px] text-zinc-500">
+
+                          <span className="font-medium text-[#14526B]">
+                            {live.city}
+                          </span>
+
+                          <span className="mx-2 text-zinc-300">
+                            ｜
+                          </span>
+
+                          {live.venue}
+
+                        </p>
+
+                      </Link>
+                    ))}
+
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
+
+                    <p className="text-[14px] font-medium text-zinc-600">
+                      まだ参戦記録がありません
+                    </p>
+
+                    <Link
+                      href="/lives"
+                      className="mt-3 inline-block text-[13px] font-medium text-[#14526B] hover:underline"
+                    >
+                      ライブを探す →
+                    </Link>
+
+                  </div>
+                )}
 
               </section>
             )}
 
-            {/* 聴いた曲 */}
-            {heardSongs.length > 0 && (
-              <section className="mt-10">
+            {/* ========================= */}
+            {/* 聴いた曲 タブ */}
+            {/* ========================= */}
 
-                <div className="mb-3 flex items-end justify-between">
+            {activeTab === "heard" && (
+              <section className="mt-6">
+
+                <div className="mb-3 flex items-center justify-between">
                   <h2 className="text-[20px] font-bold text-[#14526B]">
                     聴いた曲
                   </h2>
@@ -244,73 +329,106 @@ export default function CollectionPage() {
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  {heardSongs.map(([song, count]) => (
-                    <Link
-                      key={song}
-                      href={`/songs/${encodeURIComponent(song)}`}
-                      className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B]"
-                    >
-                      <span className="min-w-0 truncate text-[14px] font-semibold text-zinc-900">
-                        {song}
-                      </span>
+                {heardSongs.length > 0 ? (
+                  <div className="space-y-2">
 
-                      <div className="ml-3 flex shrink-0 items-center gap-3">
-                        <span className="text-[12px] font-medium text-[#14526B]">
+                    {heardSongs.map(([song, count], index) => (
+                      <Link
+                        key={song}
+                        href={`/songs/${encodeURIComponent(song)}`}
+                        className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B]"
+                      >
+
+                        {/* 順位 */}
+                        <span className="w-9 shrink-0 text-[11px] font-bold text-zinc-300">
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+
+                        {/* 曲名 */}
+                        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-zinc-900">
+                          {song}
+                        </span>
+
+                        {/* 聴いた回数 */}
+                        <span className="ml-3 shrink-0 text-[12px] font-medium text-[#14526B]">
                           {count}回
                         </span>
 
-                        <span className="text-[12px] text-zinc-300">
+                        <span className="ml-3 text-[12px] text-zinc-300">
                           →
                         </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
+
+                      </Link>
+                    ))}
+
+                  </div>
+                ) : (
+                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
+                    <p className="text-[14px] text-zinc-500">
+                      まだ聴いた曲がありません
+                    </p>
+                  </div>
+                )}
 
               </section>
             )}
 
-            {/* まだ聴けていない曲 */}
-            <section className="mt-10">
+            {/* ========================= */}
+            {/* 未聴曲 タブ */}
+            {/* ========================= */}
 
-              <div className="mb-3 flex items-end justify-between">
-                <h2 className="text-[20px] font-bold text-[#14526B]">
-                  まだ聴けていない曲
-                </h2>
+            {activeTab === "unheard" && (
+              <section className="mt-6">
 
-                <span className="text-[12px] text-zinc-400">
-                  {unheardSongs.length}曲
-                </span>
-              </div>
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-[20px] font-bold text-[#14526B]">
+                    まだ聴けていない曲
+                  </h2>
 
-              {unheardSongs.length > 0 ? (
-                <div className="space-y-2">
-                  {unheardSongs.map((song) => (
-                    <Link
-                      key={song}
-                      href={`/songs/${encodeURIComponent(song)}`}
-                      className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:border-[#14526B]"
-                    >
-                      <span className="min-w-0 truncate text-[14px] font-medium text-zinc-600">
-                        {song}
-                      </span>
-
-                      <span className="ml-3 text-[12px] text-zinc-300">
-                        →
-                      </span>
-                    </Link>
-                  ))}
+                  <span className="text-[12px] text-zinc-400">
+                    {unheardSongs.length}曲
+                  </span>
                 </div>
-              ) : (
-                <div className="rounded-xl bg-[#14526B]/10 px-5 py-6 text-center">
-                  <p className="font-bold text-[#14526B]">
-                    全曲コンプリート！
-                  </p>
-                </div>
-              )}
 
-            </section>
+                {unheardSongs.length > 0 ? (
+                  <div className="space-y-2">
+
+                    {unheardSongs.map((song) => (
+                      <Link
+                        key={song}
+                        href={`/songs/${encodeURIComponent(song)}`}
+                        className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:border-[#14526B]"
+                      >
+
+                        <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-zinc-600">
+                          {song}
+                        </span>
+
+                        <span className="ml-3 text-[12px] text-zinc-300">
+                          →
+                        </span>
+
+                      </Link>
+                    ))}
+
+                  </div>
+                ) : (
+                  <div className="rounded-xl bg-[#14526B]/10 px-5 py-8 text-center">
+
+                    <p className="text-[18px] font-bold text-[#14526B]">
+                      全曲コンプリート！
+                    </p>
+
+                    <p className="mt-1 text-[12px] text-zinc-500">
+                      登録されているすべての曲を聴いています
+                    </p>
+
+                  </div>
+                )}
+
+              </section>
+            )}
+
           </>
         )}
 
