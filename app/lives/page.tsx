@@ -157,38 +157,42 @@ export default function LivesPage() {
           )}
         </div>
 
-        {/* ライブ一覧 */}
-        <div className="mt-4 space-y-4">
-          {filteredLives.map((live: Live) => (
-            <Link
-              key={live.id}
-              href={`/live/${live.id}`}
-              className="block rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition active:bg-zinc-50 sm:p-5 sm:hover:border-[#14526B] sm:hover:shadow-md"
-            >
-              <div className="min-w-0">
+       {/* ライブ一覧 */}
+<div className="mt-4 space-y-2.5">
+  {filteredLives.map((live: Live) => (
+    <Link
+      key={live.id}
+      href={`/live/${live.id}`}
+      className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B] hover:shadow-md"
+    >
+      <div className="min-w-0">
 
-                <p className="text-sm font-semibold text-[#14526B]">
-                  {live.date}
-                </p>
+        {/* 日付 */}
+        <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
+          {live.date}
+        </p>
 
-                <h2 className="mt-2 break-words text-lg font-bold leading-snug text-[#14526B] sm:text-xl">
-                  {live.title}
-                </h2>
+        {/* 公演名 */}
+        <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
+          {live.title}
+        </h2>
 
-                <p className="mt-3 break-words text-sm text-zinc-500 sm:text-base">
-                  {live.venue}
-                </p>
+        {/* 会場 */}
+        <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
+          {live.venue}
+        </p>
 
-                <div className="mt-4">
-                  <span className="inline-block max-w-full rounded-full bg-[#14526B]/10 px-3 py-1 text-xs font-medium text-[#14526B]">
-                    {live.tour}
-                  </span>
-                </div>
-
-              </div>
-            </Link>
-          ))}
+        {/* ツアー */}
+        <div className="mt-2">
+          <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+            {live.tour}
+          </span>
         </div>
+
+      </div>
+    </Link>
+  ))}
+</div>
 
         {/* 検索結果なし */}
         {filteredLives.length === 0 && (
