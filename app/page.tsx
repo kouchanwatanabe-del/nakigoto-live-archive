@@ -93,45 +93,37 @@ export default function Home() {
           </div>
 
           {/* ライブカード */}
-          <div className="space-y-2.5">
+          <div className="space-y-2">
             {latestLives.map((live: Live) => (
               <Link
                 key={live.id}
                 href={`/live/${live.id}`}
-                className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
+                className="block rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
               >
 
                 {/* 日付 */}
-                <p className="text-[13px] font-medium leading-tight text-[#14526B]">
+                <p className="text-[12px] font-medium leading-tight text-[#14526B]">
                   {live.date}
                 </p>
 
                 {/* 公演名 */}
-                <h3 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
+                <h3 className="mt-1 text-[17px] font-bold leading-snug text-[#14526B]">
                   {live.title}
                 </h3>
 
-                {/* 都市・会場 */}
-                <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
-                  <span className="font-medium text-[#14526B]">
-                    {live.city}
-                  </span>
+                {/* ツアー・矢印 */}
+                <div className="mt-1.5 flex items-center justify-between">
 
-                  <span className="mx-2 text-zinc-300">
-                    ｜
-                  </span>
+                  {/* ツアー名がある場合だけ表示 */}
+                  {live.tour ? (
+                    <span className="min-w-0 truncate rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[10px] font-medium text-[#14526B]">
+                      {live.tour}
+                    </span>
+                  ) : (
+                    <span />
+                  )}
 
-                  {live.venue}
-                </p>
-
-                <div className="mt-2 flex items-center justify-between">
-
-                  {/* ツアー */}
-                  <span className="rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-                    {live.tour}
-                  </span>
-
-                  <span className="text-[13px] text-zinc-400">
+                  <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
                     →
                   </span>
 
