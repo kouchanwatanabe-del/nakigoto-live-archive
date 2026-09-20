@@ -128,7 +128,7 @@ export const lives = [
   title: "自主企画 ” SIKI ORIORI ”",
   city: "東京",
   venue: "shibuya eggman",
-  tour: "",
+  tour: "3ヶ月連続自主企画コンセプトワンマンライブ",
   setlist: [
     "sniper",
     "忘却炉",
