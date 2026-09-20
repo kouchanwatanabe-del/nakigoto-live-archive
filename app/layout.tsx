@@ -19,10 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <body className={inter.className}>
-        {children}
-        <BottomNav />
-      </body>
+      <body className={`${inter.className} min-h-dvh bg-white`}>
+  {children}
+  <BottomNav />
+</body>
     </html>
   );
 }
