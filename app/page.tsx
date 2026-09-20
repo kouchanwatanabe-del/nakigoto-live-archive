@@ -8,6 +8,32 @@ const latestLives = [...lives]
   .sort((a, b) => b.date.localeCompare(a.date))
   .slice(0, 3);
 
+// 楽曲ごとの演奏公演数を集計
+const songCounts = lives.reduce<Record<string, number>>(
+  (counts, live) => {
+    // 本編 + アンコール
+    const songs = [
+      ...live.setlist,
+      ...(live.encore ?? []),
+    ];
+
+    // 同じライブで同じ曲が複数回あっても1公演として数える
+    const uniqueSongs = [...new Set(songs)];
+
+    uniqueSongs.forEach((song) => {
+      counts[song] = (counts[song] ?? 0) + 1;
+    });
+
+    return counts;
+  },
+  {}
+);
+
+// 演奏公演数が多い順に上位3曲
+const frequentSongs = Object.entries(songCounts)
+  .sort((a, b) => b[1] - a[1])
+  .slice(0, 3);
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
@@ -69,7 +95,6 @@ export default function Home() {
           {/* ライブカード */}
           <div className="space-y-2.5">
             {latestLives.map((live: Live) => (
-
               <Link
                 key={live.id}
                 href={`/live/${live.id}`}
@@ -86,8 +111,16 @@ export default function Home() {
                   {live.title}
                 </h3>
 
-                {/* 会場 */}
+                {/* 都市・会場 */}
                 <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
+                  <span className="font-medium text-[#14526B]">
+                    {live.city}
+                  </span>
+
+                  <span className="mx-2 text-zinc-300">
+                    ｜
+                  </span>
+
                   {live.venue}
                 </p>
 
@@ -105,8 +138,60 @@ export default function Home() {
                 </div>
 
               </Link>
-
             ))}
+          </div>
+
+        </section>
+
+        {/* 頻出曲 */}
+        <section className="mt-11">
+
+          <div className="mb-3.5 flex items-center justify-between">
+            <h2 className="text-[22px] font-bold text-[#14526B]">
+              頻出曲
+            </h2>
+
+            <Link
+              href="/songs"
+              className="text-[13px] font-medium text-[#14526B] hover:underline"
+            >
+              すべての曲 →
+            </Link>
+          </div>
+
+          {/* 頻出曲TOP3 */}
+          <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm">
+
+            {frequentSongs.map(([song, count], index) => (
+              <Link
+                key={song}
+                href={`/songs/${encodeURIComponent(song)}`}
+                className="flex items-center border-b border-zinc-100 px-4 py-4 transition hover:bg-zinc-50 last:border-b-0"
+              >
+
+                {/* 順位 */}
+                <span className="w-10 text-[13px] font-bold text-[#14526B]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+
+                {/* 曲名 */}
+                <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-zinc-900">
+                  {song}
+                </span>
+
+                {/* 公演数 */}
+                <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
+                  {count}公演
+                </span>
+
+                {/* 矢印 */}
+                <span className="ml-3 text-[13px] text-zinc-300">
+                  →
+                </span>
+
+              </Link>
+            ))}
+
           </div>
 
         </section>
