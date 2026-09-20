@@ -37,14 +37,14 @@ export default async function SongPage({
         </Link>
 
         {/* 曲名 */}
-        <div className="mt-8">
+        <div className="mt-8 text-[#14526B]">
           
 
-          <h1 className="mt-2 text-4xl font-bold">
+          <h1 className="mt-2 text-4xl font-bold text-[#14526B]">
             {songName}
           </h1>
 
-          <p className="mt-3 text-zinc-500">
+          <p className="mt-3 text-zinc-500 text-[#14526B]">
             全{playedLives.length}公演
           </p>
         </div>
@@ -52,7 +52,7 @@ export default async function SongPage({
         {/* ライブ一覧 */}
         <section className="mt-10">
 
-          <h2 className="text-xl font-bold">
+          <h2 className="text-xl font-bold text-[#14526B]">
             演奏したライブ
           </h2>
 
