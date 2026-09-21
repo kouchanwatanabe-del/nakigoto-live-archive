@@ -78,7 +78,7 @@ export default function Home() {
   }, [attendedLives]);
 
   return (
-    <main className="min-h-screen bg-white pb-28 text-zinc-900">
+    <main className="min-h-screen bg-white pb-28 text-[#14526B]">
 
       {/* HOMEコンテンツ */}
       <div className="mx-auto max-w-3xl px-6 pt-8">
@@ -185,7 +185,7 @@ export default function Home() {
                 </span>
 
                 {/* 曲名 */}
-                <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-zinc-900">
+                <span className="min-w-0 flex-1 truncate text-[15px] font-semibold text-[#14526B]">
                   {song}
                 </span>
 
