@@ -696,8 +696,8 @@ export const lives = [
   memo: "癖はダブルアンコール",
 },
 {
-  id: "2025-01-12",
-  date: "2025.01.12",
+  id: "2026-01-12",
+  date: "2026.01.12",
   title: "murffin discs 20th Anniversary Acoustic FREE LIVE！",
   city: "東京",
   venue: "渋谷モディ",
