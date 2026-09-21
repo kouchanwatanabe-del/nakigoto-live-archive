@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { lives } from "../../data/lives";
 import { songReadings } from "../../data/songReadings";
-
 
 type SortType = "count" | "name";
 
@@ -15,10 +18,74 @@ const hiddenSongs = [
   "曲名C",
 ];
 
+// 保存用キー
+const FILTER_STORAGE_KEY = "songSearchFilters";
+const SCROLL_STORAGE_KEY = "songSearchScrollPosition";
+
 export default function SongsPage() {
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] =
     useState<SortType>("count");
+
+  // 保存データの読み込みが終わったか
+  const [filtersLoaded, setFiltersLoaded] =
+    useState(false);
+
+  // スクロール位置の復元が終わったか
+  const [scrollRestored, setScrollRestored] =
+    useState(false);
+
+  // ========================================
+  // 保存していた検索条件を復元
+  // ========================================
+
+  useEffect(() => {
+    const savedFilters =
+      sessionStorage.getItem(FILTER_STORAGE_KEY);
+
+    if (savedFilters) {
+      try {
+        const parsed = JSON.parse(savedFilters);
+
+        if (typeof parsed.keyword === "string") {
+          setKeyword(parsed.keyword);
+        }
+
+        if (
+          parsed.sortType === "count" ||
+          parsed.sortType === "name"
+        ) {
+          setSortType(parsed.sortType);
+        }
+      } catch {
+        sessionStorage.removeItem(
+          FILTER_STORAGE_KEY
+        );
+      }
+    }
+
+    setFiltersLoaded(true);
+  }, []);
+
+  // ========================================
+  // 検索条件を保存
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+
+    sessionStorage.setItem(
+      FILTER_STORAGE_KEY,
+      JSON.stringify({
+        keyword,
+        sortType,
+      })
+    );
+  }, [
+    keyword,
+    sortType,
+    filtersLoaded,
+  ]);
 
   // ========================================
   // 全楽曲を集計
@@ -31,10 +98,12 @@ export default function SongsPage() {
       ...(live.encore ?? []),
     ]);
 
-    // 重複を削除
-    const uniqueSongs = [...new Set(allSongs)].filter(
-  (song) => !hiddenSongs.includes(song)
-);
+    // 重複削除 + 非表示曲を除外
+    const uniqueSongs = [
+      ...new Set(allSongs),
+    ].filter(
+      (song) => !hiddenSongs.includes(song)
+    );
 
     // 曲ごとの演奏公演数
     return uniqueSongs.map((song) => {
@@ -59,59 +128,161 @@ export default function SongsPage() {
   // ========================================
 
   const displayedSongs = useMemo(() => {
-    const q = keyword.trim().toLocaleLowerCase("ja");
-
-    // 曲名検索
-    const filtered = songs.filter((song) => {
-  const name =
-    song.name.toLocaleLowerCase("ja");
-
-  const reading =
-    (songReadings[song.name] ?? "")
+    const q = keyword
+      .trim()
       .toLocaleLowerCase("ja");
 
-  return (
-    name.includes(q) ||
-    reading.includes(q)
-  );
-});
-    // コピーしてから並び替え
+    // 曲名 + 読み仮名検索
+    const filtered = songs.filter((song) => {
+      const name =
+        song.name.toLocaleLowerCase("ja");
+
+      const reading =
+        (
+          songReadings[song.name] ?? ""
+        ).toLocaleLowerCase("ja");
+
+      return (
+        name.includes(q) ||
+        reading.includes(q)
+      );
+    });
+
+    // 並び替え
     return [...filtered].sort((a, b) => {
+
       // 50音順
       if (sortType === "name") {
-  const readingA =
-    songReadings[a.name] ?? a.name;
+        const readingA =
+          songReadings[a.name] ?? a.name;
 
-  const readingB =
-    songReadings[b.name] ?? b.name;
+        const readingB =
+          songReadings[b.name] ?? b.name;
 
-  return readingA.localeCompare(
-    readingB,
-    "ja",
-    {
-      sensitivity: "base",
-    }
-  );
-}
+        return readingA.localeCompare(
+          readingB,
+          "ja",
+          {
+            sensitivity: "base",
+          }
+        );
+      }
 
       // 演奏回数順
       if (b.count !== a.count) {
         return b.count - a.count;
       }
 
-      // 演奏回数が同じ場合は50音順
-      return a.name.localeCompare(
-        b.name,
+      // 同じ演奏回数なら50音順
+      const readingA =
+        songReadings[a.name] ?? a.name;
+
+      const readingB =
+        songReadings[b.name] ?? b.name;
+
+      return readingA.localeCompare(
+        readingB,
         "ja",
         {
           sensitivity: "base",
         }
       );
     });
-  }, [songs, keyword, sortType]);
+  }, [
+    songs,
+    keyword,
+    sortType,
+  ]);
+
+  // ========================================
+  // スクロール位置を復元
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    if (scrollRestored) return;
+
+    const savedScroll =
+      sessionStorage.getItem(
+        SCROLL_STORAGE_KEY
+      );
+
+    // 保存された位置がなければそのまま表示
+    if (!savedScroll) {
+      setScrollRestored(true);
+      return;
+    }
+
+    const scrollPosition =
+      Number(savedScroll);
+
+    if (Number.isNaN(scrollPosition)) {
+      sessionStorage.removeItem(
+        SCROLL_STORAGE_KEY
+      );
+
+      setScrollRestored(true);
+      return;
+    }
+
+    // 検索条件が反映された後にスクロール
+    const frame =
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollPosition,
+          behavior: "instant",
+        });
+
+        requestAnimationFrame(() => {
+          setScrollRestored(true);
+        });
+      });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [
+    filtersLoaded,
+    scrollRestored,
+    displayedSongs.length,
+  ]);
+
+  // ========================================
+  // 曲詳細へ行く直前にスクロール位置を保存
+  // ========================================
+
+  const saveScrollPosition = () => {
+    sessionStorage.setItem(
+      SCROLL_STORAGE_KEY,
+      String(window.scrollY)
+    );
+  };
+
+  // ========================================
+  // 検索リセット
+  // ========================================
+
+  const resetSearch = () => {
+    setKeyword("");
+
+    sessionStorage.removeItem(
+      SCROLL_STORAGE_KEY
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   return (
-    <main className="min-h-screen bg-white pb-28 text-zinc-900">
+    <main
+      className={`min-h-screen bg-white pb-28 text-zinc-900 ${
+        filtersLoaded && scrollRestored
+          ? "visible"
+          : "invisible"
+      }`}
+    >
       <div className="mx-auto max-w-3xl px-6 py-10">
 
         {/* ================================= */}
@@ -150,7 +321,9 @@ export default function SongsPage() {
           {keyword && (
             <button
               type="button"
-              onClick={() => setKeyword("")}
+              onClick={() =>
+                setKeyword("")
+              }
               aria-label="検索文字を消去"
               className="absolute right-3 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full text-xl text-zinc-400 transition hover:bg-zinc-100"
             >
@@ -229,15 +402,17 @@ export default function SongsPage() {
                 href={`/songs/${encodeURIComponent(
                   song.name
                 )}`}
+                onClick={
+                  saveScrollPosition
+                }
                 className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
               >
 
                 {/* 順位 / 番号 */}
                 <span className="w-10 shrink-0 text-[12px] font-bold text-zinc-300">
-                  {String(index + 1).padStart(
-                    2,
-                    "0"
-                  )}
+                  {String(
+                    index + 1
+                  ).padStart(2, "0")}
                 </span>
 
                 {/* 曲名 */}
@@ -248,7 +423,8 @@ export default function SongsPage() {
                   </p>
 
                   <p className="mt-1 text-[11px] text-zinc-400">
-                    {song.count}公演で演奏
+                    {song.count}
+                    公演で演奏
                   </p>
 
                 </div>
@@ -281,9 +457,7 @@ export default function SongsPage() {
 
             <button
               type="button"
-              onClick={() =>
-                setKeyword("")
-              }
+              onClick={resetSearch}
               className="mt-5 rounded-full bg-[#14526B] px-5 py-2.5 text-sm font-medium text-white"
             >
               検索をリセット
