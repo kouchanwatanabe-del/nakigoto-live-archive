@@ -96,7 +96,7 @@ export default function LivesPage() {
   }, []);
 
   // ========================================
-  // 検索条件が変わるたびに保存
+  // 検索条件を保存
   // ========================================
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function LivesPage() {
   ]);
 
   // ========================================
-  // 登録されている開催年を自動取得
+  // 開催年
   // ========================================
 
   const years = useMemo(() => {
@@ -138,7 +138,7 @@ export default function LivesPage() {
   }, []);
 
   // ========================================
-  // 選択した年に存在する月を自動取得
+  // 選択した年の月
   // ========================================
 
   const months = useMemo(() => {
@@ -168,12 +168,10 @@ export default function LivesPage() {
 
     return lives
       .filter((live: Live) => {
-        // 年
         const yearMatch =
           year === "すべて" ||
           live.date.startsWith(year);
 
-        // 月
         const monthMatch =
           year === "すべて" ||
           month === "すべて" ||
@@ -181,7 +179,6 @@ export default function LivesPage() {
             `${year}.${month}`
           );
 
-        // セトリ掲載状況
         const hasSetlist =
           live.setlist.length > 0;
 
@@ -192,34 +189,27 @@ export default function LivesPage() {
           (setlistFilter === "なし" &&
             !hasSetlist);
 
-        // 参戦済み
         const attendedMatch =
           !attendedOnly ||
           attendedIds.includes(live.id);
 
-        // 公演名
         const titleMatch =
           live.title.toLowerCase().includes(q);
 
-        // 都市
         const cityMatch =
           live.city.toLowerCase().includes(q);
 
-        // 会場
         const venueMatch =
           live.venue.toLowerCase().includes(q);
 
-        // ツアー
         const tourMatch =
           live.tour.toLowerCase().includes(q);
 
-        // セットリスト
         const setlistMatch =
           live.setlist.some((song: string) =>
             song.toLowerCase().includes(q)
           );
 
-        // アンコール
         const encoreMatch =
           "encore" in live &&
           Array.isArray(live.encore) &&
@@ -355,8 +345,7 @@ export default function LivesPage() {
   };
 
   // ========================================
-  // ライブ詳細へ移動する前に
-  // 現在のスクロール位置を保存
+  // ライブ詳細へ移動する前にスクロール保存
   // ========================================
 
   const saveScrollPosition = () => {
@@ -379,10 +368,6 @@ export default function LivesPage() {
           : "invisible"
       }`}
     >
-      {/* ================================= */}
-      {/* HOMEと共通のページ幅・余白 */}
-      {/* ================================= */}
-
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
         {/* ================================= */}
@@ -405,8 +390,9 @@ export default function LivesPage() {
 
         <section className="mt-8">
 
-          {/* 検索ボックス */}
+          {/* 検索 */}
           <div className="relative z-10">
+
             <input
               type="search"
               value={keyword}
@@ -431,10 +417,11 @@ export default function LivesPage() {
                 ×
               </button>
             )}
+
           </div>
 
           {/* ================================= */}
-          {/* 年代フィルター */}
+          {/* 年 */}
           {/* ================================= */}
 
           <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -475,7 +462,7 @@ export default function LivesPage() {
           </div>
 
           {/* ================================= */}
-          {/* 月フィルター */}
+          {/* 月 */}
           {/* ================================= */}
 
           {year !== "すべて" && (
@@ -516,12 +503,11 @@ export default function LivesPage() {
           )}
 
           {/* ================================= */}
-          {/* セトリ・参戦済みフィルター */}
+          {/* セトリ・参戦済み */}
           {/* ================================= */}
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
 
-            {/* セトリあり */}
             <button
               type="button"
               onClick={() =>
@@ -540,7 +526,6 @@ export default function LivesPage() {
               セトリあり
             </button>
 
-            {/* セトリなし */}
             <button
               type="button"
               onClick={() =>
@@ -559,7 +544,6 @@ export default function LivesPage() {
               セトリなし
             </button>
 
-            {/* 参戦済み */}
             <button
               type="button"
               onClick={() => {
@@ -613,85 +597,159 @@ export default function LivesPage() {
         {/* ライブ一覧 */}
         {/* ================================= */}
 
-        <div className="mt-4 space-y-2.5">
+        <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white">
 
           {filteredLives.map(
-            (live: Live) => (
-              <div
-                key={live.id}
-                className="relative rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-[#14526B] hover:shadow-md"
-              >
+            (live: Live, index) => {
+              const attended =
+                attendedIds.includes(live.id);
 
-                <Link
-                  href={`/live/${live.id}`}
-                  onClick={saveScrollPosition}
-                  className="block px-4 py-3 pr-16"
+              return (
+                <div
+                  key={live.id}
+                  className={`relative bg-white ${
+                    index !== filteredLives.length - 1
+                      ? "border-b border-zinc-200"
+                      : ""
+                  }`}
                 >
 
-                  {/* 日付 */}
-                  <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
-                    {live.date}
-                  </p>
+                  {/* ================================= */}
+                  {/* ライブ詳細 */}
+                  {/* ================================= */}
 
-                  {/* 公演名 */}
-                  <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
-                    {live.title}
-                  </h2>
+                  <Link
+                    href={`/live/${live.id}`}
+                    onClick={saveScrollPosition}
+                    className="block px-4 py-5 pr-16 transition-colors hover:bg-zinc-50 sm:px-5 sm:py-6 sm:pr-20"
+                  >
 
-                  {/* 都市・会場 */}
-                  <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
+                    {/* 日付 */}
+                    <div className="flex items-center gap-2">
 
-                    <span className="font-medium text-[#14526B]">
-                      {live.city}
-                    </span>
+                      {/* カレンダーアイコン */}
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className={`h-[19px] w-[19px] shrink-0 ${
+                          attended
+                            ? "text-[#14526B]"
+                            : "text-zinc-400"
+                        }`}
+                        aria-hidden="true"
+                      >
+                        {attended ? (
+                          <path d="M5 12.5 9 16l10-10" />
+                        ) : (
+                          <>
+                            <rect
+                              x="3"
+                              y="5"
+                              width="18"
+                              height="16"
+                              rx="2"
+                            />
+                            <path d="M16 3v4M8 3v4M3 10h18" />
+                          </>
+                        )}
+                      </svg>
 
-                    <span className="mx-2 text-zinc-300">
-                      ｜
-                    </span>
+                      <p className="text-[14px] font-bold tracking-[0.02em] text-[#14526B]">
+                        {live.date}
+                      </p>
 
-                    {live.venue}
+                    </div>
 
-                  </p>
+                    {/* 公演名 */}
+                    <h2 className="mt-3 pr-1 text-[18px] font-bold leading-[1.45] text-[#14526B] sm:text-[20px]">
+                      {live.title}
+                    </h2>
 
-                  {/* ツアー・セトリ掲載状況 */}
-                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    {/* 会場 */}
+                    <div className="mt-3 flex min-w-0 items-center gap-2 text-zinc-500">
 
-                    {live.tour && (
-                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-                        {live.tour}
-                      </span>
-                    )}
+                      {/* ピンアイコン */}
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="h-[19px] w-[19px] shrink-0 text-zinc-400"
+                        aria-hidden="true"
+                      >
+                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+                        <circle
+                          cx="12"
+                          cy="10"
+                          r="2.5"
+                        />
+                      </svg>
 
-                    {live.setlist.length > 0 ? (
-                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-                        セトリあり
-                      </span>
-                    ) : (
-                      <span className="inline-block rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400">
-                        セトリなし
-                      </span>
-                    )}
+                      <p className="min-w-0 truncate text-[14px]">
+                        <span className="font-semibold text-[#14526B]">
+                          {live.city}
+                        </span>
 
+                        <span className="mx-2 text-zinc-300">
+                          ｜
+                        </span>
+
+                        <span>
+                          {live.venue}
+                        </span>
+                      </p>
+
+                    </div>
+
+                    {/* ツアー・セトリ */}
+                    <div className="mt-4 flex flex-wrap items-center gap-1.5">
+
+                      {live.tour && (
+                        <span className="max-w-full truncate rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-medium text-[#14526B]">
+                          {live.tour}
+                        </span>
+                      )}
+
+                      {live.setlist.length > 0 ? (
+                        <span className="shrink-0 rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-semibold text-[#14526B]">
+                          セトリあり
+                        </span>
+                      ) : (
+                        <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
+                          セトリなし
+                        </span>
+                      )}
+
+                    </div>
+
+                  </Link>
+
+                  {/* ================================= */}
+                  {/* 参戦ボタン */}
+                  {/* ================================= */}
+
+                  <div
+                    className="absolute right-4 top-4 z-10"
+                    onClick={() => {
+                      setTimeout(() => {
+                        loadAttendedLives();
+                      }, 0);
+                    }}
+                  >
+                    <AttendedIconButton
+                      liveId={live.id}
+                    />
                   </div>
 
-                </Link>
-
-                {/* 参戦ボタン */}
-                <div
-                  className="absolute right-3 top-3"
-                  onClick={() => {
-                    setTimeout(() => {
-                      loadAttendedLives();
-                    }, 0);
-                  }}
-                >
-                  <AttendedIconButton
-                    liveId={live.id}
-                  />
                 </div>
-
-              </div>
-            )
+              );
+            }
           )}
 
         </div>
