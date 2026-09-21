@@ -1805,7 +1805,7 @@ export const lives = [
   tour: "なきごと 2nd Full Album Release Tour 2024",
   setlist: [
     "sniper",
-    "連れ去ってサラブレッド",
+    "連れ去って、サラブレッド",
     "知らない惑星",
     "グッナイダーリン・イマジナリーベイブ",
     "おまじない",
