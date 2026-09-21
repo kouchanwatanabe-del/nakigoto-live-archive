@@ -321,32 +321,42 @@ export default function LivesPage() {
   };
 
   return (
-    <main
-      className={`min-h-screen bg-white pb-36 text-zinc-900 ${
-        filtersLoaded && scrollRestored
-          ? "visible"
-          : "invisible"
-      }`}
-    >
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+  <main
+    className={`min-h-screen bg-white pb-36 text-zinc-900 ${
+      filtersLoaded && scrollRestored
+        ? "visible"
+        : "invisible"
+    }`}
+  >
+    {/* ================================= */}
+    {/* テーマカラーのページ上部 */}
+    {/* ================================= */}
 
-        {/* ================================= */}
-        {/* タイトル */}
-        {/* ================================= */}
+    <div className="bg-[#14526B] pb-10 pt-7 text-white">
+      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
 
-        <h1 className="text-3xl font-bold text-[#14526B]">
+        <h1 className="text-3xl font-bold">
           LIVE
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+        <p className="mt-2 text-sm leading-6 text-white/70 sm:text-base">
           曲名・開催年・都市・公演名で検索できます。
         </p>
 
-        {/* ================================= */}
-        {/* 検索エリア */}
-        {/* ================================= */}
+      </div>
+    </div>
 
-        <section className="mt-6 sm:mt-8">
+    {/* ================================= */}
+    {/* 白いメインコンテンツ */}
+    {/* ================================= */}
+
+    <div className="mx-auto -mt-4 w-full max-w-3xl rounded-t-[24px] bg-white px-4 pt-6 sm:px-6">
+
+      {/* ================================= */}
+      {/* 検索エリア */}
+      {/* ================================= */}
+
+      <section>
 
           {/* 検索ボックス */}
           <div className="relative z-10">
