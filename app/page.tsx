@@ -40,48 +40,7 @@ export default function Home() {
       {/* 固定ヘッダー */}
       {/* ================================= */}
 
-      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
 
-          {/* 左側 */}
-          <div className="flex min-w-0 items-center gap-4">
-
-            {/* PCのみ */}
-            <p className="hidden shrink-0 text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 sm:block">
-              UNOFFICIAL LIVE ARCHIVE
-            </p>
-
-            {/* なきごと */}
-            <h1 className="shrink-0 text-[22px] font-black leading-none tracking-tight text-[#14526B]">
-              なきごと
-            </h1>
-
-            {/* PCのみ */}
-            <p className="hidden truncate text-[11px] text-zinc-500 md:block">
-              過去ライブ・セットリスト・ツアー記録
-            </p>
-
-          </div>
-
-          {/* 掲載ライブ数 */}
-          <div className="ml-4 flex shrink-0 items-center gap-2">
-
-            <span className="hidden text-[10px] font-medium text-zinc-400 sm:inline">
-              掲載ライブ
-            </span>
-
-            <span className="text-[24px] font-black leading-none text-[#14526B]">
-              {lives.length}
-            </span>
-
-            <span className="text-[11px] font-medium text-zinc-500">
-              公演
-            </span>
-
-          </div>
-
-        </div>
-      </header>
 
       {/* ================================= */}
       {/* HOMEコンテンツ */}
