@@ -9,6 +9,7 @@ type Live = (typeof lives)[number];
 
 const FILTER_STORAGE_KEY = "liveSearchFilters";
 const SCROLL_STORAGE_KEY = "liveSearchScrollPosition";
+const RESTORE_STORAGE_KEY = "liveShouldRestoreScroll";
 
 export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
@@ -109,55 +110,6 @@ export default function LivesPage() {
   ]);
 
   // ========================================
-  // スクロール位置を復元
-  // ========================================
-
-  useEffect(() => {
-    if (!filtersLoaded) return;
-    if (scrollRestored) return;
-
-    const savedScroll =
-      sessionStorage.getItem(SCROLL_STORAGE_KEY);
-
-    // 保存されたスクロール位置がなければ
-    // そのまま一覧を表示
-    if (!savedScroll) {
-      setScrollRestored(true);
-      return;
-    }
-
-    const scrollPosition = Number(savedScroll);
-
-    // 保存値がおかしい場合
-    if (Number.isNaN(scrollPosition)) {
-      sessionStorage.removeItem(SCROLL_STORAGE_KEY);
-      setScrollRestored(true);
-      return;
-    }
-
-    // 一覧を非表示にしたまま
-    // 元のスクロール位置へ移動
-    const frame = requestAnimationFrame(() => {
-      window.scrollTo({
-        top: scrollPosition,
-        behavior: "instant",
-      });
-
-      // スクロール位置を変更した次の描画で表示
-      requestAnimationFrame(() => {
-        setScrollRestored(true);
-      });
-    });
-
-    return () => {
-      cancelAnimationFrame(frame);
-    };
-  }, [
-    filtersLoaded,
-    scrollRestored,
-  ]);
-
-  // ========================================
   // 登録されている開催年を自動取得
   // ========================================
 
@@ -246,6 +198,84 @@ export default function LivesPage() {
   ]);
 
   // ========================================
+  // スクロール位置を復元
+  // ライブ詳細から戻ったときだけ実行
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    if (scrollRestored) return;
+
+    const shouldRestore =
+      sessionStorage.getItem(
+        RESTORE_STORAGE_KEY
+      );
+
+    // 詳細から戻ったわけではない
+    if (shouldRestore !== "true") {
+      sessionStorage.removeItem(
+        SCROLL_STORAGE_KEY
+      );
+
+      window.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
+
+      setScrollRestored(true);
+      return;
+    }
+
+    const savedScroll =
+      sessionStorage.getItem(
+        SCROLL_STORAGE_KEY
+      );
+
+    // 復元フラグは1回だけ使用
+    sessionStorage.removeItem(
+      RESTORE_STORAGE_KEY
+    );
+
+    if (!savedScroll) {
+      setScrollRestored(true);
+      return;
+    }
+
+    const scrollPosition =
+      Number(savedScroll);
+
+    if (Number.isNaN(scrollPosition)) {
+      sessionStorage.removeItem(
+        SCROLL_STORAGE_KEY
+      );
+
+      setScrollRestored(true);
+      return;
+    }
+
+    // 検索条件が反映されたあとに元の位置へ移動
+    const frame =
+      requestAnimationFrame(() => {
+        window.scrollTo({
+          top: scrollPosition,
+          behavior: "instant",
+        });
+
+        requestAnimationFrame(() => {
+          setScrollRestored(true);
+        });
+      });
+
+    return () => {
+      cancelAnimationFrame(frame);
+    };
+  }, [
+    filtersLoaded,
+    scrollRestored,
+    filteredLives.length,
+  ]);
+
+  // ========================================
   // 条件リセット
   // ========================================
 
@@ -260,6 +290,10 @@ export default function LivesPage() {
 
     sessionStorage.removeItem(
       SCROLL_STORAGE_KEY
+    );
+
+    sessionStorage.removeItem(
+      RESTORE_STORAGE_KEY
     );
 
     window.scrollTo({
@@ -277,6 +311,12 @@ export default function LivesPage() {
     sessionStorage.setItem(
       SCROLL_STORAGE_KEY,
       String(window.scrollY)
+    );
+
+    // 次にLIVEへ戻ったときだけ復元
+    sessionStorage.setItem(
+      RESTORE_STORAGE_KEY,
+      "true"
     );
   };
 
