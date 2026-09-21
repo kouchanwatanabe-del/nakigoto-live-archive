@@ -7,6 +7,8 @@ import AttendedIconButton from "../../components/AttendedIconButton";
 
 type Live = (typeof lives)[number];
 
+const FILTER_STORAGE_KEY = "liveSearchFilters";
+
 export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
   const [year, setYear] = useState("すべて");
@@ -16,6 +18,9 @@ export default function LivesPage() {
 
   // 参戦済みライブのID
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
+
+  // 保存済み条件の読み込みが終わったか
+  const [filtersLoaded, setFiltersLoaded] = useState(false);
 
   // ========================================
   // 参戦記録を読み込む
@@ -42,9 +47,62 @@ export default function LivesPage() {
     }
   };
 
+  // ========================================
+  // 最初に検索条件を復元
+  // ========================================
+
   useEffect(() => {
     loadAttendedLives();
+
+    const savedFilters =
+      sessionStorage.getItem(FILTER_STORAGE_KEY);
+
+    if (savedFilters) {
+      try {
+        const parsed = JSON.parse(savedFilters);
+
+        if (typeof parsed.keyword === "string") {
+          setKeyword(parsed.keyword);
+        }
+
+        if (typeof parsed.year === "string") {
+          setYear(parsed.year);
+        }
+
+        if (typeof parsed.attendedOnly === "boolean") {
+          setAttendedOnly(parsed.attendedOnly);
+        }
+      } catch {
+        sessionStorage.removeItem(FILTER_STORAGE_KEY);
+      }
+    }
+
+    setFiltersLoaded(true);
   }, []);
+
+  // ========================================
+  // 検索条件が変わるたびに保存
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+
+    const filters = {
+      keyword,
+      year,
+      attendedOnly,
+    };
+
+    sessionStorage.setItem(
+      FILTER_STORAGE_KEY,
+      JSON.stringify(filters)
+    );
+  }, [
+    keyword,
+    year,
+    attendedOnly,
+    filtersLoaded,
+  ]);
 
   // ========================================
   // 登録されている開催年を自動取得
@@ -142,6 +200,10 @@ export default function LivesPage() {
     setKeyword("");
     setYear("すべて");
     setAttendedOnly(false);
+
+    sessionStorage.removeItem(
+      FILTER_STORAGE_KEY
+    );
   };
 
   return (
@@ -355,8 +417,6 @@ export default function LivesPage() {
                 <div
                   className="absolute right-3 top-3"
                   onClick={() => {
-                    // ボタン側でlocalStorageが更新されたあと
-                    // LIVE一覧側にも反映
                     setTimeout(() => {
                       loadAttendedLives();
                     }, 0);
