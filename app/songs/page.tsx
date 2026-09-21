@@ -47,7 +47,7 @@ export default function SongsPage() {
         {/* ヘッダー */}
         <div>
           <h1 className="text-3xl font-bold text-[#14526B]">
-            楽曲
+            SONGS
           </h1>
 
           <p className="mt-2 text-[14px] text-zinc-500">
