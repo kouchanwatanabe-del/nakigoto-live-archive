@@ -59,40 +59,59 @@ export default async function LivePage({
         </p>
 
         {/* 参戦記録 */}
-<AttendedButton liveId={live.id} />
+        <AttendedButton liveId={live.id} />
 
+        {/* ============================== */}
         {/* 本編 */}
+        {/* ============================== */}
+
         <section className="mt-10">
 
-          {/* SET LIST */}
           <h2 className="mb-5 text-xl font-bold text-[#14526B]">
             SET LIST
           </h2>
 
           <div className="space-y-3">
+
             {live.setlist.map((song, i) => (
-              <div
-                key={song}
-                className="flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
+              <Link
+                key={`${song}-${i}`}
+                href={`/songs/${encodeURIComponent(song)}`}
+                className="group flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
               >
-                <span className="w-10 text-sm font-semibold text-[#14526B]">
+
+                {/* 曲順 */}
+                <span className="w-10 shrink-0 text-sm font-semibold text-[#14526B]">
                   {String(i + 1).padStart(2, "0")}
                 </span>
 
-                <span className="font-medium text-zinc-900">
+                {/* 曲名 */}
+                <span className="min-w-0 flex-1 font-medium text-zinc-900 transition-colors group-hover:text-[#14526B]">
                   {song}
                 </span>
-              </div>
+
+                {/* 矢印 */}
+                <span className="ml-3 shrink-0 text-sm text-zinc-300 transition-all group-hover:translate-x-1 group-hover:text-[#14526B]">
+                  →
+                </span>
+
+              </Link>
             ))}
+
           </div>
 
         </section>
 
+        {/* ============================== */}
         {/* アンコール */}
+        {/* ============================== */}
+
         {live.encore && live.encore.length > 0 && (
           <section className="mt-10">
 
+            {/* ENCORE */}
             <div className="mb-5 flex items-center gap-3">
+
               <div className="h-px flex-1 bg-zinc-300" />
 
               <span className="text-xs font-bold tracking-[0.3em] text-zinc-500">
@@ -100,25 +119,38 @@ export default async function LivePage({
               </span>
 
               <div className="h-px flex-1 bg-zinc-300" />
+
             </div>
 
             <div className="space-y-3">
+
               {live.encore.map((song, i) => (
-                <div
-                  key={song}
-                  className="flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm"
+                <Link
+                  key={`${song}-encore-${i}`}
+                  href={`/songs/${encodeURIComponent(song)}`}
+                  className="group flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
                 >
-                  <span className="w-10 text-sm font-semibold text-[#14526B]">
+
+                  {/* 曲順 */}
+                  <span className="w-10 shrink-0 text-sm font-semibold text-[#14526B]">
                     {String(
                       live.setlist.length + i + 1
                     ).padStart(2, "0")}
                   </span>
 
-                  <span className="font-medium text-zinc-900">
+                  {/* 曲名 */}
+                  <span className="min-w-0 flex-1 font-medium text-zinc-900 transition-colors group-hover:text-[#14526B]">
                     {song}
                   </span>
-                </div>
+
+                  {/* 矢印 */}
+                  <span className="ml-3 shrink-0 text-sm text-zinc-300 transition-all group-hover:translate-x-1 group-hover:text-[#14526B]">
+                    →
+                  </span>
+
+                </Link>
               ))}
+
             </div>
 
           </section>
