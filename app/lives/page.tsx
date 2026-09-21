@@ -211,20 +211,15 @@ export default function LivesPage() {
         RESTORE_STORAGE_KEY
       );
 
-    // 詳細から戻ったわけではない
-    if (shouldRestore !== "true") {
-      sessionStorage.removeItem(
-        SCROLL_STORAGE_KEY
-      );
+   // 詳細から戻ったわけではない
+if (shouldRestore !== "true") {
+  sessionStorage.removeItem(
+    SCROLL_STORAGE_KEY
+  );
 
-      window.scrollTo({
-        top: 0,
-        behavior: "instant",
-      });
-
-      setScrollRestored(true);
-      return;
-    }
+  setScrollRestored(true);
+  return;
+}
 
     const savedScroll =
       sessionStorage.getItem(
