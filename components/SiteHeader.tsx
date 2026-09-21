@@ -9,11 +9,6 @@ export default function SiteHeader() {
         {/* 左側 */}
         <div className="flex min-w-0 items-center gap-3 sm:gap-4">
 
-          {/* スマホでも表示 */}
-          <span className="shrink-0 text-[7px] font-medium uppercase tracking-[0.18em] text-zinc-400 sm:text-[9px] sm:tracking-[0.25em]">
-            UNOFFICIAL LIVE ARCHIVE
-          </span>
-
           {/* なきごと */}
           <Link
             href="/"
@@ -22,9 +17,14 @@ export default function SiteHeader() {
             なきごと
           </Link>
 
+          {/* UNOFFICIAL LIVE ARCHIVE */}
+          <span className="shrink-0 text-[7px] font-medium uppercase tracking-[0.18em] text-zinc-400 sm:text-[9px] sm:tracking-[0.25em]">
+            UNOFFICIAL LIVE ARCHIVE
+          </span>
+
           {/* PC・タブレットのみ */}
           <span className="hidden truncate text-[11px] text-zinc-500 md:block">
-            過去ライブ・セットリスト記録
+            過去ライブ・セットリスト・ツアー記録
           </span>
 
         </div>
@@ -32,7 +32,6 @@ export default function SiteHeader() {
         {/* 右側 */}
         <div className="ml-3 flex shrink-0 items-center gap-1.5 sm:gap-2">
 
-          {/* スマホでは非表示 */}
           <span className="hidden text-[10px] font-medium text-zinc-400 sm:inline">
             掲載ライブ
           </span>
