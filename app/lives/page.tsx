@@ -597,7 +597,7 @@ export default function LivesPage() {
         {/* ライブ一覧 */}
         {/* ================================= */}
 
-        <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200 bg-white">
+        <div className="mt-4 overflow-hidden bg-white">
 
           {filteredLives.map(
             (live: Live, index) => {
