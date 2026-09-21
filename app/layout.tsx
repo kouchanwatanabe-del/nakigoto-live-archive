@@ -4,6 +4,7 @@ import BottomNav from "../components/BottomNav";
 import IntroAnimation from "../components/IntroAnimation";
 import PageTransition from "../components/PageTransition";
 import SiteHeader from "../components/SiteHeader";
+import SiteDisclaimer from "../components/SiteDisclaimer";
 import "./globals.css";
 
 const inter = Inter({
@@ -26,12 +27,13 @@ export default function RootLayout({
 
         <IntroAnimation />
 
-        {/* 上部固定ヘッダー */}
         <SiteHeader />
 
         <PageTransition>
           {children}
         </PageTransition>
+
+        <SiteDisclaimer />
 
         <BottomNav />
 
