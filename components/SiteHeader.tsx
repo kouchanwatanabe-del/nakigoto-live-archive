@@ -24,7 +24,7 @@ export default function SiteHeader() {
 
           {/* PC・タブレットのみ */}
           <span className="hidden truncate text-[11px] text-zinc-500 md:block">
-            過去ライブ・セットリスト・ツアー記録
+            過去ライブ・セットリスト記録
           </span>
 
         </div>
