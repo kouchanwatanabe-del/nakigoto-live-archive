@@ -12,7 +12,7 @@ export default function SiteDisclaimer() {
         </p>
 
         <p className="mt-3 text-[10px] tracking-[0.15em] text-zinc-300">
-          UNOFFICIAL FAN ARCHIVE
+          なきごと UNOFFICIAL LIVE ARCHIVE
         </p>
 
       </div>
