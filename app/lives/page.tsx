@@ -373,7 +373,7 @@ if (shouldRestore !== "true") {
             )}
 
           </div>
-          
+
  {/* ================================= */}
           {/* 年代フィルター */}
           {/* ================================= */}
@@ -518,16 +518,28 @@ if (shouldRestore !== "true") {
 
                   </p>
 
-                  {/* ツアー */}
-                  {live.tour && (
-                    <div className="mt-2">
+                 {/* ツアー・セトリ掲載状況 */}
+<div className="mt-2 flex flex-wrap items-center gap-1.5">
 
-                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-                        {live.tour}
-                      </span>
+  {/* ツアー */}
+  {live.tour && (
+    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+      {live.tour}
+    </span>
+  )}
 
-                    </div>
-                  )}
+  {/* セトリ掲載状況 */}
+  {live.setlist.length > 0 ? (
+    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+      セトリあり
+    </span>
+  ) : (
+    <span className="inline-block rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400">
+      セトリなし
+    </span>
+  )}
+
+</div>
 
                 </Link>
 
