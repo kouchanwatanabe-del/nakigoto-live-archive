@@ -693,8 +693,20 @@ export const lives = [
     "憧れとレモンサワー",
     "癖",
   ],
-  memo: "",
+  memo: "癖はダブルアンコール",
 },
+{
+  id: "2025-01-12",
+  date: "2025.01.12",
+  title: "murffin discs 20th Anniversary Acoustic FREE LIVE！",
+  city: "東京",
+  venue: "渋谷モディ",
+  tour: "",
+  setlist: [],
+  encore: [],
+  memo: "水上えみり弾き語り",
+},
+
 {
   id: "2025-12-30",
   date: "2025.12.30",
