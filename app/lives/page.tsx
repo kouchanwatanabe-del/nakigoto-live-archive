@@ -407,17 +407,17 @@ export default function LivesPage() {
           {/* 年代フィルター */}
           {/* ================================= */}
 
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
 
             <button
               type="button"
               onClick={() =>
                 setYear("すべて")
               }
-              className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
+              className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
                 year === "すべて"
-                  ? "bg-[#14526B] text-white"
-                  : "border border-zinc-200 bg-white text-zinc-600"
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-zinc-600"
               }`}
             >
               すべて
@@ -430,10 +430,10 @@ export default function LivesPage() {
                 onClick={() =>
                   setYear(y)
                 }
-                className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
+                className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
                   year === y
-                    ? "bg-[#14526B] text-white"
-                    : "border border-zinc-200 bg-white text-zinc-600"
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-zinc-600"
                 }`}
               >
                 {y}
@@ -443,31 +443,22 @@ export default function LivesPage() {
           </div>
 
           {/* ================================= */}
-          {/* セトリフィルター */}
+          {/* セトリ・参戦済みフィルター */}
           {/* ================================= */}
 
-          <div className="mt-4 flex gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
 
+            {/* セトリあり */}
             <button
               type="button"
               onClick={() =>
-                setSetlistFilter("すべて")
+                setSetlistFilter(
+                  setlistFilter === "あり"
+                    ? "すべて"
+                    : "あり"
+                )
               }
-              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
-                setlistFilter === "すべて"
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-                  : "border-zinc-200 bg-white text-[#14526B]"
-              }`}
-            >
-              すべて
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                setSetlistFilter("あり")
-              }
-              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
+              className={`rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
                 setlistFilter === "あり"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
@@ -476,12 +467,17 @@ export default function LivesPage() {
               セトリあり
             </button>
 
+            {/* セトリなし */}
             <button
               type="button"
               onClick={() =>
-                setSetlistFilter("なし")
+                setSetlistFilter(
+                  setlistFilter === "なし"
+                    ? "すべて"
+                    : "なし"
+                )
               }
-              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
+              className={`rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
                 setlistFilter === "なし"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
@@ -490,47 +486,35 @@ export default function LivesPage() {
               セトリなし
             </button>
 
+            {/* 参戦済み */}
+            <button
+              type="button"
+              onClick={() => {
+                loadAttendedLives();
+                setAttendedOnly(!attendedOnly);
+              }}
+              className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
+                attendedOnly
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-[#14526B]"
+              }`}
+            >
+              <span className="text-[14px] leading-none">
+                {attendedOnly ? "♥" : "♡"}
+              </span>
+
+              参戦済み
+            </button>
+
           </div>
 
         </section>
 
         {/* ================================= */}
-        {/* 参戦済みフィルター */}
-        {/* ================================= */}
-
-        <div className="mt-4">
-
-          <button
-            type="button"
-            onClick={() => {
-              loadAttendedLives();
-
-              setAttendedOnly(
-                !attendedOnly
-              );
-            }}
-            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
-              attendedOnly
-                ? "border-[#14526B] bg-[#14526B] text-white"
-                : "border-zinc-200 bg-white text-[#14526B]"
-            }`}
-          >
-
-            <span className="text-base">
-              {attendedOnly ? "♥" : "♡"}
-            </span>
-
-            参戦済み
-
-          </button>
-
-        </div>
-
-        {/* ================================= */}
         {/* 件数 */}
         {/* ================================= */}
 
-        <div className="mt-6 flex items-center justify-between gap-4">
+        <div className="mt-5 flex items-center justify-between gap-4">
 
           <p className="shrink-0 text-sm text-zinc-500">
             {filteredLives.length}件
