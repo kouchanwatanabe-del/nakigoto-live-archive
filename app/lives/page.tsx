@@ -414,7 +414,7 @@ export default function LivesPage() {
               onClick={() =>
                 setYear("すべて")
               }
-              className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition ${
+              className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
                 year === "すべて"
                   ? "bg-[#14526B] text-white"
                   : "border border-zinc-200 bg-white text-zinc-600"
@@ -430,7 +430,7 @@ export default function LivesPage() {
                 onClick={() =>
                   setYear(y)
                 }
-                className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition ${
+                className={`shrink-0 rounded-full px-3 py-1.5 text-[11px] font-medium transition ${
                   year === y
                     ? "bg-[#14526B] text-white"
                     : "border border-zinc-200 bg-white text-zinc-600"
