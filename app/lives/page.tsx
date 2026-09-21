@@ -621,7 +621,7 @@ export default function LivesPage() {
                   <Link
                     href={`/live/${live.id}`}
                     onClick={saveScrollPosition}
-                    className="block px-3 py-5 pr-16 transition-colors hover:bg-zinc-50 sm:px-4 sm:py-6 sm:pr-20"
+                    className="block px-3 py-3 pr-16 transition-colors hover:bg-zinc-50 sm:px-4 sm:py-4 sm:pr-20"
                   >
 
                     {/* 日付 */}
@@ -665,12 +665,12 @@ export default function LivesPage() {
                     </div>
 
                     {/* 公演名 */}
-                    <h2 className="mt-3 pr-1 text-[18px] font-bold leading-[1.45] text-[#14526B] sm:text-[20px]">
+                    <h2 className="mt-1.5 pr-1 text-[18px] font-bold leading-[1.35] text-[#14526B] sm:text-[20px]">
                       {live.title}
                     </h2>
 
                     {/* 会場 */}
-                    <div className="mt-3 flex min-w-0 items-center gap-2 text-zinc-500">
+                    <div className="mt-1.5 flex min-w-0 items-center gap-2 text-zinc-500">
 
                       {/* ピンアイコン */}
                       <svg
@@ -708,7 +708,7 @@ export default function LivesPage() {
                     </div>
 
                     {/* ツアー・セトリ */}
-                    <div className="mt-4 flex flex-wrap items-center gap-1.5">
+                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
 
                       {live.tour && (
                         <span className="max-w-full truncate rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-medium text-[#14526B]">
