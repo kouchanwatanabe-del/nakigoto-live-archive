@@ -36,21 +36,18 @@ export default function BottomNav() {
   ];
 
   const handleTabClick = (
-    href: string,
     active: boolean
   ) => {
-    // 今いるタブを押した場合は何もしない
     if (active) return;
 
-    // 別タブへ移動する直前にページ上部へ戻す
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "instant",
-    });
+    // 「別タブへ移動した」ことだけ記録
+    sessionStorage.setItem(
+      "bottomNavTabTransition",
+      "true"
+    );
 
-    // LIVE / SONGS の「詳細から戻る用」の
-    // スクロール復元フラグを解除
+    // 詳細ページから戻るための
+    // スクロール復元フラグは解除
     sessionStorage.removeItem(
       "liveShouldRestoreScroll"
     );
@@ -89,10 +86,7 @@ export default function BottomNav() {
               href={tab.href}
               scroll={false}
               onClick={() =>
-                handleTabClick(
-                  tab.href,
-                  active
-                )
+                handleTabClick(active)
               }
               className={`flex min-h-[58px] flex-col items-center justify-center rounded-xl py-1.5 transition ${
                 active

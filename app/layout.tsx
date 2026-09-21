@@ -6,6 +6,8 @@ import PageTransition from "../components/PageTransition";
 import SiteHeader from "../components/SiteHeader";
 import SiteDisclaimer from "../components/SiteDisclaimer";
 import "./globals.css";
+import TabScroll from "../components/TabScroll";
+
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,6 +30,7 @@ export default function RootLayout({
         <IntroAnimation />
 
         <SiteHeader />
+        <TabScroll />
 
         <PageTransition>
           {children}
