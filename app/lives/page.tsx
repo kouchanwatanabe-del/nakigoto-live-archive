@@ -363,7 +363,7 @@ export default function LivesPage() {
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-          曲名・開催年・都市・公演名で検索できます。
+          曲名・都道府県・公演名で検索できます。
         </p>
 
         {/* ================================= */}
