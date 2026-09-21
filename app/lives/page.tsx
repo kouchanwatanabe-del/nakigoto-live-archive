@@ -400,7 +400,7 @@ if (shouldRestore !== "true") {
                 {attendedOnly ? "♥" : "♡"}
               </span>
 
-              参戦済みだけ
+              参戦済み
 
             </button>
 
