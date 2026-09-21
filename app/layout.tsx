@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import BottomNav from "../components/BottomNav";
 import IntroAnimation from "../components/IntroAnimation";
 import PageTransition from "../components/PageTransition";
+import SiteHeader from "../components/SiteHeader";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,15 +24,15 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`${inter.className} min-h-dvh bg-white`}>
 
-        {/* リロード時のオープニング */}
         <IntroAnimation />
 
-        {/* ページ切り替えアニメーション */}
+        {/* 上部固定ヘッダー */}
+        <SiteHeader />
+
         <PageTransition>
           {children}
         </PageTransition>
 
-        {/* 下部ナビ */}
         <BottomNav />
 
       </body>

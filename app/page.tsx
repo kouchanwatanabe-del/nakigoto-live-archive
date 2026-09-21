@@ -11,13 +11,11 @@ const latestLives = [...lives]
 // 楽曲ごとの演奏公演数を集計
 const songCounts = lives.reduce<Record<string, number>>(
   (counts, live) => {
-    // 本編 + アンコール
     const songs = [
       ...live.setlist,
       ...(live.encore ?? []),
     ];
 
-    // 同じライブで同じ曲が複数回あっても1公演として数える
     const uniqueSongs = [...new Set(songs)];
 
     uniqueSongs.forEach((song) => {
@@ -37,47 +35,62 @@ const frequentSongs = Object.entries(songCounts)
 export default function Home() {
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
-      <div className="mx-auto max-w-3xl px-6 pt-12">
 
-        {/* ヘッダー */}
-        <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between sm:gap-9">
+      {/* ================================= */}
+      {/* 固定ヘッダー */}
+      {/* ================================= */}
+
+      <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/95 backdrop-blur-md">
+        <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-6">
 
           {/* 左側 */}
-          <div>
-            <p className="text-[11px] font-medium uppercase tracking-[0.25em] text-zinc-500">
+          <div className="flex min-w-0 items-center gap-4">
+
+            {/* PCのみ */}
+            <p className="hidden shrink-0 text-[9px] font-medium uppercase tracking-[0.25em] text-zinc-400 sm:block">
               UNOFFICIAL LIVE ARCHIVE
             </p>
 
-            <h1 className="mt-2.5 text-[43px] font-black leading-none tracking-tight text-[#14526B]">
+            {/* なきごと */}
+            <h1 className="shrink-0 text-[22px] font-black leading-none tracking-tight text-[#14526B]">
               なきごと
             </h1>
 
-            <p className="mt-2.5 text-[14px] leading-6 text-zinc-500">
+            {/* PCのみ */}
+            <p className="hidden truncate text-[11px] text-zinc-500 md:block">
               過去ライブ・セットリスト・ツアー記録
             </p>
+
           </div>
 
           {/* 掲載ライブ数 */}
-          <div className="shrink-0 sm:text-right">
-            <p className="text-[11px] font-medium tracking-[0.15em] text-zinc-400">
+          <div className="ml-4 flex shrink-0 items-center gap-2">
+
+            <span className="hidden text-[10px] font-medium text-zinc-400 sm:inline">
               掲載ライブ
-            </p>
+            </span>
 
-            <div className="mt-1.5 flex items-end gap-2 sm:justify-end">
-              <span className="text-[43px] font-black leading-none text-[#14526B]">
-                {lives.length}
-              </span>
+            <span className="text-[24px] font-black leading-none text-[#14526B]">
+              {lives.length}
+            </span>
 
-              <span className="pb-0.5 text-[13px] font-medium text-zinc-500">
-                公演
-              </span>
-            </div>
+            <span className="text-[11px] font-medium text-zinc-500">
+              公演
+            </span>
+
           </div>
 
         </div>
+      </header>
+
+      {/* ================================= */}
+      {/* HOMEコンテンツ */}
+      {/* ================================= */}
+
+      <div className="mx-auto max-w-3xl px-6 pt-8">
 
         {/* 最新ライブ */}
-        <section className="mt-11">
+        <section>
 
           <div className="mb-3.5 flex items-center justify-between text-[#14526B]">
             <h2 className="text-[22px] font-bold">
@@ -114,7 +127,6 @@ export default function Home() {
                 {/* ツアー・矢印 */}
                 <div className="mt-1.5 flex items-center justify-between">
 
-                  {/* ツアー名がある場合だけ表示 */}
                   {live.tour ? (
                     <span className="min-w-0 truncate rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[10px] font-medium text-[#14526B]">
                       {live.tour}
@@ -139,6 +151,7 @@ export default function Home() {
         <section className="mt-11">
 
           <div className="mb-3.5 flex items-center justify-between">
+
             <h2 className="text-[22px] font-bold text-[#14526B]">
               頻出曲
             </h2>
@@ -149,6 +162,7 @@ export default function Home() {
             >
               すべての曲 →
             </Link>
+
           </div>
 
           {/* 頻出曲TOP3 */}
@@ -189,6 +203,7 @@ export default function Home() {
         </section>
 
       </div>
+
     </main>
   );
 }
