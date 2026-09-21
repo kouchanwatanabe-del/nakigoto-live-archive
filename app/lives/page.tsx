@@ -16,6 +16,9 @@ export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
   const [year, setYear] = useState("すべて");
 
+  // 月
+  const [month, setMonth] = useState("すべて");
+
   // セトリ掲載状況
   const [setlistFilter, setSetlistFilter] =
     useState<SetlistFilter>("すべて");
@@ -79,6 +82,10 @@ export default function LivesPage() {
           setYear(parsed.year);
         }
 
+        if (typeof parsed.month === "string") {
+          setMonth(parsed.month);
+        }
+
         if (
           parsed.setlistFilter === "すべて" ||
           parsed.setlistFilter === "あり" ||
@@ -108,6 +115,7 @@ export default function LivesPage() {
     const filters = {
       keyword,
       year,
+      month,
       setlistFilter,
       attendedOnly,
     };
@@ -119,6 +127,7 @@ export default function LivesPage() {
   }, [
     keyword,
     year,
+    month,
     setlistFilter,
     attendedOnly,
     filtersLoaded,
@@ -139,6 +148,28 @@ export default function LivesPage() {
   }, []);
 
   // ========================================
+  // 選択した年に存在する月を自動取得
+  // ========================================
+
+  const months = useMemo(() => {
+    if (year === "すべて") {
+      return [];
+    }
+
+    const monthList = lives
+      .filter((live: Live) =>
+        live.date.startsWith(`${year}.`)
+      )
+      .map((live: Live) =>
+        live.date.slice(5, 7)
+      );
+
+    return [...new Set(monthList)].sort(
+      (a, b) => Number(a) - Number(b)
+    );
+  }, [year]);
+
+  // ========================================
   // 検索・絞り込み
   // ========================================
 
@@ -151,6 +182,14 @@ export default function LivesPage() {
         const yearMatch =
           year === "すべて" ||
           live.date.startsWith(year);
+
+        // 月
+        const monthMatch =
+          year === "すべて" ||
+          month === "すべて" ||
+          live.date.startsWith(
+            `${year}.${month}`
+          );
 
         // セトリ掲載状況
         const hasSetlist =
@@ -209,6 +248,7 @@ export default function LivesPage() {
 
         return (
           yearMatch &&
+          monthMatch &&
           setlistFilterMatch &&
           attendedMatch &&
           keywordMatch
@@ -220,6 +260,7 @@ export default function LivesPage() {
   }, [
     keyword,
     year,
+    month,
     setlistFilter,
     attendedOnly,
     attendedIds,
@@ -305,6 +346,7 @@ export default function LivesPage() {
   const resetFilters = () => {
     setKeyword("");
     setYear("すべて");
+    setMonth("すべて");
     setSetlistFilter("すべて");
     setAttendedOnly(false);
 
@@ -363,7 +405,7 @@ export default function LivesPage() {
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-          曲名・都道府県・公演名で検索できます。
+          曲名・開催地・公演名で検索できます。
         </p>
 
         {/* ================================= */}
@@ -411,9 +453,10 @@ export default function LivesPage() {
 
             <button
               type="button"
-              onClick={() =>
-                setYear("すべて")
-              }
+              onClick={() => {
+                setYear("すべて");
+                setMonth("すべて");
+              }}
               className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
                 year === "すべて"
                   ? "border-[#14526B] bg-[#14526B] text-white"
@@ -427,9 +470,10 @@ export default function LivesPage() {
               <button
                 type="button"
                 key={y}
-                onClick={() =>
-                  setYear(y)
-                }
+                onClick={() => {
+                  setYear(y);
+                  setMonth("すべて");
+                }}
                 className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
                   year === y
                     ? "border-[#14526B] bg-[#14526B] text-white"
@@ -441,6 +485,48 @@ export default function LivesPage() {
             ))}
 
           </div>
+
+          {/* ================================= */}
+          {/* 月フィルター */}
+          {/* 年を選択したときだけ表示 */}
+          {/* ================================= */}
+
+          {year !== "すべて" && (
+            <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
+
+              <button
+                type="button"
+                onClick={() =>
+                  setMonth("すべて")
+                }
+                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[11px] font-medium transition ${
+                  month === "すべて"
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-zinc-600"
+                }`}
+              >
+                すべて
+              </button>
+
+              {months.map((m: string) => (
+                <button
+                  type="button"
+                  key={m}
+                  onClick={() =>
+                    setMonth(m)
+                  }
+                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[11px] font-medium transition ${
+                    month === m
+                      ? "border-[#14526B] bg-[#14526B] text-white"
+                      : "border-zinc-200 bg-white text-zinc-600"
+                  }`}
+                >
+                  {Number(m)}月
+                </button>
+              ))}
+
+            </div>
+          )}
 
           {/* ================================= */}
           {/* セトリ・参戦済みフィルター */}
@@ -522,6 +608,7 @@ export default function LivesPage() {
 
           {(keyword ||
             year !== "すべて" ||
+            month !== "すべて" ||
             setlistFilter !== "すべて" ||
             attendedOnly) && (
             <button
