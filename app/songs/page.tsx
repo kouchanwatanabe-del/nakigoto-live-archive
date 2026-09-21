@@ -8,6 +8,13 @@ import { songReadings } from "../../data/songReadings";
 
 type SortType = "count" | "name";
 
+// SONGS一覧に表示しない曲
+const hiddenSongs = [
+  "ミュージックプランクトン(SAKANAMONカバー)",
+  "暮らし（Hwylカバー）",
+  "曲名C",
+];
+
 export default function SongsPage() {
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] =
@@ -25,7 +32,9 @@ export default function SongsPage() {
     ]);
 
     // 重複を削除
-    const uniqueSongs = [...new Set(allSongs)];
+    const uniqueSongs = [...new Set(allSongs)].filter(
+  (song) => !hiddenSongs.includes(song)
+);
 
     // 曲ごとの演奏公演数
     return uniqueSongs.map((song) => {
