@@ -99,7 +99,7 @@ export default function Home() {
               href="/lives"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              すべて見る →
+              VIEW ALL →
             </Link>
 
           </div>
@@ -164,7 +164,7 @@ export default function Home() {
               href="/songs"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              すべての曲 →
+              VIEW ALL →
             </Link>
 
           </div>
@@ -223,7 +223,7 @@ export default function Home() {
               href="/collection"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              MY COLLECTIONへ →
+              VIEW ALL →
             </Link>
 
           </div>
