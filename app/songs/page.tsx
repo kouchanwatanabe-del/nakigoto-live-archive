@@ -21,22 +21,21 @@ const hiddenSongs = [
 // 保存用キー
 const FILTER_STORAGE_KEY = "songSearchFilters";
 const SCROLL_STORAGE_KEY = "songSearchScrollPosition";
+const RESTORE_STORAGE_KEY = "songShouldRestoreScroll";
 
 export default function SongsPage() {
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] =
     useState<SortType>("count");
 
-  // 保存データの読み込みが終わったか
   const [filtersLoaded, setFiltersLoaded] =
     useState(false);
 
-  // スクロール位置の復元が終わったか
   const [scrollRestored, setScrollRestored] =
     useState(false);
 
   // ========================================
-  // 保存していた検索条件を復元
+  // 検索条件を復元
   // ========================================
 
   useEffect(() => {
@@ -92,20 +91,17 @@ export default function SongsPage() {
   // ========================================
 
   const songs = useMemo(() => {
-    // 全ライブから全曲を取得
     const allSongs = lives.flatMap((live) => [
       ...live.setlist,
       ...(live.encore ?? []),
     ]);
 
-    // 重複削除 + 非表示曲を除外
     const uniqueSongs = [
       ...new Set(allSongs),
     ].filter(
       (song) => !hiddenSongs.includes(song)
     );
 
-    // 曲ごとの演奏公演数
     return uniqueSongs.map((song) => {
       const count = lives.filter((live) => {
         const playedSongs = [
@@ -132,7 +128,6 @@ export default function SongsPage() {
       .trim()
       .toLocaleLowerCase("ja");
 
-    // 曲名 + 読み仮名検索
     const filtered = songs.filter((song) => {
       const name =
         song.name.toLocaleLowerCase("ja");
@@ -148,9 +143,7 @@ export default function SongsPage() {
       );
     });
 
-    // 並び替え
     return [...filtered].sort((a, b) => {
-
       // 50音順
       if (sortType === "name") {
         const readingA =
@@ -196,18 +189,43 @@ export default function SongsPage() {
 
   // ========================================
   // スクロール位置を復元
+  // 曲詳細から戻ったときだけ実行
   // ========================================
 
   useEffect(() => {
     if (!filtersLoaded) return;
     if (scrollRestored) return;
 
+    const shouldRestore =
+      sessionStorage.getItem(
+        RESTORE_STORAGE_KEY
+      );
+
+    // 曲詳細から戻ってきたわけではない
+    if (shouldRestore !== "true") {
+      sessionStorage.removeItem(
+        SCROLL_STORAGE_KEY
+      );
+
+      window.scrollTo({
+        top: 0,
+        behavior: "instant",
+      });
+
+      setScrollRestored(true);
+      return;
+    }
+
     const savedScroll =
       sessionStorage.getItem(
         SCROLL_STORAGE_KEY
       );
 
-    // 保存された位置がなければそのまま表示
+    // フラグは1回使ったら削除
+    sessionStorage.removeItem(
+      RESTORE_STORAGE_KEY
+    );
+
     if (!savedScroll) {
       setScrollRestored(true);
       return;
@@ -225,7 +243,7 @@ export default function SongsPage() {
       return;
     }
 
-    // 検索条件が反映された後にスクロール
+    // 検索・並び替えが反映されてから復元
     const frame =
       requestAnimationFrame(() => {
         window.scrollTo({
@@ -248,13 +266,20 @@ export default function SongsPage() {
   ]);
 
   // ========================================
-  // 曲詳細へ行く直前にスクロール位置を保存
+  // 曲詳細へ移動
   // ========================================
 
   const saveScrollPosition = () => {
+    // 現在位置を保存
     sessionStorage.setItem(
       SCROLL_STORAGE_KEY,
       String(window.scrollY)
+    );
+
+    // 次にSONGSへ戻ったときだけ復元
+    sessionStorage.setItem(
+      RESTORE_STORAGE_KEY,
+      "true"
     );
   };
 
@@ -267,6 +292,10 @@ export default function SongsPage() {
 
     sessionStorage.removeItem(
       SCROLL_STORAGE_KEY
+    );
+
+    sessionStorage.removeItem(
+      RESTORE_STORAGE_KEY
     );
 
     window.scrollTo({
@@ -285,10 +314,7 @@ export default function SongsPage() {
     >
       <div className="mx-auto max-w-3xl px-6 py-10">
 
-        {/* ================================= */}
         {/* ヘッダー */}
-        {/* ================================= */}
-
         <div>
           <h1 className="text-3xl font-bold text-[#14526B]">
             SONGS
@@ -299,12 +325,8 @@ export default function SongsPage() {
           </p>
         </div>
 
-        {/* ================================= */}
         {/* 検索 */}
-        {/* ================================= */}
-
         <div className="relative mt-7">
-
           <input
             type="search"
             value={keyword}
@@ -317,7 +339,6 @@ export default function SongsPage() {
             className="w-full appearance-none rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 pr-12 text-[15px] text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-[#14526B] focus:ring-2 focus:ring-[#14526B]/10"
           />
 
-          {/* 検索文字削除 */}
           {keyword && (
             <button
               type="button"
@@ -330,13 +351,9 @@ export default function SongsPage() {
               ×
             </button>
           )}
-
         </div>
 
-        {/* ================================= */}
         {/* 並び替え */}
-        {/* ================================= */}
-
         <div className="mt-4 flex gap-2">
 
           <button
@@ -369,10 +386,7 @@ export default function SongsPage() {
 
         </div>
 
-        {/* ================================= */}
         {/* 曲数 */}
-        {/* ================================= */}
-
         <div className="mt-6 flex items-end justify-between">
 
           <p className="text-[13px] text-zinc-400">
@@ -389,10 +403,7 @@ export default function SongsPage() {
 
         </div>
 
-        {/* ================================= */}
         {/* 楽曲一覧 */}
-        {/* ================================= */}
-
         <div className="mt-3 space-y-2.5">
 
           {displayedSongs.map(
@@ -408,14 +419,12 @@ export default function SongsPage() {
                 className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
               >
 
-                {/* 順位 / 番号 */}
                 <span className="w-10 shrink-0 text-[12px] font-bold text-zinc-300">
                   {String(
                     index + 1
                   ).padStart(2, "0")}
                 </span>
 
-                {/* 曲名 */}
                 <div className="min-w-0 flex-1">
 
                   <p className="truncate text-[16px] font-bold text-[#14526B]">
@@ -423,13 +432,11 @@ export default function SongsPage() {
                   </p>
 
                   <p className="mt-1 text-[11px] text-zinc-400">
-                    {song.count}
-                    公演で演奏
+                    {song.count}公演で演奏
                   </p>
 
                 </div>
 
-                {/* 矢印 */}
                 <span className="ml-3 shrink-0 text-[13px] text-zinc-300">
                   →
                 </span>
@@ -440,10 +447,7 @@ export default function SongsPage() {
 
         </div>
 
-        {/* ================================= */}
         {/* 検索結果なし */}
-        {/* ================================= */}
-
         {displayedSongs.length === 0 && (
           <div className="mt-8 rounded-2xl border border-dashed border-zinc-300 px-6 py-10 text-center">
 
