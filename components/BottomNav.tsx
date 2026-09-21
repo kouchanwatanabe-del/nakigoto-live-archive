@@ -35,6 +35,31 @@ export default function BottomNav() {
     },
   ];
 
+  const handleTabClick = (
+    href: string,
+    active: boolean
+  ) => {
+    // 今いるタブを押した場合は何もしない
+    if (active) return;
+
+    // 別タブへ移動する直前にページ上部へ戻す
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "instant",
+    });
+
+    // LIVE / SONGS の「詳細から戻る用」の
+    // スクロール復元フラグを解除
+    sessionStorage.removeItem(
+      "liveShouldRestoreScroll"
+    );
+
+    sessionStorage.removeItem(
+      "songShouldRestoreScroll"
+    );
+  };
+
   return (
     <nav className="fixed bottom-3 left-1/2 z-50 w-[90%] max-w-sm -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-lg">
       <div className="grid grid-cols-4 gap-1">
@@ -45,7 +70,16 @@ export default function BottomNav() {
               : tab.href === "/lives"
                 ? pathname === "/lives" ||
                   pathname.startsWith("/live/")
-                : pathname.startsWith(tab.href);
+                : tab.href === "/collection"
+                  ? pathname.startsWith(
+                      "/collection"
+                    ) ||
+                    pathname.startsWith(
+                      "/stats"
+                    )
+                  : pathname.startsWith(
+                      tab.href
+                    );
 
           const Icon = tab.icon;
 
@@ -53,19 +87,24 @@ export default function BottomNav() {
             <Link
               key={tab.href}
               href={tab.href}
+              scroll={false}
+              onClick={() =>
+                handleTabClick(
+                  tab.href,
+                  active
+                )
+              }
               className={`flex min-h-[58px] flex-col items-center justify-center rounded-xl py-1.5 transition ${
                 active
                   ? "bg-[#14526B] text-white"
                   : "text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900"
               }`}
             >
-              {/* アイコン */}
               <Icon
                 size={20}
                 strokeWidth={2}
               />
 
-              {/* ラベル */}
               <span className="mt-1.5 text-[11px]">
                 {tab.label}
               </span>
