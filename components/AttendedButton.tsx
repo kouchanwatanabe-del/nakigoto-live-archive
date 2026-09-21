@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Cat } from "lucide-react";
 
 type Props = {
   liveId: string;
@@ -14,8 +15,12 @@ export default function AttendedButton({ liveId }: Props) {
     const saved = localStorage.getItem("attendedLives");
 
     if (saved) {
-      const attendedLives: string[] = JSON.parse(saved);
-      setAttended(attendedLives.includes(liveId));
+      try {
+        const attendedLives: string[] = JSON.parse(saved);
+        setAttended(attendedLives.includes(liveId));
+      } catch {
+        setAttended(false);
+      }
     }
 
     setLoaded(true);
@@ -24,9 +29,15 @@ export default function AttendedButton({ liveId }: Props) {
   const toggleAttended = () => {
     const saved = localStorage.getItem("attendedLives");
 
-    const attendedLives: string[] = saved
-      ? JSON.parse(saved)
-      : [];
+    let attendedLives: string[] = [];
+
+    if (saved) {
+      try {
+        attendedLives = JSON.parse(saved);
+      } catch {
+        attendedLives = [];
+      }
+    }
 
     let updatedLives: string[];
 
@@ -60,15 +71,16 @@ export default function AttendedButton({ liveId }: Props) {
     <button
       type="button"
       onClick={toggleAttended}
-      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[14px] font-bold transition ${
+      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[14px] font-bold transition-all duration-200 ${
         attended
           ? "border-[#14526B] bg-[#14526B] text-white"
           : "border-zinc-200 bg-white text-[#14526B] hover:border-[#14526B]"
       }`}
     >
-      <span className="text-[17px]">
-        {attended ? "♥" : "♡"}
-      </span>
+      <Cat
+        size={19}
+        strokeWidth={attended ? 2.5 : 2}
+      />
 
       {attended
         ? "参戦済み"
