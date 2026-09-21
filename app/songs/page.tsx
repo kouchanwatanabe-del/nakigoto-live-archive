@@ -51,7 +51,7 @@ export default function SongsPage() {
           </h1>
 
           <p className="mt-2 text-[14px] text-zinc-500">
-            ライブで演奏された楽曲一覧
+            楽曲一覧
           </p>
         </div>
 
