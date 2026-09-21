@@ -119,6 +119,8 @@ export default function LivesPage() {
     const savedScroll =
       sessionStorage.getItem(SCROLL_STORAGE_KEY);
 
+    // 保存されたスクロール位置がなければ
+    // そのまま一覧を表示
     if (!savedScroll) {
       setScrollRestored(true);
       return;
@@ -126,32 +128,33 @@ export default function LivesPage() {
 
     const scrollPosition = Number(savedScroll);
 
+    // 保存値がおかしい場合
     if (Number.isNaN(scrollPosition)) {
       sessionStorage.removeItem(SCROLL_STORAGE_KEY);
       setScrollRestored(true);
       return;
     }
 
-    // 検索条件が反映されて
-    // ライブ一覧が描画されるのを少し待ってから復元
-    const timer = window.setTimeout(() => {
+    // 一覧を非表示にしたまま
+    // 元のスクロール位置へ移動
+    const frame = requestAnimationFrame(() => {
       window.scrollTo({
         top: scrollPosition,
         behavior: "instant",
       });
 
-      setScrollRestored(true);
-    }, 100);
+      // スクロール位置を変更した次の描画で表示
+      requestAnimationFrame(() => {
+        setScrollRestored(true);
+      });
+    });
 
     return () => {
-      window.clearTimeout(timer);
+      cancelAnimationFrame(frame);
     };
   }, [
     filtersLoaded,
     scrollRestored,
-    keyword,
-    year,
-    attendedOnly,
   ]);
 
   // ========================================
@@ -278,7 +281,13 @@ export default function LivesPage() {
   };
 
   return (
-    <main className="min-h-screen bg-white pb-36 text-zinc-900">
+    <main
+      className={`min-h-screen bg-white pb-36 text-zinc-900 ${
+        filtersLoaded && scrollRestored
+          ? "visible"
+          : "invisible"
+      }`}
+    >
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
         {/* ================================= */}
@@ -340,6 +349,7 @@ export default function LivesPage() {
               type="button"
               onClick={() => {
                 loadAttendedLives();
+
                 setAttendedOnly(
                   !attendedOnly
                 );
@@ -350,11 +360,13 @@ export default function LivesPage() {
                   : "border-zinc-200 bg-white text-[#14526B]"
               }`}
             >
+
               <span className="text-base">
                 {attendedOnly ? "♥" : "♡"}
               </span>
 
               参戦済みだけ
+
             </button>
 
           </div>
