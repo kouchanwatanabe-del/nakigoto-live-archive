@@ -1533,7 +1533,7 @@ export const lives = [
   title: "Sakurashimeji Live Tour 2025 ~track [poly]",
   city: "愛知",
   venue: "名古屋CLUB QUATTRO",
-  tour: "Sakurashimeji Live Tour 2025 ~track [poly]",
+  tour: "",
   setlist: [
     "愛才",
     "Hanamuke",
