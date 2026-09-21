@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { lives } from "../data/lives";
 
 type Live = (typeof lives)[number];
@@ -16,6 +19,7 @@ const songCounts = lives.reduce<Record<string, number>>(
       ...(live.encore ?? []),
     ];
 
+    // 同じライブで同じ曲が複数回あっても1公演として数える
     const uniqueSongs = [...new Set(songs)];
 
     uniqueSongs.forEach((song) => {
@@ -33,25 +37,60 @@ const frequentSongs = Object.entries(songCounts)
   .slice(0, 3);
 
 export default function Home() {
+  const [attendedIds, setAttendedIds] = useState<string[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  // 参戦ライブをlocalStorageから取得
+  useEffect(() => {
+    const saved = localStorage.getItem("attendedLives");
+
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+
+        if (Array.isArray(parsed)) {
+          setAttendedIds(parsed);
+        }
+      } catch {
+        setAttendedIds([]);
+      }
+    }
+
+    setLoaded(true);
+  }, []);
+
+  // 参戦したライブ
+  const attendedLives = useMemo(() => {
+    return lives.filter((live) =>
+      attendedIds.includes(live.id)
+    );
+  }, [attendedIds]);
+
+  // 参戦ライブで聴いた曲
+  const heardSongs = useMemo(() => {
+    const songs = attendedLives.flatMap((live) => [
+      ...live.setlist,
+      ...(live.encore ?? []),
+    ]);
+
+    // 重複している曲を1曲として数える
+    return [...new Set(songs)];
+  }, [attendedLives]);
+
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
 
-      {/* ================================= */}
-      {/* 固定ヘッダー */}
-      {/* ================================= */}
-
-
-
-      {/* ================================= */}
       {/* HOMEコンテンツ */}
-      {/* ================================= */}
-
       <div className="mx-auto max-w-3xl px-6 pt-8">
 
+        {/* ============================== */}
         {/* 最新ライブ */}
+        {/* ============================== */}
+
         <section>
 
           <div className="mb-3.5 flex items-center justify-between text-[#14526B]">
+
             <h2 className="text-[22px] font-bold">
               最新ライブ
             </h2>
@@ -62,10 +101,12 @@ export default function Home() {
             >
               すべて見る →
             </Link>
+
           </div>
 
           {/* ライブカード */}
           <div className="space-y-2">
+
             {latestLives.map((live: Live) => (
               <Link
                 key={live.id}
@@ -102,11 +143,15 @@ export default function Home() {
 
               </Link>
             ))}
+
           </div>
 
         </section>
 
+        {/* ============================== */}
         {/* 頻出曲 */}
+        {/* ============================== */}
+
         <section className="mt-11">
 
           <div className="mb-3.5 flex items-center justify-between">
@@ -158,6 +203,84 @@ export default function Home() {
             ))}
 
           </div>
+
+        </section>
+
+        {/* ============================== */}
+        {/* COLLECTION */}
+        {/* ============================== */}
+
+        <section className="mt-11">
+
+          {/* COLLECTIONタイトル */}
+          <div className="mb-3.5 flex items-center justify-between">
+
+            <h2 className="text-[22px] font-bold text-[#14526B]">
+              COLLECTION
+            </h2>
+
+            <Link
+              href="/collection"
+              className="text-[13px] font-medium text-[#14526B] hover:underline"
+            >
+              MY COLLECTIONへ →
+            </Link>
+
+          </div>
+
+          {/* COLLECTIONカード */}
+          <Link
+            href="/collection"
+            className="block overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
+          >
+
+            <div className="grid grid-cols-2 divide-x divide-zinc-200">
+
+              {/* 参戦ライブ */}
+              <div className="px-5 py-5">
+
+                <p className="text-[11px] font-medium text-zinc-400">
+                  参戦ライブ
+                </p>
+
+                <div className="mt-2 flex items-end gap-1.5">
+
+                  <span className="text-[30px] font-black leading-none text-[#14526B]">
+                    {loaded ? attendedLives.length : "—"}
+                  </span>
+
+                  <span className="text-[12px] font-medium text-zinc-500">
+                    公演
+                  </span>
+
+                </div>
+
+              </div>
+
+              {/* 聴いた曲 */}
+              <div className="px-5 py-5">
+
+                <p className="text-[11px] font-medium text-zinc-400">
+                  聴いた曲
+                </p>
+
+                <div className="mt-2 flex items-end gap-1.5">
+
+                  <span className="text-[30px] font-black leading-none text-[#14526B]">
+                    {loaded ? heardSongs.length : "—"}
+                  </span>
+
+                  <span className="text-[12px] font-medium text-zinc-500">
+                    曲
+                  </span>
+
+                </div>
+
+              </div>
+
+            </div>
+
+          </Link>
 
         </section>
 
