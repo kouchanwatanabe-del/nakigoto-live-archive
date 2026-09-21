@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { lives } from "../../data/lives";
 import AttendedIconButton from "../../components/AttendedIconButton";
 
@@ -11,7 +11,45 @@ export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
   const [year, setYear] = useState("すべて");
 
+  // 参戦済みだけ表示するか
+  const [attendedOnly, setAttendedOnly] = useState(false);
+
+  // 参戦済みライブのID
+  const [attendedIds, setAttendedIds] = useState<string[]>([]);
+
+  // ========================================
+  // 参戦記録を読み込む
+  // ========================================
+
+  const loadAttendedLives = () => {
+    const saved = localStorage.getItem("attendedLives");
+
+    if (!saved) {
+      setAttendedIds([]);
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(saved);
+
+      if (Array.isArray(parsed)) {
+        setAttendedIds(parsed);
+      } else {
+        setAttendedIds([]);
+      }
+    } catch {
+      setAttendedIds([]);
+    }
+  };
+
+  useEffect(() => {
+    loadAttendedLives();
+  }, []);
+
+  // ========================================
   // 登録されている開催年を自動取得
+  // ========================================
+
   const years = useMemo(() => {
     const yearList = lives.map((live: Live) =>
       live.date.slice(0, 4)
@@ -22,32 +60,48 @@ export default function LivesPage() {
     );
   }, []);
 
+  // ========================================
   // 検索・絞り込み
+  // ========================================
+
   const filteredLives = useMemo(() => {
     const q = keyword.trim().toLowerCase();
 
     return lives
       .filter((live: Live) => {
+        // 年
         const yearMatch =
-          year === "すべて" || live.date.startsWith(year);
+          year === "すべて" ||
+          live.date.startsWith(year);
 
+        // 参戦済み
+        const attendedMatch =
+          !attendedOnly ||
+          attendedIds.includes(live.id);
+
+        // 公演名
         const titleMatch =
           live.title.toLowerCase().includes(q);
 
+        // 都市
         const cityMatch =
           live.city.toLowerCase().includes(q);
 
+        // 会場
         const venueMatch =
           live.venue.toLowerCase().includes(q);
 
+        // ツアー
         const tourMatch =
           live.tour.toLowerCase().includes(q);
 
-        const setlistMatch = live.setlist.some(
-          (song: string) =>
+        // セットリスト
+        const setlistMatch =
+          live.setlist.some((song: string) =>
             song.toLowerCase().includes(q)
-        );
+          );
 
+        // アンコール
         const encoreMatch =
           "encore" in live &&
           Array.isArray(live.encore) &&
@@ -64,16 +118,40 @@ export default function LivesPage() {
           setlistMatch ||
           encoreMatch;
 
-        return yearMatch && keywordMatch;
+        return (
+          yearMatch &&
+          attendedMatch &&
+          keywordMatch
+        );
       })
-      .sort((a, b) => b.date.localeCompare(a.date));
-  }, [keyword, year]);
+      .sort((a, b) =>
+        b.date.localeCompare(a.date)
+      );
+  }, [
+    keyword,
+    year,
+    attendedOnly,
+    attendedIds,
+  ]);
+
+  // ========================================
+  // 条件リセット
+  // ========================================
+
+  const resetFilters = () => {
+    setKeyword("");
+    setYear("すべて");
+    setAttendedOnly(false);
+  };
 
   return (
     <main className="min-h-screen bg-white pb-36 text-zinc-900">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
+        {/* ================================= */}
         {/* タイトル */}
+        {/* ================================= */}
+
         <h1 className="text-3xl font-bold text-[#14526B]">
           LIVE
         </h1>
@@ -82,15 +160,21 @@ export default function LivesPage() {
           曲名・開催年・都市・公演名で検索できます。
         </p>
 
+        {/* ================================= */}
         {/* 検索エリア */}
+        {/* ================================= */}
+
         <section className="mt-6 sm:mt-8">
 
           {/* 検索ボックス */}
           <div className="relative z-10">
+
             <input
               type="search"
               value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
+              onChange={(e) =>
+                setKeyword(e.target.value)
+              }
               placeholder="曲名・都市・公演名を検索"
               autoComplete="off"
               enterKeyHint="search"
@@ -101,20 +185,58 @@ export default function LivesPage() {
             {keyword && (
               <button
                 type="button"
-                onClick={() => setKeyword("")}
+                onClick={() =>
+                  setKeyword("")
+                }
                 className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-xl text-zinc-400 active:bg-zinc-100"
                 aria-label="検索文字を消去"
               >
                 ×
               </button>
             )}
+
           </div>
 
-          {/* 年代フィルター */}
-          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+          {/* ================================= */}
+          {/* 参戦済みフィルター */}
+          {/* ================================= */}
+
+          <div className="mt-4">
+
             <button
               type="button"
-              onClick={() => setYear("すべて")}
+              onClick={() => {
+                loadAttendedLives();
+                setAttendedOnly(
+                  !attendedOnly
+                );
+              }}
+              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+                attendedOnly
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-[#14526B]"
+              }`}
+            >
+              <span className="text-base">
+                {attendedOnly ? "♥" : "♡"}
+              </span>
+
+              参戦済みだけ
+            </button>
+
+          </div>
+
+          {/* ================================= */}
+          {/* 年代フィルター */}
+          {/* ================================= */}
+
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+
+            <button
+              type="button"
+              onClick={() =>
+                setYear("すべて")
+              }
               className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition ${
                 year === "すべて"
                   ? "bg-[#14526B] text-white"
@@ -128,7 +250,9 @@ export default function LivesPage() {
               <button
                 type="button"
                 key={y}
-                onClick={() => setYear(y)}
+                onClick={() =>
+                  setYear(y)
+                }
                 className={`shrink-0 rounded-full px-5 py-2.5 text-sm font-medium transition ${
                   year === y
                     ? "bg-[#14526B] text-white"
@@ -138,105 +262,139 @@ export default function LivesPage() {
                 {y}
               </button>
             ))}
+
           </div>
 
         </section>
 
+        {/* ================================= */}
         {/* 件数 */}
+        {/* ================================= */}
+
         <div className="mt-6 flex items-center justify-between gap-4">
+
           <p className="shrink-0 text-sm text-zinc-500">
             {filteredLives.length}件
           </p>
 
-          {(keyword || year !== "すべて") && (
+          {(keyword ||
+            year !== "すべて" ||
+            attendedOnly) && (
             <button
               type="button"
-              onClick={() => {
-                setKeyword("");
-                setYear("すべて");
-              }}
+              onClick={resetFilters}
               className="text-sm font-medium text-[#14526B]"
             >
               条件をリセット
             </button>
           )}
+
         </div>
 
+        {/* ================================= */}
         {/* ライブ一覧 */}
-        <div className="mt-4 space-y-2.5">
-          {filteredLives.map((live: Live) => (
-            <div
-              key={live.id}
-              className="relative rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-[#14526B] hover:shadow-md"
-            >
+        {/* ================================= */}
 
-              {/* ライブ詳細へのリンク */}
-              <Link
-                href={`/live/${live.id}`}
-                className="block px-4 py-3 pr-16"
+        <div className="mt-4 space-y-2.5">
+
+          {filteredLives.map(
+            (live: Live) => (
+              <div
+                key={live.id}
+                className="relative rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-[#14526B] hover:shadow-md"
               >
 
-                {/* 日付 */}
-                <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
-                  {live.date}
-                </p>
+                {/* ライブ詳細へのリンク */}
+                <Link
+                  href={`/live/${live.id}`}
+                  className="block px-4 py-3 pr-16"
+                >
 
-                {/* 公演名 */}
-                <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
-                  {live.title}
-                </h2>
+                  {/* 日付 */}
+                  <p className="text-[13px] font-semibold leading-tight text-[#14526B]">
+                    {live.date}
+                  </p>
 
-                {/* 都市・会場 */}
-                <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
-                  <span className="font-medium text-[#14526B]">
-                    {live.city}
-                  </span>
+                  {/* 公演名 */}
+                  <h2 className="mt-1 text-[18px] font-bold leading-snug text-[#14526B]">
+                    {live.title}
+                  </h2>
 
-                  <span className="mx-2 text-zinc-300">
-                    ｜
-                  </span>
+                  {/* 都市・会場 */}
+                  <p className="mt-1.5 text-[14px] leading-tight text-zinc-500">
 
-                  {live.venue}
-                </p>
-
-                {/* ツアー */}
-                {live.tour && (
-                  <div className="mt-2">
-                    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-                      {live.tour}
+                    <span className="font-medium text-[#14526B]">
+                      {live.city}
                     </span>
-                  </div>
-                )}
 
-              </Link>
+                    <span className="mx-2 text-zinc-300">
+                      ｜
+                    </span>
 
-              {/* 参戦ボタン */}
-              <div className="absolute right-3 top-3">
-                <AttendedIconButton liveId={live.id} />
+                    {live.venue}
+
+                  </p>
+
+                  {/* ツアー */}
+                  {live.tour && (
+                    <div className="mt-2">
+
+                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+                        {live.tour}
+                      </span>
+
+                    </div>
+                  )}
+
+                </Link>
+
+                {/* ================================= */}
+                {/* 参戦ボタン */}
+                {/* ================================= */}
+
+                <div
+                  className="absolute right-3 top-3"
+                  onClick={() => {
+                    // ボタン側でlocalStorageが更新されたあと
+                    // LIVE一覧側にも反映
+                    setTimeout(() => {
+                      loadAttendedLives();
+                    }, 0);
+                  }}
+                >
+                  <AttendedIconButton
+                    liveId={live.id}
+                  />
+                </div>
+
               </div>
+            )
+          )}
 
-            </div>
-          ))}
         </div>
 
+        {/* ================================= */}
         {/* 検索結果なし */}
+        {/* ================================= */}
+
         {filteredLives.length === 0 && (
           <div className="mt-10 rounded-2xl border border-dashed border-zinc-300 px-4 py-10 text-center sm:px-6 sm:py-12">
 
             <p className="font-semibold text-zinc-700">
-              ライブが見つかりませんでした
+              {attendedOnly
+                ? "条件に一致する参戦ライブがありません"
+                : "ライブが見つかりませんでした"}
             </p>
 
             <p className="mt-2 text-sm text-zinc-500">
-              検索条件を変更してみてください
+              {attendedOnly
+                ? "検索条件や開催年を変更してみてください"
+                : "検索条件を変更してみてください"}
             </p>
 
             <button
               type="button"
-              onClick={() => {
-                setKeyword("");
-                setYear("すべて");
-              }}
+              onClick={resetFilters}
               className="mt-5 rounded-full bg-[#14526B] px-5 py-2.5 text-sm font-medium text-white"
             >
               検索条件をリセット
