@@ -202,19 +202,14 @@ export default function SongsPage() {
       );
 
     // 曲詳細から戻ってきたわけではない
-    if (shouldRestore !== "true") {
-      sessionStorage.removeItem(
-        SCROLL_STORAGE_KEY
-      );
+if (shouldRestore !== "true") {
+  sessionStorage.removeItem(
+    SCROLL_STORAGE_KEY
+  );
 
-      window.scrollTo({
-        top: 0,
-        behavior: "instant",
-      });
-
-      setScrollRestored(true);
-      return;
-    }
+  setScrollRestored(true);
+  return;
+}
 
     const savedScroll =
       sessionStorage.getItem(
