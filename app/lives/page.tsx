@@ -373,40 +373,8 @@ if (shouldRestore !== "true") {
             )}
 
           </div>
-
-          {/* ================================= */}
-          {/* 参戦済みフィルター */}
-          {/* ================================= */}
-
-          <div className="mt-4">
-
-            <button
-              type="button"
-              onClick={() => {
-                loadAttendedLives();
-
-                setAttendedOnly(
-                  !attendedOnly
-                );
-              }}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
-                attendedOnly
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-                  : "border-zinc-200 bg-white text-[#14526B]"
-              }`}
-            >
-
-              <span className="text-base">
-                {attendedOnly ? "♥" : "♡"}
-              </span>
-
-              参戦済み
-
-            </button>
-
-          </div>
-
-          {/* ================================= */}
+          
+ {/* ================================= */}
           {/* 年代フィルター */}
           {/* ================================= */}
 
@@ -446,6 +414,40 @@ if (shouldRestore !== "true") {
           </div>
 
         </section>
+
+          {/* ================================= */}
+          {/* 参戦済みフィルター */}
+          {/* ================================= */}
+
+          <div className="mt-4">
+
+            <button
+              type="button"
+              onClick={() => {
+                loadAttendedLives();
+
+                setAttendedOnly(
+                  !attendedOnly
+                );
+              }}
+              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+                attendedOnly
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-[#14526B]"
+              }`}
+            >
+
+              <span className="text-base">
+                {attendedOnly ? "♥" : "♡"}
+              </span>
+
+              参戦済み
+
+            </button>
+
+          </div>
+
+         
 
         {/* ================================= */}
         {/* 件数 */}
