@@ -110,6 +110,24 @@ export default function CollectionPage() {
           <p className="mt-2 text-[14px] text-zinc-500">
             あなたの参戦記録
           </p>
+          <Link
+  href="/stats"
+  className="mt-5 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
+>
+  <div>
+    <p className="text-[14px] font-bold text-[#14526B]">
+      MY STATS
+    </p>
+
+    <p className="mt-0.5 text-[11px] text-zinc-500">
+      あなたのライブ統計を見る
+    </p>
+  </div>
+
+  <span className="text-[#14526B]">
+    →
+  </span>
+</Link>
         </div>
 
         {!loaded && (
