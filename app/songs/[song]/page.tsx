@@ -42,7 +42,8 @@ export default async function SongPage({
             SONG
           </p>
 
-          <h1 className="mt-2 text-3xl font-bold sm:text-4xl">
+          {/* 曲名 */}
+          <h1 className="mt-2 text-3xl font-bold text-[#14526B] sm:text-4xl">
             {songName}
           </h1>
 
@@ -77,19 +78,19 @@ export default async function SongPage({
                   </p>
 
                   {/* ライブタイトル */}
-                  <h3 className="mt-1 truncate text-[14px] font-bold text-zinc-900 transition-colors group-hover:text-[#14526B]">
+                  <h3 className="mt-1 truncate text-[14px] font-bold text-[#14526B]">
                     {live.title}
                   </h3>
 
                   {/* 会場 */}
-                  <p className="mt-1 truncate text-[11px] text-zinc-400">
+                  <p className="mt-1 truncate text-[11px] text-[#14526B]">
                     {live.venue}
                   </p>
 
                 </div>
 
                 {/* 矢印 */}
-                <span className="ml-4 shrink-0 text-[13px] text-zinc-300 transition-all group-hover:translate-x-1 group-hover:text-[#14526B]">
+                <span className="ml-4 shrink-0 text-[13px] text-[#14526B] transition-all group-hover:translate-x-1">
                   →
                 </span>
 
