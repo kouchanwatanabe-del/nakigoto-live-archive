@@ -15,7 +15,8 @@ type SortType = "count" | "name";
 const hiddenSongs = [
   "ミュージックプランクトン(SAKANAMONカバー)",
   "暮らし（Hwylカバー）",
-  "曲名C",
+  "HEAT(FINLANDSカバー)",
+  "ホワイトアウト(reGretGirlカバー)",
 ];
 
 // 保存用キー

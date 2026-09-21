@@ -1881,8 +1881,8 @@ export const lives = [
     "知らない惑星",
     "マリッジブルー",
     "Summer麺",
-    "HEAT（FINLANDSカバー）",
-    "ミュージックプランクトン（SAKANAMONカバー）",
+    "HEAT(FINLANDSカバー)",
+    "ミュージックプランクトン(SAKANAMONカバー)",
     "メトロポリタン",
     "ゆらゆら",
     "退屈日和",
@@ -1909,7 +1909,7 @@ export const lives = [
     "知らない惑星",
     "マリッジブルー",
     "Summer麺",
-    "ホワイトアウト（reGretGirlカバー）",
+    "ホワイトアウト(reGretGirlカバー)",
     "メトロポリタン",
     "ゆらゆら",
     "退屈日和",
@@ -1940,5 +1940,17 @@ export const lives = [
   encore: [],
   memo: "リハーサル：知らない惑星、マリッジブルー",
 },
+{
+  id: "2024-10-26",
+  date: "2024.10.26",
+  title: "【水上弾き語り】麦ノ秋音楽祭",
+  city: "埼玉",
+  venue: "COEDOクラフトビール醸造所",
+  tour: "",
+  setlist: [],
+  encore: [],
+  memo: "Hangover、私は私なりの言葉でしか愛を伝えることができない、冬がはじまるよ（槙原敬之カバー）、マリッジブルー、D.I.D.、メトロポリタン",
+},
+
 
 ];
