@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cat } from "lucide-react";
 
 type Props = {
   liveId: string;
@@ -42,14 +41,12 @@ export default function AttendedButton({ liveId }: Props) {
     let updatedLives: string[];
 
     if (attendedLives.includes(liveId)) {
-      // 参戦記録から削除
       updatedLives = attendedLives.filter(
         (id) => id !== liveId
       );
 
       setAttended(false);
     } else {
-      // 参戦記録に追加
       updatedLives = [...attendedLives, liveId];
 
       setAttended(true);
@@ -71,16 +68,15 @@ export default function AttendedButton({ liveId }: Props) {
     <button
       type="button"
       onClick={toggleAttended}
-      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[14px] font-bold transition-all duration-200 ${
+      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[14px] font-bold transition ${
         attended
           ? "border-[#14526B] bg-[#14526B] text-white"
           : "border-zinc-200 bg-white text-[#14526B] hover:border-[#14526B]"
       }`}
     >
-      <Cat
-        size={19}
-        strokeWidth={attended ? 2.5 : 2}
-      />
+      <span className="text-[17px]">
+        {attended ? "♥" : "♡"}
+      </span>
 
       {attended
         ? "参戦済み"

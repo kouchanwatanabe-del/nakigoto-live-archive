@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Cat } from "lucide-react";
 
 type Props = {
   liveId: string;
@@ -74,16 +73,13 @@ export default function AttendedIconButton({ liveId }: Props) {
           ? "参戦記録を解除"
           : "参戦記録に追加"
       }
-      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-all duration-200 ${
+      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-[18px] transition ${
         attended
           ? "border-[#14526B] bg-[#14526B] text-white"
           : "border-zinc-200 bg-white text-[#14526B] hover:border-[#14526B]"
       }`}
     >
-      <Cat
-        size={19}
-        strokeWidth={attended ? 2.5 : 2}
-      />
+      {attended ? "♥" : "♡"}
     </button>
   );
 }
