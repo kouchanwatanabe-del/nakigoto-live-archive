@@ -453,7 +453,7 @@ export default function LivesPage() {
               onClick={() =>
                 setSetlistFilter("すべて")
               }
-              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
                 setlistFilter === "すべて"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
@@ -467,7 +467,7 @@ export default function LivesPage() {
               onClick={() =>
                 setSetlistFilter("あり")
               }
-              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
                 setlistFilter === "あり"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
@@ -481,7 +481,7 @@ export default function LivesPage() {
               onClick={() =>
                 setSetlistFilter("なし")
               }
-              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+              className={`rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
                 setlistFilter === "なし"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
@@ -509,7 +509,7 @@ export default function LivesPage() {
                 !attendedOnly
               );
             }}
-            className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-semibold transition ${
               attendedOnly
                 ? "border-[#14526B] bg-[#14526B] text-white"
                 : "border-zinc-200 bg-white text-[#14526B]"
