@@ -8,6 +8,15 @@ type Live = (typeof lives)[number];
 
 type Tab = "lives" | "heard" | "unheard";
 
+// ========================================
+// カバー曲かどうか判定
+// 「カバー」を含む曲はCOLLECTIONの楽曲集計から除外
+// ========================================
+
+const isCoverSong = (song: string) => {
+  return song.includes("カバー");
+};
+
 export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -30,7 +39,10 @@ export default function CollectionPage() {
     setLoaded(true);
   }, []);
 
+  // ========================================
   // 参戦したライブ
+  // ========================================
+
   const attendedLives = lives
     .filter((live: Live) =>
       attendedIds.includes(live.id)
@@ -39,26 +51,38 @@ export default function CollectionPage() {
       b.date.localeCompare(a.date)
     );
 
+  // ========================================
   // サイトに登録されている全楽曲
+  // カバー曲は除外
+  // ========================================
+
   const allSongs = [
     ...new Set(
-      lives.flatMap((live: Live) => [
-        ...live.setlist,
-        ...(live.encore ?? []),
-      ])
+      lives
+        .flatMap((live: Live) => [
+          ...live.setlist,
+          ...(live.encore ?? []),
+        ])
+        .filter((song) => !isCoverSong(song))
     ),
   ];
 
+  // ========================================
   // 参戦ライブで聴いた曲と回数
+  // ========================================
+
   const heardSongCounts: Record<string, number> = {};
 
   attendedLives.forEach((live) => {
     // 同じ公演で同じ曲が複数回あっても1回としてカウント
+    // カバー曲は除外
     const songs = [
-      ...new Set([
-        ...live.setlist,
-        ...(live.encore ?? []),
-      ]),
+      ...new Set(
+        [
+          ...live.setlist,
+          ...(live.encore ?? []),
+        ].filter((song) => !isCoverSong(song))
+      ),
     ];
 
     songs.forEach((song) => {
@@ -67,7 +91,10 @@ export default function CollectionPage() {
     });
   });
 
+  // ========================================
   // 聴いた曲
+  // ========================================
+
   const heardSongs = Object.entries(heardSongCounts)
     .sort((a, b) => {
       // 聴いた回数が多い順
@@ -78,14 +105,20 @@ export default function CollectionPage() {
       return a[0].localeCompare(b[0], "ja");
     });
 
+  // ========================================
   // まだ聴けていない曲
+  // ========================================
+
   const unheardSongs = allSongs
     .filter((song) => !heardSongCounts[song])
     .sort((a, b) =>
       a.localeCompare(b, "ja")
     );
 
+  // ========================================
   // コンプリート率
+  // ========================================
+
   const completion =
     allSongs.length > 0
       ? Math.round(
@@ -97,7 +130,10 @@ export default function CollectionPage() {
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
       <div className="mx-auto max-w-3xl px-6 py-10">
 
+        {/* ================================= */}
         {/* ヘッダー */}
+        {/* ================================= */}
+
         <div>
           <p className="text-[11px] font-medium tracking-[0.2em] text-zinc-400">
             MY LIVE ARCHIVE
@@ -110,24 +146,25 @@ export default function CollectionPage() {
           <p className="mt-2 text-[14px] text-zinc-500">
             あなたの参戦記録
           </p>
+
           <Link
-  href="/stats"
-  className="mt-5 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
->
-  <div>
-    <p className="text-[14px] font-bold text-[#14526B]">
-      MY STATS
-    </p>
+            href="/stats"
+            className="mt-5 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
+          >
+            <div>
+              <p className="text-[14px] font-bold text-[#14526B]">
+                MY STATS
+              </p>
 
-    <p className="mt-0.5 text-[11px] text-zinc-500">
-      あなたのライブ統計を見る
-    </p>
-  </div>
+              <p className="mt-0.5 text-[11px] text-zinc-500">
+                あなたのライブ統計を見る
+              </p>
+            </div>
 
-  <span className="text-[#14526B]">
-    →
-  </span>
-</Link>
+            <span className="text-[#14526B]">
+              →
+            </span>
+          </Link>
         </div>
 
         {!loaded && (
@@ -138,7 +175,10 @@ export default function CollectionPage() {
 
         {loaded && (
           <>
+            {/* ================================= */}
             {/* サマリー */}
+            {/* ================================= */}
+
             <section className="mt-8 grid grid-cols-2 gap-3">
 
               {/* 参戦ライブ */}
@@ -177,7 +217,10 @@ export default function CollectionPage() {
 
             </section>
 
+            {/* ================================= */}
             {/* コンプリート率 */}
+            {/* ================================= */}
+
             <section className="mt-5">
 
               <div className="flex items-center justify-between">
@@ -201,7 +244,10 @@ export default function CollectionPage() {
 
             </section>
 
+            {/* ================================= */}
             {/* タブ */}
+            {/* ================================= */}
+
             <div className="mt-8 grid grid-cols-3 rounded-xl bg-zinc-100 p-1">
 
               {/* 参戦ライブ */}
@@ -215,6 +261,7 @@ export default function CollectionPage() {
                 }`}
               >
                 参戦ライブ
+
                 <span className="ml-1 opacity-70">
                   {attendedLives.length}
                 </span>
@@ -231,6 +278,7 @@ export default function CollectionPage() {
                 }`}
               >
                 聴いた曲
+
                 <span className="ml-1 opacity-70">
                   {heardSongs.length}
                 </span>
@@ -247,6 +295,7 @@ export default function CollectionPage() {
                 }`}
               >
                 未聴曲
+
                 <span className="ml-1 opacity-70">
                   {unheardSongs.length}
                 </span>
