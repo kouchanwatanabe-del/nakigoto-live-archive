@@ -36,26 +36,31 @@ export default function BottomNav() {
   ];
 
   const handleTabClick = (
-    active: boolean
-  ) => {
-    if (active) return;
+  active: boolean
+) => {
+  if (active) return;
 
-    // 「別タブへ移動した」ことだけ記録
-    sessionStorage.setItem(
-      "bottomNavTabTransition",
-      "true"
-    );
+  // 移動元のスクロール位置を保存
+  sessionStorage.setItem(
+    "bottomNavScrollPosition",
+    String(window.scrollY)
+  );
 
-    // 詳細ページから戻るための
-    // スクロール復元フラグは解除
-    sessionStorage.removeItem(
-      "liveShouldRestoreScroll"
-    );
+  // 別タブへ移動したことを記録
+  sessionStorage.setItem(
+    "bottomNavTabTransition",
+    "true"
+  );
 
-    sessionStorage.removeItem(
-      "songShouldRestoreScroll"
-    );
-  };
+  // 詳細から戻るための復元フラグを解除
+  sessionStorage.removeItem(
+    "liveShouldRestoreScroll"
+  );
+
+  sessionStorage.removeItem(
+    "songShouldRestoreScroll"
+  );
+};
 
   return (
     <nav className="fixed bottom-3 left-1/2 z-50 w-[90%] max-w-sm -translate-x-1/2 rounded-2xl border border-zinc-200 bg-white p-1.5 shadow-lg">
