@@ -304,7 +304,7 @@ export default function SongsPage() {
     });
   };
 
-  return (
+return (
   <main
     className={`min-h-screen bg-white pb-28 text-zinc-900 ${
       filtersLoaded && scrollRestored
@@ -312,36 +312,21 @@ export default function SongsPage() {
         : "invisible"
     }`}
   >
-    {/* ================================= */}
-    {/* テーマカラーのページ上部 */}
-    {/* ================================= */}
+    <div className="mx-auto max-w-3xl px-6 py-10">
 
-    <div className="bg-[#14526B] pb-10 pt-7 text-white">
-      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
-
-        <h1 className="text-3xl font-bold">
+      {/* ヘッダー */}
+      <div>
+        <h1 className="text-3xl font-bold text-[#14526B]">
           SONGS
         </h1>
 
-        <p className="mt-2 text-sm leading-6 text-white/70 sm:text-base">
+        <p className="mt-2 text-[14px] text-zinc-500">
           楽曲一覧
         </p>
-
       </div>
-    </div>
 
-    {/* ================================= */}
-    {/* 白いメインコンテンツ */}
-    {/* ================================= */}
-
-    <div className="mx-auto -mt-4 w-full max-w-3xl rounded-t-[24px] bg-white px-4 pt-6 sm:px-6">
-
-      {/* ================================= */}
       {/* 検索 */}
-      {/* ================================= */}
-
-      <div className="relative">
-
+      <div className="relative mt-7">
         <input
           type="search"
           value={keyword}
@@ -354,7 +339,6 @@ export default function SongsPage() {
           className="w-full appearance-none rounded-2xl border border-zinc-200 bg-white px-4 py-3.5 pr-12 text-[15px] text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-[#14526B] focus:ring-2 focus:ring-[#14526B]/10"
         />
 
-        {/* 検索文字削除 */}
         {keyword && (
           <button
             type="button"
@@ -367,13 +351,9 @@ export default function SongsPage() {
             ×
           </button>
         )}
-
       </div>
 
-      {/* ================================= */}
       {/* 並び替え */}
-      {/* ================================= */}
-
       <div className="mt-4 flex gap-2">
 
         <button
@@ -406,10 +386,7 @@ export default function SongsPage() {
 
       </div>
 
-      {/* ================================= */}
       {/* 曲数 */}
-      {/* ================================= */}
-
       <div className="mt-6 flex items-end justify-between">
 
         <p className="text-[13px] text-zinc-400">
@@ -426,10 +403,7 @@ export default function SongsPage() {
 
       </div>
 
-      {/* ================================= */}
       {/* 楽曲一覧 */}
-      {/* ================================= */}
-
       <div className="mt-3 space-y-2.5">
 
         {displayedSongs.map(
@@ -439,7 +413,9 @@ export default function SongsPage() {
               href={`/songs/${encodeURIComponent(
                 song.name
               )}`}
-              onClick={saveScrollPosition}
+              onClick={
+                saveScrollPosition
+              }
               className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
             >
 
@@ -471,10 +447,7 @@ export default function SongsPage() {
 
       </div>
 
-      {/* ================================= */}
       {/* 検索結果なし */}
-      {/* ================================= */}
-
       {displayedSongs.length === 0 && (
         <div className="mt-8 rounded-2xl border border-dashed border-zinc-300 px-6 py-10 text-center">
 
@@ -500,4 +473,3 @@ export default function SongsPage() {
     </div>
   </main>
 );
-}

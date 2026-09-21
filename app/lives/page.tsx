@@ -328,35 +328,25 @@ export default function LivesPage() {
         : "invisible"
     }`}
   >
-    {/* ================================= */}
-    {/* テーマカラーのページ上部 */}
-    {/* ================================= */}
+    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
-    <div className="bg-[#14526B] pb-10 pt-7 text-white">
-      <div className="mx-auto w-full max-w-3xl px-4 sm:px-6">
+      {/* ================================= */}
+      {/* タイトル */}
+      {/* ================================= */}
 
-        <h1 className="text-3xl font-bold">
-          LIVE
-        </h1>
+      <h1 className="text-3xl font-bold text-[#14526B]">
+        LIVE
+      </h1>
 
-        <p className="mt-2 text-sm leading-6 text-white/70 sm:text-base">
-          曲名・開催年・都市・公演名で検索できます。
-        </p>
-
-      </div>
-    </div>
-
-    {/* ================================= */}
-    {/* 白いメインコンテンツ */}
-    {/* ================================= */}
-
-    <div className="mx-auto -mt-4 w-full max-w-3xl rounded-t-[24px] bg-white px-4 pt-6 sm:px-6">
+      <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+        曲名・開催年・都市・公演名で検索できます。
+      </p>
 
       {/* ================================= */}
       {/* 検索エリア */}
       {/* ================================= */}
 
-      <section>
+      <section className="mt-6 sm:mt-8">
 
           {/* 検索ボックス */}
           <div className="relative z-10">
