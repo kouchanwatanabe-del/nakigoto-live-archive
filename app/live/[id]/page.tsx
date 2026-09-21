@@ -109,7 +109,6 @@ export default async function LivePage({
         {live.encore && live.encore.length > 0 && (
           <section className="mt-10">
 
-            {/* ENCORE */}
             <div className="mb-5 flex items-center gap-3">
 
               <div className="h-px flex-1 bg-zinc-300" />
@@ -151,6 +150,26 @@ export default async function LivePage({
                 </Link>
               ))}
 
+            </div>
+
+          </section>
+        )}
+
+        {/* ============================== */}
+        {/* MEMO */}
+        {/* ============================== */}
+
+        {"memo" in live && live.memo && (
+          <section className="mt-10">
+
+            <h2 className="mb-5 text-xl font-bold text-[#14526B]">
+              MEMO
+            </h2>
+
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
+              <p className="whitespace-pre-wrap text-sm leading-7 text-zinc-600">
+                {live.memo}
+              </p>
             </div>
 
           </section>
