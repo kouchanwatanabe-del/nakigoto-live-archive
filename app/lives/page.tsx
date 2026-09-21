@@ -6,6 +6,7 @@ import { lives } from "../../data/lives";
 import AttendedIconButton from "../../components/AttendedIconButton";
 
 type Live = (typeof lives)[number];
+type SetlistFilter = "すべて" | "あり" | "なし";
 
 const FILTER_STORAGE_KEY = "liveSearchFilters";
 const SCROLL_STORAGE_KEY = "liveSearchScrollPosition";
@@ -14,6 +15,10 @@ const RESTORE_STORAGE_KEY = "liveShouldRestoreScroll";
 export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
   const [year, setYear] = useState("すべて");
+
+  // セトリ掲載状況
+  const [setlistFilter, setSetlistFilter] =
+    useState<SetlistFilter>("すべて");
 
   // 参戦済みだけ表示するか
   const [attendedOnly, setAttendedOnly] = useState(false);
@@ -74,6 +79,14 @@ export default function LivesPage() {
           setYear(parsed.year);
         }
 
+        if (
+          parsed.setlistFilter === "すべて" ||
+          parsed.setlistFilter === "あり" ||
+          parsed.setlistFilter === "なし"
+        ) {
+          setSetlistFilter(parsed.setlistFilter);
+        }
+
         if (typeof parsed.attendedOnly === "boolean") {
           setAttendedOnly(parsed.attendedOnly);
         }
@@ -95,6 +108,7 @@ export default function LivesPage() {
     const filters = {
       keyword,
       year,
+      setlistFilter,
       attendedOnly,
     };
 
@@ -105,6 +119,7 @@ export default function LivesPage() {
   }, [
     keyword,
     year,
+    setlistFilter,
     attendedOnly,
     filtersLoaded,
   ]);
@@ -136,6 +151,17 @@ export default function LivesPage() {
         const yearMatch =
           year === "すべて" ||
           live.date.startsWith(year);
+
+        // セトリ掲載状況
+        const hasSetlist =
+          live.setlist.length > 0;
+
+        const setlistFilterMatch =
+          setlistFilter === "すべて" ||
+          (setlistFilter === "あり" &&
+            hasSetlist) ||
+          (setlistFilter === "なし" &&
+            !hasSetlist);
 
         // 参戦済み
         const attendedMatch =
@@ -183,6 +209,7 @@ export default function LivesPage() {
 
         return (
           yearMatch &&
+          setlistFilterMatch &&
           attendedMatch &&
           keywordMatch
         );
@@ -193,6 +220,7 @@ export default function LivesPage() {
   }, [
     keyword,
     year,
+    setlistFilter,
     attendedOnly,
     attendedIds,
   ]);
@@ -211,15 +239,15 @@ export default function LivesPage() {
         RESTORE_STORAGE_KEY
       );
 
-   // 詳細から戻ったわけではない
-if (shouldRestore !== "true") {
-  sessionStorage.removeItem(
-    SCROLL_STORAGE_KEY
-  );
+    // 詳細から戻ったわけではない
+    if (shouldRestore !== "true") {
+      sessionStorage.removeItem(
+        SCROLL_STORAGE_KEY
+      );
 
-  setScrollRestored(true);
-  return;
-}
+      setScrollRestored(true);
+      return;
+    }
 
     const savedScroll =
       sessionStorage.getItem(
@@ -277,6 +305,7 @@ if (shouldRestore !== "true") {
   const resetFilters = () => {
     setKeyword("");
     setYear("すべて");
+    setSetlistFilter("すべて");
     setAttendedOnly(false);
 
     sessionStorage.removeItem(
@@ -316,32 +345,32 @@ if (shouldRestore !== "true") {
   };
 
   return (
-  <main
-    className={`min-h-screen bg-white pb-36 text-zinc-900 ${
-      filtersLoaded && scrollRestored
-        ? "visible"
-        : "invisible"
-    }`}
-  >
-    <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+    <main
+      className={`min-h-screen bg-white pb-36 text-zinc-900 ${
+        filtersLoaded && scrollRestored
+          ? "visible"
+          : "invisible"
+      }`}
+    >
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
-      {/* ================================= */}
-      {/* タイトル */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* タイトル */}
+        {/* ================================= */}
 
-      <h1 className="text-3xl font-bold text-[#14526B]">
-        LIVE
-      </h1>
+        <h1 className="text-3xl font-bold text-[#14526B]">
+          LIVE
+        </h1>
 
-      <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-        曲名・開催年・都市・公演名で検索できます。
-      </p>
+        <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+          曲名・開催年・都市・公演名で検索できます。
+        </p>
 
-      {/* ================================= */}
-      {/* 検索エリア */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* 検索エリア */}
+        {/* ================================= */}
 
-      <section className="mt-6 sm:mt-8">
+        <section className="mt-6 sm:mt-8">
 
           {/* 検索ボックス */}
           <div className="relative z-10">
@@ -374,7 +403,7 @@ if (shouldRestore !== "true") {
 
           </div>
 
- {/* ================================= */}
+          {/* ================================= */}
           {/* 年代フィルター */}
           {/* ================================= */}
 
@@ -413,41 +442,89 @@ if (shouldRestore !== "true") {
 
           </div>
 
-        </section>
-
           {/* ================================= */}
-          {/* 参戦済みフィルター */}
+          {/* セトリフィルター */}
           {/* ================================= */}
 
-          <div className="mt-4">
+          <div className="mt-4 flex gap-2">
 
             <button
               type="button"
-              onClick={() => {
-                loadAttendedLives();
-
-                setAttendedOnly(
-                  !attendedOnly
-                );
-              }}
-              className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
-                attendedOnly
+              onClick={() =>
+                setSetlistFilter("すべて")
+              }
+              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+                setlistFilter === "すべて"
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
               }`}
             >
+              すべて
+            </button>
 
-              <span className="text-base">
-                {attendedOnly ? "♥" : "♡"}
-              </span>
+            <button
+              type="button"
+              onClick={() =>
+                setSetlistFilter("あり")
+              }
+              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+                setlistFilter === "あり"
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-[#14526B]"
+              }`}
+            >
+              セトリあり
+            </button>
 
-              参戦済み
-
+            <button
+              type="button"
+              onClick={() =>
+                setSetlistFilter("なし")
+              }
+              className={`rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+                setlistFilter === "なし"
+                  ? "border-[#14526B] bg-[#14526B] text-white"
+                  : "border-zinc-200 bg-white text-[#14526B]"
+              }`}
+            >
+              セトリなし
             </button>
 
           </div>
 
-         
+        </section>
+
+        {/* ================================= */}
+        {/* 参戦済みフィルター */}
+        {/* ================================= */}
+
+        <div className="mt-4">
+
+          <button
+            type="button"
+            onClick={() => {
+              loadAttendedLives();
+
+              setAttendedOnly(
+                !attendedOnly
+              );
+            }}
+            className={`flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition ${
+              attendedOnly
+                ? "border-[#14526B] bg-[#14526B] text-white"
+                : "border-zinc-200 bg-white text-[#14526B]"
+            }`}
+          >
+
+            <span className="text-base">
+              {attendedOnly ? "♥" : "♡"}
+            </span>
+
+            参戦済み
+
+          </button>
+
+        </div>
 
         {/* ================================= */}
         {/* 件数 */}
@@ -461,6 +538,7 @@ if (shouldRestore !== "true") {
 
           {(keyword ||
             year !== "すべて" ||
+            setlistFilter !== "すべて" ||
             attendedOnly) && (
             <button
               type="button"
@@ -518,28 +596,28 @@ if (shouldRestore !== "true") {
 
                   </p>
 
-                 {/* ツアー・セトリ掲載状況 */}
-<div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  {/* ツアー・セトリ掲載状況 */}
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
 
-  {/* ツアー */}
-  {live.tour && (
-    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-      {live.tour}
-    </span>
-  )}
+                    {/* ツアー */}
+                    {live.tour && (
+                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+                        {live.tour}
+                      </span>
+                    )}
 
-  {/* セトリ掲載状況 */}
-  {live.setlist.length > 0 ? (
-    <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
-      セトリあり
-    </span>
-  ) : (
-    <span className="inline-block rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400">
-      セトリなし
-    </span>
-  )}
+                    {/* セトリ掲載状況 */}
+                    {live.setlist.length > 0 ? (
+                      <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
+                        セトリあり
+                      </span>
+                    ) : (
+                      <span className="inline-block rounded-full bg-zinc-100 px-2.5 py-0.5 text-[11px] font-medium text-zinc-400">
+                        セトリなし
+                      </span>
+                    )}
 
-</div>
+                  </div>
 
                 </Link>
 
@@ -580,9 +658,7 @@ if (shouldRestore !== "true") {
             </p>
 
             <p className="mt-2 text-sm text-zinc-500">
-              {attendedOnly
-                ? "検索条件や開催年を変更してみてください"
-                : "検索条件を変更してみてください"}
+              検索条件を変更してみてください
             </p>
 
             <button
