@@ -621,7 +621,7 @@ export default function LivesPage() {
                   <Link
                     href={`/live/${live.id}`}
                     onClick={saveScrollPosition}
-                    className="block px-4 py-5 pr-16 transition-colors hover:bg-zinc-50 sm:px-5 sm:py-6 sm:pr-20"
+                    className="block px-2 py-5 pr-16 transition-colors hover:bg-zinc-50 sm:px-3 sm:py-6 sm:pr-20"
                   >
 
                     {/* 日付 */}
