@@ -8,6 +8,7 @@ import AttendedIconButton from "../../components/AttendedIconButton";
 type Live = (typeof lives)[number];
 
 const FILTER_STORAGE_KEY = "liveSearchFilters";
+const SCROLL_STORAGE_KEY = "liveSearchScrollPosition";
 
 export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
@@ -21,6 +22,9 @@ export default function LivesPage() {
 
   // 保存済み条件の読み込みが終わったか
   const [filtersLoaded, setFiltersLoaded] = useState(false);
+
+  // スクロール位置を復元したか
+  const [scrollRestored, setScrollRestored] = useState(false);
 
   // ========================================
   // 参戦記録を読み込む
@@ -102,6 +106,52 @@ export default function LivesPage() {
     year,
     attendedOnly,
     filtersLoaded,
+  ]);
+
+  // ========================================
+  // スクロール位置を復元
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) return;
+    if (scrollRestored) return;
+
+    const savedScroll =
+      sessionStorage.getItem(SCROLL_STORAGE_KEY);
+
+    if (!savedScroll) {
+      setScrollRestored(true);
+      return;
+    }
+
+    const scrollPosition = Number(savedScroll);
+
+    if (Number.isNaN(scrollPosition)) {
+      sessionStorage.removeItem(SCROLL_STORAGE_KEY);
+      setScrollRestored(true);
+      return;
+    }
+
+    // 検索条件が反映されて
+    // ライブ一覧が描画されるのを少し待ってから復元
+    const timer = window.setTimeout(() => {
+      window.scrollTo({
+        top: scrollPosition,
+        behavior: "instant",
+      });
+
+      setScrollRestored(true);
+    }, 100);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [
+    filtersLoaded,
+    scrollRestored,
+    keyword,
+    year,
+    attendedOnly,
   ]);
 
   // ========================================
@@ -203,6 +253,27 @@ export default function LivesPage() {
 
     sessionStorage.removeItem(
       FILTER_STORAGE_KEY
+    );
+
+    sessionStorage.removeItem(
+      SCROLL_STORAGE_KEY
+    );
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  // ========================================
+  // ライブ詳細へ移動する前に
+  // 現在のスクロール位置を保存
+  // ========================================
+
+  const saveScrollPosition = () => {
+    sessionStorage.setItem(
+      SCROLL_STORAGE_KEY,
+      String(window.scrollY)
     );
   };
 
@@ -369,6 +440,7 @@ export default function LivesPage() {
                 {/* ライブ詳細へのリンク */}
                 <Link
                   href={`/live/${live.id}`}
+                  onClick={saveScrollPosition}
                   className="block px-4 py-3 pr-16"
                 >
 
