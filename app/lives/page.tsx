@@ -15,24 +15,14 @@ const RESTORE_STORAGE_KEY = "liveShouldRestoreScroll";
 export default function LivesPage() {
   const [keyword, setKeyword] = useState("");
   const [year, setYear] = useState("すべて");
-
-  // 月
   const [month, setMonth] = useState("すべて");
 
-  // セトリ掲載状況
   const [setlistFilter, setSetlistFilter] =
     useState<SetlistFilter>("すべて");
 
-  // 参戦済みだけ表示するか
   const [attendedOnly, setAttendedOnly] = useState(false);
-
-  // 参戦済みライブのID
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
-
-  // 保存済み条件の読み込みが終わったか
   const [filtersLoaded, setFiltersLoaded] = useState(false);
-
-  // スクロール位置を復元したか
   const [scrollRestored, setScrollRestored] = useState(false);
 
   // ========================================
@@ -268,7 +258,6 @@ export default function LivesPage() {
 
   // ========================================
   // スクロール位置を復元
-  // ライブ詳細から戻ったときだけ実行
   // ========================================
 
   useEffect(() => {
@@ -280,7 +269,6 @@ export default function LivesPage() {
         RESTORE_STORAGE_KEY
       );
 
-    // 詳細から戻ったわけではない
     if (shouldRestore !== "true") {
       sessionStorage.removeItem(
         SCROLL_STORAGE_KEY
@@ -295,7 +283,6 @@ export default function LivesPage() {
         SCROLL_STORAGE_KEY
       );
 
-    // 復元フラグは1回だけ使用
     sessionStorage.removeItem(
       RESTORE_STORAGE_KEY
     );
@@ -317,7 +304,6 @@ export default function LivesPage() {
       return;
     }
 
-    // 検索条件が反映されたあとに元の位置へ移動
     const frame =
       requestAnimationFrame(() => {
         window.scrollTo({
@@ -379,7 +365,6 @@ export default function LivesPage() {
       String(window.scrollY)
     );
 
-    // 次にLIVEへ戻ったときだけ復元
     sessionStorage.setItem(
       RESTORE_STORAGE_KEY,
       "true"
@@ -394,29 +379,34 @@ export default function LivesPage() {
           : "invisible"
       }`}
     >
+      {/* ================================= */}
+      {/* HOMEと共通のページ幅・余白 */}
+      {/* ================================= */}
+
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
         {/* ================================= */}
-        {/* タイトル */}
+        {/* ページヘッダー */}
         {/* ================================= */}
 
-        <h1 className="text-3xl font-bold text-[#14526B]">
-          LIVE
-        </h1>
+        <div>
+          <h1 className="text-3xl font-bold text-[#14526B]">
+            LIVE
+          </h1>
 
-        <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-          曲名・開催地・公演名で検索できます。
-        </p>
+          <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+            ライブ・セットリスト一覧
+          </p>
+        </div>
 
         {/* ================================= */}
         {/* 検索エリア */}
         {/* ================================= */}
 
-        <section className="mt-6 sm:mt-8">
+        <section className="mt-8">
 
           {/* 検索ボックス */}
           <div className="relative z-10">
-
             <input
               type="search"
               value={keyword}
@@ -429,7 +419,6 @@ export default function LivesPage() {
               className="relative z-10 w-full appearance-none rounded-2xl border border-zinc-200 bg-white px-4 py-4 pr-12 text-base text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-[#14526B] focus:ring-2 focus:ring-[#14526B]/10"
             />
 
-            {/* 入力削除 */}
             {keyword && (
               <button
                 type="button"
@@ -442,7 +431,6 @@ export default function LivesPage() {
                 ×
               </button>
             )}
-
           </div>
 
           {/* ================================= */}
@@ -488,7 +476,6 @@ export default function LivesPage() {
 
           {/* ================================= */}
           {/* 月フィルター */}
-          {/* 年を選択したときだけ表示 */}
           {/* ================================= */}
 
           {year !== "すべて" && (
@@ -635,7 +622,6 @@ export default function LivesPage() {
                 className="relative rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:border-[#14526B] hover:shadow-md"
               >
 
-                {/* ライブ詳細へのリンク */}
                 <Link
                   href={`/live/${live.id}`}
                   onClick={saveScrollPosition}
@@ -670,14 +656,12 @@ export default function LivesPage() {
                   {/* ツアー・セトリ掲載状況 */}
                   <div className="mt-2 flex flex-wrap items-center gap-1.5">
 
-                    {/* ツアー */}
                     {live.tour && (
                       <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
                         {live.tour}
                       </span>
                     )}
 
-                    {/* セトリ掲載状況 */}
                     {live.setlist.length > 0 ? (
                       <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[11px] font-medium text-[#14526B]">
                         セトリあり
@@ -692,10 +676,7 @@ export default function LivesPage() {
 
                 </Link>
 
-                {/* ================================= */}
                 {/* 参戦ボタン */}
-                {/* ================================= */}
-
                 <div
                   className="absolute right-3 top-3"
                   onClick={() => {

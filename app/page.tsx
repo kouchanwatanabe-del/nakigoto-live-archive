@@ -81,13 +81,27 @@ export default function Home() {
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
 
       {/* HOMEコンテンツ */}
-      <div className="mx-auto max-w-3xl px-6 pt-8">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+
+        {/* ============================== */}
+        {/* ページヘッダー */}
+        {/* ============================== */}
+
+        <div>
+          <h1 className="text-3xl font-bold text-[#14526B]">
+            HOME
+          </h1>
+
+          <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+            なきごとのライブアーカイブ
+          </p>
+        </div>
 
         {/* ============================== */}
         {/* 最新ライブ */}
         {/* ============================== */}
 
-        <section>
+        <section className="mt-8">
 
           <div className="mb-3.5 flex items-center justify-between text-[#14526B]">
 

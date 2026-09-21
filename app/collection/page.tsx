@@ -128,44 +128,59 @@ export default function CollectionPage() {
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
-      <div className="mx-auto max-w-3xl px-6 py-10">
+
+      {/* ================================= */}
+      {/* HOME・LIVE・SONGSと共通の幅・余白 */}
+      {/* ================================= */}
+
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
         {/* ================================= */}
-        {/* ヘッダー */}
+        {/* ページヘッダー */}
         {/* ================================= */}
 
         <div>
-          <p className="text-[11px] font-medium tracking-[0.2em] text-zinc-400">
-            MY LIVE ARCHIVE
-          </p>
 
-          <h1 className="mt-2 text-3xl font-bold text-[#14526B]">
+          <h1 className="text-3xl font-bold text-[#14526B]">
             COLLECTION
           </h1>
 
-          <p className="mt-2 text-[14px] text-zinc-500">
+          <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
             あなたの参戦記録
           </p>
 
-          <Link
-            href="/stats"
-            className="mt-5 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
-          >
-            <div>
-              <p className="text-[14px] font-bold text-[#14526B]">
-                MY STATS
-              </p>
-
-              <p className="mt-0.5 text-[11px] text-zinc-500">
-                あなたのライブ統計を見る
-              </p>
-            </div>
-
-            <span className="text-[#14526B]">
-              →
-            </span>
-          </Link>
         </div>
+
+        {/* ================================= */}
+        {/* MY STATS */}
+        {/* ================================= */}
+
+        <Link
+          href="/stats"
+          className="mt-8 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
+        >
+
+          <div>
+
+            <p className="text-[14px] font-bold text-[#14526B]">
+              MY STATS
+            </p>
+
+            <p className="mt-0.5 text-[11px] text-zinc-500">
+              あなたのライブ統計を見る
+            </p>
+
+          </div>
+
+          <span className="text-[#14526B]">
+            →
+          </span>
+
+        </Link>
+
+        {/* ================================= */}
+        {/* 読み込み中 */}
+        {/* ================================= */}
 
         {!loaded && (
           <div className="mt-8 text-[13px] text-zinc-400">
@@ -175,6 +190,7 @@ export default function CollectionPage() {
 
         {loaded && (
           <>
+
             {/* ================================= */}
             {/* サマリー */}
             {/* ================================= */}
@@ -183,11 +199,13 @@ export default function CollectionPage() {
 
               {/* 参戦ライブ */}
               <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+
                 <p className="text-[11px] text-zinc-400">
                   参戦ライブ
                 </p>
 
                 <div className="mt-2 flex items-end gap-1.5">
+
                   <span className="text-[32px] font-black leading-none text-[#14526B]">
                     {attendedLives.length}
                   </span>
@@ -195,16 +213,20 @@ export default function CollectionPage() {
                   <span className="text-[12px] text-zinc-500">
                     公演
                   </span>
+
                 </div>
+
               </div>
 
               {/* 聴いた曲 */}
               <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+
                 <p className="text-[11px] text-zinc-400">
                   聴いた曲
                 </p>
 
                 <div className="mt-2 flex items-end gap-1.5">
+
                   <span className="text-[32px] font-black leading-none text-[#14526B]">
                     {heardSongs.length}
                   </span>
@@ -212,7 +234,9 @@ export default function CollectionPage() {
                   <span className="text-[12px] text-zinc-500">
                     / {allSongs.length} 曲
                   </span>
+
                 </div>
+
               </div>
 
             </section>
@@ -224,6 +248,7 @@ export default function CollectionPage() {
             <section className="mt-5">
 
               <div className="flex items-center justify-between">
+
                 <p className="text-[12px] font-medium text-zinc-500">
                   楽曲コンプリート率
                 </p>
@@ -231,15 +256,18 @@ export default function CollectionPage() {
                 <p className="text-[12px] font-bold text-[#14526B]">
                   {completion}%
                 </p>
+
               </div>
 
               <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100">
+
                 <div
                   className="h-full rounded-full bg-[#14526B] transition-all duration-500"
                   style={{
                     width: `${completion}%`,
                   }}
                 />
+
               </div>
 
             </section>
@@ -265,6 +293,7 @@ export default function CollectionPage() {
                 <span className="ml-1 opacity-70">
                   {attendedLives.length}
                 </span>
+
               </button>
 
               {/* 聴いた曲 */}
@@ -282,6 +311,7 @@ export default function CollectionPage() {
                 <span className="ml-1 opacity-70">
                   {heardSongs.length}
                 </span>
+
               </button>
 
               {/* 未聴曲 */}
@@ -299,6 +329,7 @@ export default function CollectionPage() {
                 <span className="ml-1 opacity-70">
                   {unheardSongs.length}
                 </span>
+
               </button>
 
             </div>
@@ -311,6 +342,7 @@ export default function CollectionPage() {
               <section className="mt-6">
 
                 <div className="mb-3 flex items-center justify-between">
+
                   <h2 className="text-[20px] font-bold text-[#14526B]">
                     参戦したライブ
                   </h2>
@@ -318,6 +350,7 @@ export default function CollectionPage() {
                   <span className="text-[12px] text-zinc-400">
                     {attendedLives.length}公演
                   </span>
+
                 </div>
 
                 {attendedLives.length > 0 ? (
@@ -387,6 +420,7 @@ export default function CollectionPage() {
               <section className="mt-6">
 
                 <div className="mb-3 flex items-center justify-between">
+
                   <h2 className="text-[20px] font-bold text-[#14526B]">
                     聴いた曲
                   </h2>
@@ -394,6 +428,7 @@ export default function CollectionPage() {
                   <span className="text-[12px] text-zinc-400">
                     {heardSongs.length}曲
                   </span>
+
                 </div>
 
                 {heardSongs.length > 0 ? (
@@ -431,9 +466,11 @@ export default function CollectionPage() {
                   </div>
                 ) : (
                   <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
+
                     <p className="text-[14px] text-zinc-500">
                       まだ聴いた曲がありません
                     </p>
+
                   </div>
                 )}
 
@@ -448,6 +485,7 @@ export default function CollectionPage() {
               <section className="mt-6">
 
                 <div className="mb-3 flex items-center justify-between">
+
                   <h2 className="text-[20px] font-bold text-[#14526B]">
                     まだ聴けていない曲
                   </h2>
@@ -455,6 +493,7 @@ export default function CollectionPage() {
                   <span className="text-[12px] text-zinc-400">
                     {unheardSongs.length}曲
                   </span>
+
                 </div>
 
                 {unheardSongs.length > 0 ? (
