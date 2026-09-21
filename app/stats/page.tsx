@@ -3,8 +3,6 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
-  CalendarDays,
-  Music2,
   MapPin,
   Building2,
   Trophy,
@@ -64,31 +62,13 @@ export default function StatsPage() {
     return counts;
   }, [attendedLives]);
 
-  // 聴いた曲数
-  const heardSongCount =
-    Object.keys(songCounts).length;
-
   // 一番聴いた曲
   const mostPlayedSong =
     Object.entries(songCounts).sort(
       (a, b) => b[1] - a[1]
     )[0];
 
-  // 初参戦
-  const firstLive =
-    attendedLives.length > 0
-      ? [...attendedLives].sort((a, b) =>
-          a.date.localeCompare(b.date)
-        )[0]
-      : null;
-
-  // 最新参戦
-  const latestLive =
-    attendedLives.length > 0
-      ? attendedLives[0]
-      : null;
-
-  // 会場ランキング
+  // 会場ごとの参戦回数
   const venueCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -100,12 +80,13 @@ export default function StatsPage() {
     return counts;
   }, [attendedLives]);
 
+  // 一番行った会場
   const topVenue =
     Object.entries(venueCounts).sort(
       (a, b) => b[1] - a[1]
     )[0];
 
-  // 都市ランキング
+  // 都市ごとの参戦回数
   const cityCounts = useMemo(() => {
     const counts: Record<string, number> = {};
 
@@ -117,6 +98,7 @@ export default function StatsPage() {
     return counts;
   }, [attendedLives]);
 
+  // 一番行った都市
   const topCity =
     Object.entries(cityCounts).sort(
       (a, b) => b[1] - a[1]
@@ -183,59 +165,6 @@ export default function StatsPage() {
           </div>
         ) : (
           <>
-            {/* メイン数字 */}
-            <section className="mt-8 grid grid-cols-2 gap-3">
-
-              {/* 参戦ライブ */}
-              <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-
-                <CalendarDays
-                  size={20}
-                  className="text-[#14526B]"
-                />
-
-                <p className="mt-4 text-[11px] text-zinc-400">
-                  参戦ライブ
-                </p>
-
-                <div className="mt-1 flex items-end gap-1">
-                  <span className="text-[34px] font-black leading-none text-[#14526B]">
-                    {attendedLives.length}
-                  </span>
-
-                  <span className="text-[12px] text-zinc-500">
-                    公演
-                  </span>
-                </div>
-
-              </div>
-
-              {/* 聴いた曲 */}
-              <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-
-                <Music2
-                  size={20}
-                  className="text-[#14526B]"
-                />
-
-                <p className="mt-4 text-[11px] text-zinc-400">
-                  聴いた曲
-                </p>
-
-                <div className="mt-1 flex items-end gap-1">
-                  <span className="text-[34px] font-black leading-none text-[#14526B]">
-                    {heardSongCount}
-                  </span>
-
-                  <span className="text-[12px] text-zinc-500">
-                    曲
-                  </span>
-                </div>
-
-              </div>
-
-            </section>
-
             {/* 一番聴いた曲 */}
             {mostPlayedSong && (
               <section className="mt-8">
@@ -283,71 +212,6 @@ export default function StatsPage() {
 
               </section>
             )}
-
-            {/* 初参戦・最新参戦 */}
-            <section className="mt-8">
-
-              <p className="mb-3 text-[11px] font-bold tracking-[0.18em] text-zinc-400">
-                LIVE HISTORY
-              </p>
-
-              <div className="space-y-3">
-
-                {/* 初参戦 */}
-                {firstLive && (
-                  <Link
-                    href={`/live/${firstLive.id}`}
-                    className="block rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-[#14526B]"
-                  >
-
-                    <p className="text-[11px] font-bold text-zinc-400">
-                      FIRST LIVE
-                    </p>
-
-                    <p className="mt-2 text-[13px] font-semibold text-[#14526B]">
-                      {firstLive.date}
-                    </p>
-
-                    <p className="mt-1 text-[16px] font-bold text-zinc-900">
-                      {firstLive.title}
-                    </p>
-
-                    <p className="mt-1 text-[12px] text-zinc-500">
-                      {firstLive.city} ｜ {firstLive.venue}
-                    </p>
-
-                  </Link>
-                )}
-
-                {/* 最新参戦 */}
-                {latestLive && (
-                  <Link
-                    href={`/live/${latestLive.id}`}
-                    className="block rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-[#14526B]"
-                  >
-
-                    <p className="text-[11px] font-bold text-zinc-400">
-                      LATEST LIVE
-                    </p>
-
-                    <p className="mt-2 text-[13px] font-semibold text-[#14526B]">
-                      {latestLive.date}
-                    </p>
-
-                    <p className="mt-1 text-[16px] font-bold text-zinc-900">
-                      {latestLive.title}
-                    </p>
-
-                    <p className="mt-1 text-[12px] text-zinc-500">
-                      {latestLive.city} ｜ {latestLive.venue}
-                    </p>
-
-                  </Link>
-                )}
-
-              </div>
-
-            </section>
 
             {/* 会場・都市 */}
             <section className="mt-8">
