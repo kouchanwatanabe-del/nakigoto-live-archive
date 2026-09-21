@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { lives } from "../../data/lives";
+import { songReadings } from "../../data/songReadings";
+
 
 type SortType = "count" | "name";
 
@@ -51,24 +53,37 @@ export default function SongsPage() {
     const q = keyword.trim().toLocaleLowerCase("ja");
 
     // 曲名検索
-    const filtered = songs.filter((song) =>
-      song.name
-        .toLocaleLowerCase("ja")
-        .includes(q)
-    );
+    const filtered = songs.filter((song) => {
+  const name =
+    song.name.toLocaleLowerCase("ja");
 
+  const reading =
+    (songReadings[song.name] ?? "")
+      .toLocaleLowerCase("ja");
+
+  return (
+    name.includes(q) ||
+    reading.includes(q)
+  );
+});
     // コピーしてから並び替え
     return [...filtered].sort((a, b) => {
       // 50音順
       if (sortType === "name") {
-        return a.name.localeCompare(
-          b.name,
-          "ja",
-          {
-            sensitivity: "base",
-          }
-        );
-      }
+  const readingA =
+    songReadings[a.name] ?? a.name;
+
+  const readingB =
+    songReadings[b.name] ?? b.name;
+
+  return readingA.localeCompare(
+    readingB,
+    "ja",
+    {
+      sensitivity: "base",
+    }
+  );
+}
 
       // 演奏回数順
       if (b.count !== a.count) {
