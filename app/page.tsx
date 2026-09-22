@@ -230,7 +230,7 @@ export default function Home() {
           <div className="mb-3.5 flex items-center justify-between">
 
             <h2 className="text-[22px] font-bold text-[#14526B]">
-              COLLECTION
+              MY ARCHIVE
             </h2>
 
             <Link
