@@ -94,9 +94,9 @@ export default async function LivePage({
           )}
 
           {/* 参戦ボタン */}
-          <div className="mt-4">
-            <AttendedButton liveId={live.id} />
-          </div>
+          <div className="mt-2.5">
+  <AttendedButton liveId={live.id} />
+</div>
 
         </section>
 
@@ -104,7 +104,7 @@ export default async function LivePage({
 {/* SETLIST */}
 {/* ================================= */}
 
-<section className="mt-8 border-t border-zinc-200 pt-6">
+<section className="mt-5 border-t border-zinc-200 pt-5">
 
   <div className="flex items-end justify-between gap-4">
     <div>
