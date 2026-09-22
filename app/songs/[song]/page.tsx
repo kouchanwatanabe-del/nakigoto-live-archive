@@ -43,9 +43,9 @@ export default async function SongPage({
           </p>
 
           {/* 曲名 */}
-          <h1 className="mt-2 text-3xl font-bold text-[#14526B] sm:text-4xl">
-            {songName}
-          </h1>
+          <h1 className="mt-4 text-[32px] font-bold leading-[1.3] text-[#14526B] sm:text-[36px]">
+  {songName}
+</h1>
 
           <p className="mt-3 text-sm text-zinc-500">
             {playedLives.length}公演で演奏
