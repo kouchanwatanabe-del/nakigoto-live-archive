@@ -179,7 +179,7 @@ export default async function LivePage({
                     className="group flex min-h-[38px] items-center gap-3 py-2"
                   >
                     <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
-                      E{index + 1}
+                      en{index + 1}
                     </span>
 
                     <span className="min-w-0 flex-1 text-[16px] font-semibold leading-[1.4] text-[#14526B] transition-opacity group-hover:opacity-60">
