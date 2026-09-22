@@ -49,7 +49,7 @@ export default async function LivePage({
             {live.date}
           </p>
 
-          <h1 className="mt-1.5 text-[18px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
+          <h1 className="mt-1.5 text-[19px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
             {live.title}
           </h1>
 
@@ -108,13 +108,10 @@ export default async function LivePage({
 
   <div className="flex items-end justify-between gap-4">
     <div>
-      <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
+
+      <p className="mt-1 text-[18px] font-bold text-[#14526B]">
         SETLIST
       </p>
-
-      <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
-        セットリスト
-      </h2>
     </div>
 
     {live.setlist.length > 0 && (
