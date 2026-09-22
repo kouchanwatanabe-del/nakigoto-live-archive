@@ -25,155 +25,243 @@ export default async function LivePage({
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
-      <div className="mx-auto max-w-3xl px-6 py-12">
+      <div className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9">
 
-        {/* ライブ検索画面に戻る */}
+        {/* ================================= */}
+        {/* 戻る */}
+        {/* ================================= */}
+
         <Link
           href="/lives"
-          className="text-[#14526B] hover:underline"
+          className="inline-flex items-center gap-1 text-[12px] font-medium text-[#14526B] transition-opacity hover:opacity-60"
         >
-          ← 戻る
+          <span>←</span>
+          <span>LIVE</span>
         </Link>
 
+        {/* ================================= */}
         {/* ライブ情報 */}
-        <p className="mt-8 text-sm text-zinc-500">
-          {live.date}
-        </p>
+        {/* ================================= */}
 
-        {/* 公演名 */}
-        <h1 className="mt-2 text-4xl font-bold text-[#14526B]">
-          {live.title}
-        </h1>
+        <section className="mt-5">
 
-        {/* 都市・会場 */}
-        <p className="mt-3 text-zinc-500">
-          <span className="font-medium text-[#14526B]">
-            {live.city}
-          </span>
+          <p className="text-[12px] font-semibold tracking-[0.03em] text-[#14526B]">
+            {live.date}
+          </p>
 
-          <span className="mx-2 text-zinc-300">
-            ｜
-          </span>
+          <h1 className="mt-1.5 text-[21px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
+            {live.title}
+          </h1>
 
-          {live.venue}
-        </p>
+          <div className="mt-2 flex items-start gap-1.5 text-[12px] leading-5 text-zinc-500 sm:text-[13px]">
 
-        {/* 参戦記録 */}
-        <AttendedButton liveId={live.id} />
+            {/* ピン */}
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="mt-[2px] h-4 w-4 shrink-0 text-zinc-400"
+              aria-hidden="true"
+            >
+              <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
 
-        {/* ============================== */}
-        {/* 本編 */}
-        {/* ============================== */}
+            <p>
+              <span className="font-semibold text-[#14526B]">
+                {live.city}
+              </span>
 
-        <section className="mt-10">
+              <span className="mx-1.5 text-zinc-300">
+                ｜
+              </span>
 
-          <h2 className="mb-5 text-xl font-bold text-[#14526B]">
-            SET LIST
-          </h2>
+              {live.venue}
+            </p>
 
-          <div className="space-y-3">
+          </div>
 
-            {live.setlist.map((song, i) => (
-              <Link
-                key={`${song}-${i}`}
-                href={`/songs/${encodeURIComponent(song)}`}
-                className="group flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
-              >
+          {/* ツアー */}
+          {live.tour && (
+            <div className="mt-2.5">
+              <span className="inline-block rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-medium leading-4 text-[#14526B]">
+                {live.tour}
+              </span>
+            </div>
+          )}
 
-                {/* 曲順 */}
-                <span className="w-10 shrink-0 text-sm font-semibold text-[#14526B]">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-
-                {/* 曲名 */}
-                <span className="min-w-0 flex-1 font-medium text-zinc-900 transition-colors group-hover:text-[#14526B]">
-                  {song}
-                </span>
-
-                {/* 矢印 */}
-                <span className="ml-3 shrink-0 text-sm text-zinc-300 transition-all group-hover:translate-x-1 group-hover:text-[#14526B]">
-                  →
-                </span>
-
-              </Link>
-            ))}
-
+          {/* 参戦ボタン */}
+          <div className="mt-4">
+            <AttendedButton liveId={live.id} />
           </div>
 
         </section>
 
-        {/* ============================== */}
-        {/* アンコール */}
-        {/* ============================== */}
+        {/* ================================= */}
+        {/* SETLIST */}
+        {/* ================================= */}
 
-        {live.encore && live.encore.length > 0 && (
-          <section className="mt-10">
+        <section className="mt-8 border-t border-zinc-200 pt-6">
 
-            <div className="mb-5 flex items-center gap-3">
+          <div className="flex items-end justify-between gap-4">
 
-              <div className="h-px flex-1 bg-zinc-300" />
+            <div>
+              <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
+                SETLIST
+              </p>
 
-              <span className="text-xs font-bold tracking-[0.3em] text-zinc-500">
-                ENCORE
-              </span>
-
-              <div className="h-px flex-1 bg-zinc-300" />
-
+              <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
+                セットリスト
+              </h2>
             </div>
 
-            <div className="space-y-3">
+            {live.setlist.length > 0 && (
+              <p className="text-[11px] text-zinc-400">
+                {live.setlist.length}曲
+              </p>
+            )}
 
-              {live.encore.map((song, i) => (
-                <Link
-                  key={`${song}-encore-${i}`}
-                  href={`/songs/${encodeURIComponent(song)}`}
-                  className="group flex items-center rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
-                >
+          </div>
 
-                  {/* 曲順 */}
-                  <span className="w-10 shrink-0 text-sm font-semibold text-[#14526B]">
-                    {String(
-                      live.setlist.length + i + 1
-                    ).padStart(2, "0")}
-                  </span>
+          {/* セトリあり */}
+          {live.setlist.length > 0 ? (
+            <ol className="mt-4">
 
-                  {/* 曲名 */}
-                  <span className="min-w-0 flex-1 font-medium text-zinc-900 transition-colors group-hover:text-[#14526B]">
-                    {song}
-                  </span>
+              {live.setlist.map(
+                (song: string, index: number) => (
+                  <li
+                    key={`${song}-${index}`}
+                    className="border-b border-zinc-100 last:border-b-0"
+                  >
+                    <Link
+                      href={`/songs/${encodeURIComponent(song)}`}
+                      className="group flex min-h-[34px] items-center gap-3 py-1.5"
+                    >
 
-                  {/* 矢印 */}
-                  <span className="ml-3 shrink-0 text-sm text-zinc-300 transition-all group-hover:translate-x-1 group-hover:text-[#14526B]">
-                    →
-                  </span>
+                      {/* 曲番号 */}
+                      <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
+                        {String(index + 1).padStart(
+                          2,
+                          "0"
+                        )}
+                      </span>
 
-                </Link>
-              ))}
+                      {/* 曲名 */}
+                      <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.35] text-[#14526B] transition-opacity group-hover:opacity-60">
+                        {song}
+                      </span>
 
-            </div>
+                      {/* 矢印 */}
+                      <span
+                        className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                        aria-hidden="true"
+                      >
+                        ›
+                      </span>
 
-          </section>
-        )}
+                    </Link>
+                  </li>
+                )
+              )}
 
-        {/* ============================== */}
-        {/* MEMO */}
-        {/* ============================== */}
-
-        {"memo" in live && live.memo && (
-          <section className="mt-10">
-
-            <h2 className="mb-5 text-xl font-bold text-[#14526B]">
-              MEMO
-            </h2>
-
-            <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-5">
-              <p className="whitespace-pre-wrap text-sm leading-7 text-zinc-600">
-                {live.memo}
+            </ol>
+          ) : (
+            <div className="mt-4 py-5 text-center">
+              <p className="text-[12px] text-zinc-400">
+                セットリスト情報はありません
               </p>
             </div>
+          )}
 
-          </section>
-        )}
+        </section>
+
+        {/* ================================= */}
+        {/* ENCORE */}
+        {/* ================================= */}
+
+        {"encore" in live &&
+          Array.isArray(live.encore) &&
+          live.encore.length > 0 && (
+            <section className="mt-7 border-t border-zinc-200 pt-6">
+
+              <div className="flex items-end justify-between gap-4">
+
+                <div>
+                  <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
+                    ENCORE
+                  </p>
+
+                  <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
+                    アンコール
+                  </h2>
+                </div>
+
+                <p className="text-[11px] text-zinc-400">
+                  {live.encore.length}曲
+                </p>
+
+              </div>
+
+              <ol className="mt-4">
+
+                {live.encore.map(
+                  (song: string, index: number) => (
+                    <li
+                      key={`${song}-encore-${index}`}
+                      className="border-b border-zinc-100 last:border-b-0"
+                    >
+                      <Link
+                        href={`/songs/${encodeURIComponent(song)}`}
+                        className="group flex min-h-[34px] items-center gap-3 py-1.5"
+                      >
+
+                        <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
+                          E{index + 1}
+                        </span>
+
+                        <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.35] text-[#14526B] transition-opacity group-hover:opacity-60">
+                          {song}
+                        </span>
+
+                        <span
+                          className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                          aria-hidden="true"
+                        >
+                          ›
+                        </span>
+
+                      </Link>
+                    </li>
+                  )
+                )}
+
+              </ol>
+
+            </section>
+          )}
+
+        {/* ================================= */}
+        {/* MEMO */}
+        {/* ================================= */}
+
+        {"memo" in live &&
+          typeof live.memo === "string" &&
+          live.memo && (
+            <section className="mt-7 border-t border-zinc-200 pt-6">
+
+              <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
+                MEMO
+              </p>
+
+              <p className="mt-2 whitespace-pre-wrap text-[12px] leading-6 text-zinc-500">
+                {live.memo}
+              </p>
+
+            </section>
+          )}
 
       </div>
     </main>
