@@ -43,9 +43,9 @@ export default function IntroAnimation() {
           なきごと
         </h1>
 
-        <div className="mx-auto mt-5 h-[2px] w-16 overflow-hidden rounded-full bg-zinc-100">
-          <div className="intro-line h-full bg-[#14526B]" />
-        </div>
+       <div className="mx-auto mt-5 h-[2px] w-28 overflow-hidden rounded-full bg-zinc-100">
+  <div className="intro-line h-full bg-[#14526B]" />
+</div>
 
       </div>
     </div>
