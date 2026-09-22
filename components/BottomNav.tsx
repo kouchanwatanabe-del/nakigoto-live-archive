@@ -30,7 +30,7 @@ export default function BottomNav() {
     },
     {
       href: "/collection",
-      label: "COLLECTION",
+      label: "MY ARCHIVE",
       icon: Heart,
     },
   ];
