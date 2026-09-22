@@ -101,147 +101,116 @@ export default async function LivePage({
         </section>
 
         {/* ================================= */}
-        {/* SETLIST */}
-        {/* ================================= */}
+{/* SETLIST */}
+{/* ================================= */}
 
-        <section className="mt-8 border-t border-zinc-200 pt-6">
+<section className="mt-8 border-t border-zinc-200 pt-6">
 
-          <div className="flex items-end justify-between gap-4">
+  <div className="flex items-end justify-between gap-4">
+    <div>
+      <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
+        SETLIST
+      </p>
 
-            <div>
-              <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
-                SETLIST
+      <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
+        セットリスト
+      </h2>
+    </div>
+
+    {live.setlist.length > 0 && (
+      <p className="text-[11px] text-zinc-400">
+        {live.setlist.length}曲
+      </p>
+    )}
+  </div>
+
+  {live.setlist.length > 0 ? (
+    <ol className="mt-4">
+
+      {/* 通常セットリスト */}
+      {live.setlist.map(
+        (song: string, index: number) => (
+          <li
+            key={`${song}-${index}`}
+            className="border-b border-zinc-100"
+          >
+            <Link
+              href={`/songs/${encodeURIComponent(song)}`}
+              className="group flex min-h-[38px] items-center gap-3 py-2"
+            >
+              <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+
+              <span className="min-w-0 flex-1 text-[16px] font-semibold leading-[1.4] text-[#14526B] transition-opacity group-hover:opacity-60">
+                {song}
+              </span>
+
+              <span
+                className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                aria-hidden="true"
+              >
+                ›
+              </span>
+            </Link>
+          </li>
+        )
+      )}
+
+      {/* アンコール */}
+      {"encore" in live &&
+        Array.isArray(live.encore) &&
+        live.encore.length > 0 && (
+          <>
+            <li className="pb-1 pt-4">
+              <p className="pl-9 text-[10px] font-bold tracking-[0.15em] text-zinc-400">
+                ENCORE
               </p>
+            </li>
 
-              <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
-                セットリスト
-              </h2>
-            </div>
-
-            {live.setlist.length > 0 && (
-              <p className="text-[11px] text-zinc-400">
-                {live.setlist.length}曲
-              </p>
-            )}
-
-          </div>
-
-          {/* セトリあり */}
-          {live.setlist.length > 0 ? (
-            <ol className="mt-4">
-
-              {live.setlist.map(
-                (song: string, index: number) => (
-                  <li
-                    key={`${song}-${index}`}
-                    className="border-b border-zinc-100 last:border-b-0"
+            {live.encore.map(
+              (song: string, index: number) => (
+                <li
+                  key={`${song}-encore-${index}`}
+                  className="border-b border-zinc-100 last:border-b-0"
+                >
+                  <Link
+                    href={`/songs/${encodeURIComponent(song)}`}
+                    className="group flex min-h-[38px] items-center gap-3 py-2"
                   >
-                    <Link
-                      href={`/songs/${encodeURIComponent(song)}`}
-                      className="group flex min-h-[34px] items-center gap-3 py-1.5"
+                    <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
+                      E{index + 1}
+                    </span>
+
+                    <span className="min-w-0 flex-1 text-[16px] font-semibold leading-[1.4] text-[#14526B] transition-opacity group-hover:opacity-60">
+                      {song}
+                    </span>
+
+                    <span
+                      className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
+                      aria-hidden="true"
                     >
+                      ›
+                    </span>
+                  </Link>
+                </li>
+              )
+            )}
+          </>
+        )}
 
-                      {/* 曲番号 */}
-                      <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
-                        {String(index + 1).padStart(
-                          2,
-                          "0"
-                        )}
-                      </span>
+    </ol>
+  ) : (
+    <div className="mt-4 py-5 text-center">
+      <p className="text-[12px] text-zinc-400">
+        セットリスト情報はありません
+      </p>
+    </div>
+  )}
 
-                      {/* 曲名 */}
-                      <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.35] text-[#14526B] transition-opacity group-hover:opacity-60">
-                        {song}
-                      </span>
+</section>
 
-                      {/* 矢印 */}
-                      <span
-                        className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
-                        aria-hidden="true"
-                      >
-                        ›
-                      </span>
-
-                    </Link>
-                  </li>
-                )
-              )}
-
-            </ol>
-          ) : (
-            <div className="mt-4 py-5 text-center">
-              <p className="text-[12px] text-zinc-400">
-                セットリスト情報はありません
-              </p>
-            </div>
-          )}
-
-        </section>
-
-        {/* ================================= */}
-        {/* ENCORE */}
-        {/* ================================= */}
-
-        {"encore" in live &&
-          Array.isArray(live.encore) &&
-          live.encore.length > 0 && (
-            <section className="mt-7 border-t border-zinc-200 pt-6">
-
-              <div className="flex items-end justify-between gap-4">
-
-                <div>
-                  <p className="text-[10px] font-semibold tracking-[0.16em] text-zinc-400">
-                    ENCORE
-                  </p>
-
-                  <h2 className="mt-1 text-[18px] font-bold text-[#14526B]">
-                    アンコール
-                  </h2>
-                </div>
-
-                <p className="text-[11px] text-zinc-400">
-                  {live.encore.length}曲
-                </p>
-
-              </div>
-
-              <ol className="mt-4">
-
-                {live.encore.map(
-                  (song: string, index: number) => (
-                    <li
-                      key={`${song}-encore-${index}`}
-                      className="border-b border-zinc-100 last:border-b-0"
-                    >
-                      <Link
-                        href={`/songs/${encodeURIComponent(song)}`}
-                        className="group flex min-h-[34px] items-center gap-3 py-1.5"
-                      >
-
-                        <span className="w-6 shrink-0 text-right font-mono text-[10px] tabular-nums text-zinc-400">
-                          E{index + 1}
-                        </span>
-
-                        <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.35] text-[#14526B] transition-opacity group-hover:opacity-60">
-                          {song}
-                        </span>
-
-                        <span
-                          className="shrink-0 text-[14px] text-zinc-300 transition-transform group-hover:translate-x-0.5"
-                          aria-hidden="true"
-                        >
-                          ›
-                        </span>
-
-                      </Link>
-                    </li>
-                  )
-                )}
-
-              </ol>
-
-            </section>
-          )}
+       
 
         {/* ================================= */}
         {/* MEMO */}
