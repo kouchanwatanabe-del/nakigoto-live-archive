@@ -417,55 +417,55 @@ export default function SongsPage() {
 
         </div>
 
-        {/* ================================= */}
-        {/* 楽曲一覧 */}
-        {/* ================================= */}
+       {/* ================================= */}
+{/* 楽曲一覧 */}
+{/* ================================= */}
 
-        <div className="mt-3 space-y-2.5">
+<div className="mt-3 -mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
 
-          {displayedSongs.map(
-            (song, index) => (
-              <Link
-                key={song.name}
-                href={`/songs/${encodeURIComponent(
-                  song.name
-                )}`}
-                onClick={
-                  saveScrollPosition
-                }
-                className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
-              >
+  {displayedSongs.map(
+    (song, index) => (
+      <Link
+        key={song.name}
+        href={`/songs/${encodeURIComponent(
+          song.name
+        )}`}
+        onClick={saveScrollPosition}
+        className={`flex items-center px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
+          index !== displayedSongs.length - 1
+            ? "border-b border-zinc-200"
+            : ""
+        }`}
+      >
 
-                {/* 順位 */}
-                <span className="w-10 shrink-0 text-[12px] font-bold text-zinc-300">
-                  {String(
-                    index + 1
-                  ).padStart(2, "0")}
-                </span>
+        {/* 順位 */}
+        <span className="w-9 shrink-0 text-[11px] font-medium tabular-nums text-zinc-300">
+          {String(index + 1).padStart(2, "0")}
+        </span>
 
-                {/* 曲情報 */}
-                <div className="min-w-0 flex-1">
+        {/* 曲情報 */}
+        <div className="min-w-0 flex-1">
 
-                  <p className="truncate text-[16px] font-bold text-[#14526B]">
-                    {song.name}
-                  </p>
+          <p className="text-[16px] font-bold leading-[1.35] text-[#14526B]">
+            {song.name}
+          </p>
 
-                  <p className="mt-1 text-[11px] text-zinc-400">
-                    {song.count}公演で演奏
-                  </p>
-
-                </div>
-
-                {/* 矢印 */}
-                <span className="ml-3 shrink-0 text-[13px] text-zinc-300">
-                  →
-                </span>
-
-              </Link>
-            )
-          )}
+          <p className="mt-0.5 text-[11px] text-zinc-400">
+            {song.count}公演で演奏
+          </p>
 
         </div>
+
+        {/* 矢印 */}
+        <span className="ml-3 shrink-0 text-[16px] text-zinc-300">
+          ›
+        </span>
+
+      </Link>
+    )
+  )}
+
+</div>
 
         {/* ================================= */}
         {/* 検索結果なし */}
