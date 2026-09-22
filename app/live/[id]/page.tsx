@@ -33,7 +33,7 @@ export default async function LivePage({
 
         <Link
           href="/lives"
-          className="inline-flex items-center gap-1 text-[12px] font-medium text-[#14526B] transition-opacity hover:opacity-60"
+          className="inline-flex items-center gap-1 text-[15px] font-medium text-[#14526B] transition-opacity hover:opacity-60"
         >
           <span>←</span>
           <span>LIVE</span>
@@ -49,7 +49,7 @@ export default async function LivePage({
             {live.date}
           </p>
 
-          <h1 className="mt-1.5 text-[21px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
+          <h1 className="mt-1.5 text-[18px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
             {live.title}
           </h1>
 
