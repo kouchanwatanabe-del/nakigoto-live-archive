@@ -621,7 +621,7 @@ export default function LivesPage() {
                   <Link
                     href={`/live/${live.id}`}
                     onClick={saveScrollPosition}
-                    className="block px-3 py-3 pr-16 transition-colors hover:bg-zinc-50 sm:px-4 sm:py-4 sm:pr-20"
+                    className="block px-3 py-2 pr-14 transition-colors hover:bg-zinc-50 sm:px-4 sm:py-2.5 sm:pr-16"
                   >
 
                     {/* 日付 */}
@@ -635,7 +635,7 @@ export default function LivesPage() {
                         strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className={`h-[19px] w-[19px] shrink-0 ${
+                        className={`h-4 w-4 shrink-0 ${
                           attended
                             ? "text-[#14526B]"
                             : "text-zinc-400"
@@ -658,19 +658,19 @@ export default function LivesPage() {
                         )}
                       </svg>
 
-                      <p className="text-[14px] font-bold tracking-[0.02em] text-[#14526B]">
+                      <p className="text-[12px] font-bold tracking-[0.02em] text-[#14526B]">
                         {live.date}
                       </p>
 
                     </div>
 
                     {/* 公演名 */}
-                    <h2 className="mt-1.5 pr-1 text-[18px] font-bold leading-[1.35] text-[#14526B] sm:text-[20px]">
+                    <h2 className="mt-1 pr-1 text-[15px] font-bold leading-[1.3] text-[#14526B] sm:text-[16px]">
                       {live.title}
                     </h2>
 
                     {/* 会場 */}
-                    <div className="mt-1.5 flex min-w-0 items-center gap-2 text-zinc-500">
+                    <div className="mt-1 flex min-w-0 items-start gap-1.5 text-zinc-500">
 
                       {/* ピンアイコン */}
                       <svg
@@ -680,7 +680,7 @@ export default function LivesPage() {
                         strokeWidth="1.8"
                         strokeLinecap="round"
                         strokeLinejoin="round"
-                        className="h-[19px] w-[19px] shrink-0 text-zinc-400"
+                        className="mt-[1px] h-4 w-4 shrink-0 text-zinc-400"
                         aria-hidden="true"
                       >
                         <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
@@ -691,7 +691,7 @@ export default function LivesPage() {
                         />
                       </svg>
 
-                      <p className="min-w-0 truncate text-[14px]">
+                      <p className="min-w-0 text-[12px] leading-[1.35]">
                         <span className="font-semibold text-[#14526B]">
                           {live.city}
                         </span>
@@ -708,20 +708,20 @@ export default function LivesPage() {
                     </div>
 
                     {/* ツアー・セトリ */}
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
 
                       {live.tour && (
-                        <span className="max-w-full truncate rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-medium text-[#14526B]">
+                        <span className="max-w-full rounded-full bg-[#14526B]/10 px-2 py-0.5 text-[9px] font-medium leading-[1.35] text-[#14526B]">
                           {live.tour}
                         </span>
                       )}
 
                       {live.setlist.length > 0 ? (
-                        <span className="shrink-0 rounded-full bg-[#14526B]/10 px-2.5 py-1 text-[10px] font-semibold text-[#14526B]">
+                        <span className="shrink-0 rounded-full bg-[#14526B]/10 px-2 py-0.5 text-[9px] font-semibold text-[#14526B]">
                           セトリあり
                         </span>
                       ) : (
-                        <span className="shrink-0 rounded-full bg-zinc-100 px-2.5 py-1 text-[10px] font-medium text-zinc-400">
+                        <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[9px] font-medium text-zinc-400">
                           セトリなし
                         </span>
                       )}
@@ -735,7 +735,7 @@ export default function LivesPage() {
                   {/* ================================= */}
 
                   <div
-                    className="absolute right-4 top-4 z-10"
+                    className="absolute right-3 top-2 z-10 sm:right-4 sm:top-2.5"
                     onClick={() => {
                       setTimeout(() => {
                         loadAttendedLives();
