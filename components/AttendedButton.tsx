@@ -60,7 +60,7 @@ export default function AttendedButton({ liveId }: Props) {
 
   if (!loaded) {
     return (
-      <div className="mt-3 h-9 w-36 rounded-full bg-zinc-100" />
+      <div className="h-9 w-36 rounded-full bg-zinc-100" />
     );
   }
 
@@ -68,7 +68,7 @@ export default function AttendedButton({ liveId }: Props) {
     <button
       type="button"
       onClick={toggleAttended}
-      className={`mt-3 inline-flex h-9 items-center justify-center gap-1.5 rounded-full border px-4 text-[12px] font-bold transition ${
+      className={`inline-flex h-9 items-center justify-center gap-1.5 rounded-full border px-4 text-[12px] font-bold transition ${
         attended
           ? "border-[#14526B] bg-[#14526B] text-white"
           : "border-zinc-200 bg-white text-[#14526B] hover:border-[#14526B]"
