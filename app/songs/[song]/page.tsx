@@ -66,7 +66,7 @@ export default async function SongPage({
               <Link
                 key={live.id}
                 href={`/live/${live.id}`}
-                className="group flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
+               className="block py-3 transition-opacity hover:opacity-60"
               >
 
                 {/* ライブ情報 */}
