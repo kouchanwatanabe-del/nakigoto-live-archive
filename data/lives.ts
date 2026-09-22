@@ -605,7 +605,7 @@ export const lives = [
   date: "2026.03.20",
   title: "UOOO!! 2026",
   city: "東京",
-  venue: "Shibuya eggman",
+  venue: "shibuya eggman",
   tour: "",
   setlist: [
     "甘々吟味",
@@ -670,7 +670,7 @@ export const lives = [
   date: "2026.02.27",
   title: "鳴言 vol.3",
   city: "東京",
-  venue: "Shibuya eggman",
+  venue: "shibuya eggman",
   tour: "",
   setlist: [
     "ドリー",
@@ -1427,7 +1427,7 @@ export const lives = [
   date: "2025.06.06",
   title: "【東京】初心にかえるman to manワンマンツアー",
   city: "東京",
-  venue: "Shibuya eggman",
+  venue: "shibuya eggman",
   tour: "初心にかえるman to manワンマンツアー",
   setlist: [
     "忘却炉",
