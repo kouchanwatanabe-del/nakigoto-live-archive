@@ -60,7 +60,7 @@ export default function AttendedButton({ liveId }: Props) {
 
   if (!loaded) {
     return (
-      <div className="mt-6 h-[48px] rounded-xl border border-zinc-200 bg-zinc-50" />
+      <div className="mt-3 h-9 w-36 rounded-full bg-zinc-100" />
     );
   }
 
@@ -68,19 +68,21 @@ export default function AttendedButton({ liveId }: Props) {
     <button
       type="button"
       onClick={toggleAttended}
-      className={`mt-6 flex w-full items-center justify-center gap-2 rounded-xl border px-4 py-3 text-[14px] font-bold transition ${
+      className={`mt-3 inline-flex h-9 items-center justify-center gap-1.5 rounded-full border px-4 text-[12px] font-bold transition ${
         attended
           ? "border-[#14526B] bg-[#14526B] text-white"
           : "border-zinc-200 bg-white text-[#14526B] hover:border-[#14526B]"
       }`}
     >
-      <span className="text-[17px]">
+      <span className="text-[14px] leading-none">
         {attended ? "♥" : "♡"}
       </span>
 
-      {attended
-        ? "参戦済み"
-        : "このライブに参戦した"}
+      <span>
+        {attended
+          ? "参戦済み"
+          : "このライブに参戦した"}
+      </span>
     </button>
   );
 }
