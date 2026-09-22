@@ -124,17 +124,17 @@ export default function BottomNav() {
               ease-[cubic-bezier(0.22,1,0.36,1)]
             "
             style={{
-              width: "31%",
-              left: `${
-                activeIndex === 0
-                  ? 0
-                  : activeIndex === 1
-                    ? 23
-                    : activeIndex === 2
-                      ? 46
-                      : 69
-              }%`,
-            }}
+  width: activeIndex === 3 ? "36%" : "31%",
+  left: `${
+    activeIndex === 0
+      ? 0
+      : activeIndex === 1
+        ? 23
+        : activeIndex === 2
+          ? 46
+          : 64
+  }%`,
+}}
           />
 
           {/* タブ */}
@@ -166,8 +166,10 @@ export default function BottomNav() {
 
                     ${
                       active
-                        ? "w-[31%] gap-2 px-3 text-white"
-                        : "w-[23%] text-zinc-400 hover:text-[#14526B]"
+  ? tab.href === "/collection"
+    ? "w-[36%] gap-2 px-3 text-white"
+    : "w-[31%] gap-2 px-3 text-white"
+  : "w-[23%] text-zinc-400 hover:text-[#14526B]"
                     }
                   `}
                 >
@@ -201,7 +203,7 @@ export default function BottomNav() {
 
                       ${
                         active
-                          ? "max-w-[80px] translate-x-0 opacity-100"
+                          ? "max-w-[100px] translate-x-0 opacity-100"
                           : "max-w-0 -translate-x-1 opacity-0"
                       }
                     `}
