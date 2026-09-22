@@ -169,61 +169,80 @@ export default function BottomNav() {
                   transition-all
                   duration-300
 
-                  ${
-                    active
-                      ? "text-[#14526B]"
-                      : "text-zinc-500 hover:text-[#14526B]"
-                  }
+                  ${active
+  ? "scale-[1.03] text-[#14526B]"
+  : "text-zinc-400 hover:text-[#14526B]"
+}
                 `}
               >
                 {/* 選択中の水滴 */}
                 {active && (
-                  <>
-                    <div
-                      className="
-                        absolute
-                        inset-0
-                        rounded-[22px]
-                        border
-                        border-white/80
-                        bg-gradient-to-br
-                        from-sky-200/55
-                        via-cyan-100/35
-                        to-white/30
-                        shadow-[inset_0_1px_5px_rgba(255,255,255,0.95),0_4px_14px_rgba(14,165,233,0.15)]
-                        backdrop-blur-xl
-                      "
-                    />
+  <>
+    {/* 選択中の水のかたまり */}
+    <div
+      className="
+        absolute
+        inset-0
+        rounded-[22px]
+        border
+        border-[#14526B]/20
+        bg-gradient-to-br
+        from-sky-300/70
+        via-cyan-200/55
+        to-sky-100/45
+        shadow-[
+          inset_0_2px_4px_rgba(255,255,255,0.95),
+          inset_0_-4px_10px_rgba(14,165,233,0.12),
+          0_5px_14px_rgba(20,82,107,0.18)
+        ]
+        backdrop-blur-xl
+      "
+    />
 
-                    {/* 水の光 */}
-                    <div
-                      className="
-                        absolute
-                        left-[18%]
-                        top-[5px]
-                        h-[7px]
-                        w-[45%]
-                        rounded-full
-                        bg-white/70
-                        blur-[2px]
-                      "
-                    />
+    {/* 上側の反射 */}
+    <div
+      className="
+        absolute
+        left-[15%]
+        top-[4px]
+        h-[8px]
+        w-[55%]
+        rounded-full
+        bg-white/80
+        blur-[2px]
+      "
+    />
 
-                    {/* 水色の影 */}
-                    <div
-                      className="
-                        absolute
-                        -bottom-3
-                        right-0
-                        h-8
-                        w-12
-                        rounded-full
-                        bg-sky-300/30
-                        blur-xl
-                      "
-                    />
-                  </>
-                )}
+    {/* 下側に溜まった水色 */}
+    <div
+      className="
+        absolute
+        -bottom-4
+        left-1/2
+        h-9
+        w-[80%]
+        -translate-x-1/2
+        rounded-full
+        bg-sky-400/30
+        blur-xl
+      "
+    />
+
+    {/* 小さい光 */}
+    <div
+      className="
+        absolute
+        right-[14%]
+        top-[12px]
+        h-2
+        w-2
+        rounded-full
+        bg-white/80
+        blur-[1px]
+      "
+    />
+  </>
+)}
 
                 {/* アイコン */}
                 <Icon
