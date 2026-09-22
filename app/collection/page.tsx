@@ -97,7 +97,6 @@ export default function CollectionPage() {
 
   const heardSongs = Object.entries(heardSongCounts)
     .sort((a, b) => {
-      // 聴いた回数が多い順
       if (b[1] !== a[1]) {
         return b[1] - a[1];
       }
@@ -278,7 +277,6 @@ export default function CollectionPage() {
 
             <div className="mt-8 grid grid-cols-3 rounded-xl bg-zinc-100 p-1">
 
-              {/* 参戦ライブ */}
               <button
                 type="button"
                 onClick={() => setActiveTab("lives")}
@@ -296,7 +294,6 @@ export default function CollectionPage() {
 
               </button>
 
-              {/* 聴いた曲 */}
               <button
                 type="button"
                 onClick={() => setActiveTab("heard")}
@@ -314,7 +311,6 @@ export default function CollectionPage() {
 
               </button>
 
-              {/* 未聴曲 */}
               <button
                 type="button"
                 onClick={() => setActiveTab("unheard")}
@@ -354,45 +350,60 @@ export default function CollectionPage() {
                 </div>
 
                 {attendedLives.length > 0 ? (
-                  <div className="space-y-2.5">
 
-                    {attendedLives.map((live: Live) => (
+                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
+
+                    {attendedLives.map((live: Live, index) => (
                       <Link
                         key={live.id}
                         href={`/live/${live.id}`}
-                        className="block rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B] hover:shadow-md"
+                        className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
+                          index !== attendedLives.length - 1
+                            ? "border-b border-zinc-200"
+                            : ""
+                        }`}
                       >
 
-                        {/* 日付 */}
-                        <p className="text-[12px] font-medium text-[#14526B]">
-                          {live.date}
-                        </p>
+                        <div className="min-w-0 flex-1">
 
-                        {/* 公演名 */}
-                        <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900">
-                          {live.title}
-                        </h3>
+                          {/* 日付 */}
+                          <p className="text-[12px] font-medium text-[#14526B]">
+                            {live.date}
+                          </p>
 
-                        {/* 都市・会場 */}
-                        <p className="mt-1.5 truncate text-[12px] text-zinc-500">
+                          {/* 公演名 */}
+                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900">
+                            {live.title}
+                          </h3>
 
-                          <span className="font-medium text-[#14526B]">
-                            {live.city}
-                          </span>
+                          {/* 都市・会場 */}
+                          <p className="mt-1 text-[12px] leading-5 text-zinc-500">
 
-                          <span className="mx-2 text-zinc-300">
-                            ｜
-                          </span>
+                            <span className="font-medium text-[#14526B]">
+                              {live.city}
+                            </span>
 
-                          {live.venue}
+                            <span className="mx-2 text-zinc-300">
+                              ｜
+                            </span>
 
-                        </p>
+                            {live.venue}
+
+                          </p>
+
+                        </div>
+
+                        <span className="shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
+                          ›
+                        </span>
 
                       </Link>
                     ))}
 
                   </div>
+
                 ) : (
+
                   <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
 
                     <p className="text-[14px] font-medium text-zinc-600">
@@ -407,6 +418,7 @@ export default function CollectionPage() {
                     </Link>
 
                   </div>
+
                 )}
 
               </section>
@@ -432,22 +444,27 @@ export default function CollectionPage() {
                 </div>
 
                 {heardSongs.length > 0 ? (
-                  <div className="space-y-2">
+
+                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
 
                     {heardSongs.map(([song, count], index) => (
                       <Link
                         key={song}
                         href={`/songs/${encodeURIComponent(song)}`}
-                        className="flex items-center rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-[#14526B]"
+                        className={`group flex items-center px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
+                          index !== heardSongs.length - 1
+                            ? "border-b border-zinc-200"
+                            : ""
+                        }`}
                       >
 
                         {/* 順位 */}
-                        <span className="w-9 shrink-0 text-[11px] font-bold text-zinc-300">
+                        <span className="w-9 shrink-0 text-[11px] font-bold tabular-nums text-zinc-300">
                           {String(index + 1).padStart(2, "0")}
                         </span>
 
                         {/* 曲名 */}
-                        <span className="min-w-0 flex-1 truncate text-[14px] font-semibold text-zinc-900">
+                        <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.4] text-[#14526B]">
                           {song}
                         </span>
 
@@ -456,15 +473,17 @@ export default function CollectionPage() {
                           {count}回
                         </span>
 
-                        <span className="ml-3 text-[12px] text-zinc-300">
-                          →
+                        <span className="ml-3 shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
+                          ›
                         </span>
 
                       </Link>
                     ))}
 
                   </div>
+
                 ) : (
+
                   <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
 
                     <p className="text-[14px] text-zinc-500">
@@ -472,6 +491,7 @@ export default function CollectionPage() {
                     </p>
 
                   </div>
+
                 )}
 
               </section>
@@ -497,28 +517,35 @@ export default function CollectionPage() {
                 </div>
 
                 {unheardSongs.length > 0 ? (
-                  <div className="space-y-2">
 
-                    {unheardSongs.map((song) => (
+                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
+
+                    {unheardSongs.map((song, index) => (
                       <Link
                         key={song}
                         href={`/songs/${encodeURIComponent(song)}`}
-                        className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white px-4 py-3 transition hover:border-[#14526B]"
+                        className={`group flex items-center px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
+                          index !== unheardSongs.length - 1
+                            ? "border-b border-zinc-200"
+                            : ""
+                        }`}
                       >
 
-                        <span className="min-w-0 flex-1 truncate text-[14px] font-medium text-zinc-600">
+                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-zinc-600">
                           {song}
                         </span>
 
-                        <span className="ml-3 text-[12px] text-zinc-300">
-                          →
+                        <span className="ml-3 shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
+                          ›
                         </span>
 
                       </Link>
                     ))}
 
                   </div>
+
                 ) : (
+
                   <div className="rounded-xl bg-[#14526B]/10 px-5 py-8 text-center">
 
                     <p className="text-[18px] font-bold text-[#14526B]">
@@ -530,6 +557,7 @@ export default function CollectionPage() {
                     </p>
 
                   </div>
+
                 )}
 
               </section>
