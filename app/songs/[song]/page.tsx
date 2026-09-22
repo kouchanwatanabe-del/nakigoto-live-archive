@@ -43,7 +43,7 @@ export default async function SongPage({
           </p>
 
           {/* 曲名 */}
-          <h1 className="mt-4 text-[32px] font-bold leading-[1.3] text-[#14526B] sm:text-[36px]">
+          <h1 className="mt-4 text-[19px] font-bold leading-[1.3] text-[#14526B] sm:text-[36px]">
   {songName}
 </h1>
 
@@ -60,45 +60,43 @@ export default async function SongPage({
             演奏したライブ
           </h2>
 
-          <div className="mt-4 space-y-2.5">
+          <div className="mt-4 -mx-4 border-y border-zinc-200 bg-white sm:-mx-6">
+  {playedLives.map((live, index) => (
+    <Link
+      key={live.id}
+      href={`/live/${live.id}`}
+      className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
+        index !== playedLives.length - 1
+          ? "border-b border-zinc-200"
+          : ""
+      }`}
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-[12px] font-semibold text-[#14526B]">
+          {live.date}
+        </p>
 
-            {playedLives.map((live) => (
-              <Link
-                key={live.id}
-                href={`/live/${live.id}`}
-               className="block py-3 transition-opacity hover:opacity-60"
-              >
+        <h3 className="mt-1 font-bold leading-[1.4] text-[#14526B]">
+          {live.title}
+        </h3>
 
-                {/* ライブ情報 */}
-                <div className="min-w-0 flex-1">
+        <p className="mt-1 text-sm text-zinc-500">
+          <span className="font-medium text-[#14526B]">
+            {live.city}
+          </span>
 
-                  {/* 日付 */}
-                  <p className="text-[11px] font-medium text-[#14526B]">
-                    {live.date}
-                  </p>
+          <span className="mx-1.5 text-zinc-300">｜</span>
 
-                  {/* ライブタイトル */}
-                  <h3 className="mt-1 truncate text-[14px] font-bold text-[#14526B]">
-                    {live.title}
-                  </h3>
+          {live.venue}
+        </p>
+      </div>
 
-                  {/* 会場 */}
-                  <p className="mt-1 truncate text-[11px] text-[#14526B]">
-                    {live.venue}
-                  </p>
-
-                </div>
-
-                {/* 矢印 */}
-                <span className="ml-4 shrink-0 text-[13px] text-[#14526B] transition-all group-hover:translate-x-1">
-                  →
-                </span>
-
-              </Link>
-            ))}
-
-          </div>
-
+      <span className="shrink-0 text-zinc-300 transition-transform group-hover:translate-x-0.5">
+        ›
+      </span>
+    </Link>
+  ))}
+</div>
         </section>
 
       </div>
