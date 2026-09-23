@@ -84,6 +84,24 @@ export default async function LivePage({
 
           </div>
 
+         {"artists" in live &&
+  Array.isArray(live.artists) &&
+  live.artists.length > 0 && (
+    <p className="mt-2 text-[13px] leading-5 text-zinc-500">
+      <span className="font-bold text-[#14526B]">
+        w/
+      </span>
+
+      <span className="mx-1.5 text-zinc-300">
+        /
+      </span>
+
+      <span>
+        {live.artists.join(" , ")}
+      </span>
+    </p>
+  )}
+
           {/* ツアー */}
           {live.tour && (
             <div className="mt-2.5">
