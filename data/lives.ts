@@ -6,6 +6,8 @@ export const lives = [
     city: "東京",
     venue: "shibuya eggman",
     tour: "3ヶ月連続自主企画コンセプトワンマンライブ",
+    artists: [
+  ],
     setlist: [
      "Oyasumi Tokyo",
     "憧れとレモンサワー",
@@ -41,6 +43,11 @@ export const lives = [
   city: "栃木",
   venue: "HEAVEN'S ROCK宇都宮VJ-2",
   tour: "",
+  artists: [
+  "汐れいら",
+  "ココラシカ",
+  "ポンツクピーヤ",
+],
   setlist: [
     "癖",
     "知らない惑星",
@@ -221,6 +228,9 @@ export const lives = [
   city: "岡山",
   venue: "岡山IMAGE",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "Conton Candy",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -247,6 +257,9 @@ export const lives = [
   city: "広島",
   venue: "Live spece Read",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "Conton Candy",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -273,6 +286,9 @@ export const lives = [
   city: "宮城",
   venue: "LIVE HOUSE enn 2nd",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "berry meet",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -299,6 +315,9 @@ export const lives = [
   city: "大阪",
   venue: "Yogibo META VALLEY",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "13.3g",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -325,6 +344,12 @@ export const lives = [
   city: "広島",
   venue: "福山 みろくの里",
   tour: "",
+  artists: [
+  "osage",
+  "Ivy to Fraudulent Game",
+  "SAKANAMON",
+  "Czecho No Republic",
+],
   rehearsal: [
     "憧れとレモンサワー",
     "204号室",
@@ -348,6 +373,9 @@ export const lives = [
   city: "愛知",
   venue: "名古屋CLUB QUATTRO",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "紫 今",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -375,6 +403,9 @@ export const lives = [
   city: "石川",
   venue: "金沢 vanvan V4",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "YUTORI-SEDAI",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -402,6 +433,9 @@ export const lives = [
   city: "新潟",
   venue: "新潟GOLDEN PIGS BLACK",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "YUTORI-SEDAI",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -447,6 +481,10 @@ export const lives = [
   city: "北海道",
   venue: "KLUB COUNTER ACTION",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+  "Ivy to Fraudulent Game",
+  "SAKANAMON",
+],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -490,6 +528,9 @@ export const lives = [
   city: "福岡",
   venue: "福岡CB",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "Sakurashimeji",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -517,6 +558,9 @@ export const lives = [
   city: "兵庫",
   venue: "神戸 太陽と虎",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "Hakubi",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -562,6 +606,9 @@ export const lives = [
   city: "香川",
   venue: "高松DIME",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "POP ART TOWN",
+  ],
   setlist: [
     "ドリー",
     "忘却炉",
@@ -627,6 +674,9 @@ export const lives = [
   city: "神奈川",
   venue: "F.A.D YOKOHAMA",
   tour: "ビタースイートベイビーツアー2026",
+  artists: [
+    "osage",
+  ],
   setlist: [
     "憧れとレモンサワー",
     "忘却炉",
@@ -651,6 +701,11 @@ export const lives = [
   city: "東京",
   venue: "Veats Shibuya",
   tour: "",
+  artists: [
+  "超能力戦士ドリアン",
+  "3markets[ ]",
+  "カラコルムの山々",
+],
   setlist: [
     "憧れとレモンサワー",
     "甘々吟味",
@@ -698,7 +753,7 @@ export const lives = [
 {
   id: "2026-01-12",
   date: "2026.01.12",
-  title: "murffin discs 20th Anniversary Acoustic FREE LIVE！",
+  title: "【水上弾き語り】murffin discs 20th Anniversary Acoustic FREE LIVE！",
   city: "東京",
   venue: "渋谷モディ",
   tour: "",
@@ -733,6 +788,10 @@ export const lives = [
   city: "東京",
   venue: "日本橋三井ホール",
   tour: "",
+  artists: [
+  "レトロリロン",
+  "眞名子新",
+],
   setlist: [
     "愛才",
     "グッナイダーリン・イマジナリーベイブ",
@@ -772,6 +831,9 @@ export const lives = [
   city: "大阪",
   venue: "心斎橋Music Club JANUS",
   tour: "",
+  artists: [
+    "Conton Candy",
+  ],
   setlist: [
     "安酒にロマンス",
     "グッナイダーリン・イマジナリーベイブ",
@@ -940,6 +1002,9 @@ export const lives = [
   city: "東京",
   venue: "渋谷O-Crest",
   tour: "",
+  artists: [
+    "Hwyl",
+  ],
   setlist: [
     "短夜",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1248,6 +1313,9 @@ export const lives = [
   city: "神奈川",
   venue: "KT Zepp Yokohama",
   tour: "",
+  artists: [
+    "yutori",
+  ],
   setlist: [
     "グッナイダーリン・イマジナリーベイブ",
     "Summer麺",
@@ -1335,6 +1403,10 @@ export const lives = [
   city: "岡山",
   venue: "杜の街グレース",
   tour: "",
+  artists: [
+  "藤森元生（SAKANAMON）",
+  "紬衣（Conton Candy）",
+],
   setlist: [],
   encore: [],
   memo: "水上えみり弾き語り",
@@ -1346,6 +1418,9 @@ export const lives = [
   city: "東京",
   venue: "新代田FEVER",
   tour: "",
+  artists: [
+    "omeme tenten",
+  ],
   setlist: [
     "安酒にロマンス",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1495,6 +1570,10 @@ export const lives = [
   city: "広島",
   venue: "みろくの里 しばふ広場特設ステージ",
   tour: "",
+  artists: [
+    "osage",
+    "SAKANAMON",
+  ],
   setlist: [
     "グッナイダーリン・イマジナリーベイブ",
     "私は私なりの言葉でしか愛してると伝えることができない",
@@ -1533,6 +1612,9 @@ export const lives = [
   title: "Sakurashimeji Live Tour 2025 ~track [poly]",
   city: "愛知",
   venue: "名古屋CLUB QUATTRO",
+  artists: [
+    "Sakurashimeji",
+  ],
   tour: "",
   setlist: [
     "愛才",
@@ -1687,6 +1769,11 @@ export const lives = [
   city: "岡山",
   venue: "CRAZYMAMA KINGDOM",
   tour: "",
+  artists: [
+  "the quiet room",
+  "pachae",
+  "omeme tenten",
+],
   setlist: [
     "安酒にロマンス",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1837,6 +1924,12 @@ export const lives = [
   city: "台北",
   venue: "THE WALL",
   tour: "",
+  artists: [
+  "SAKANAMON",
+  "Czecho No Republic",
+  "osage",
+  "公館青少年GGteens（台湾）",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1874,6 +1967,10 @@ export const lives = [
   city: "愛知",
   venue: "名古屋CLUB QUATTRO",
   tour: "2nd Full Album Release Tour 2024",
+  artists: [
+  "SAKANAMON",
+  "FINLANDS",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1902,6 +1999,9 @@ export const lives = [
   city: "大阪",
   venue: "心斎橋BIGCAT",
   tour: "2nd Full Album Release Tour 2024",
+  artists: [
+  "reGretGirl",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1949,7 +2049,7 @@ export const lives = [
   tour: "",
   setlist: [],
   encore: [],
-  memo: "Hangover、私は私なりの言葉でしか愛してると伝えることができない、冬がはじまるよ（槙原敬之カバー）、マリッジブルー、D.I.D.、メトロポリタン",
+  memo: "水上えみり弾き語り、Hangover、私は私なりの言葉でしか愛してると伝えることができない、冬がはじまるよ（槙原敬之カバー）、マリッジブルー、D.I.D.、メトロポリタン",
 },
 {
   id: "2024-10-19",
@@ -1958,6 +2058,10 @@ export const lives = [
   city: "石川",
   venue: "金沢vanvan V4",
   tour: "2nd Full Album Release Tour 2024",
+  artists: [
+  "the quiet room",
+  "汐れいら",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
@@ -1974,7 +2078,7 @@ export const lives = [
     "メトロポリタン",
     "憧れとレモンサワー",
   ],
-  memo: "リハーサル：Instant Girl（ワンフレーズのみ）",
+  memo: "リハーサル：Instant Girl",
 },
 {
   id: "2024-10-18",
@@ -1983,6 +2087,10 @@ export const lives = [
   city: "新潟",
   venue: "新潟GOLDEN PIGS RED STAGE",
   tour: "2nd Full Album Release Tour 2024",
+  artists: [
+  "the quiet room",
+  "anewwhite",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
@@ -2008,6 +2116,10 @@ export const lives = [
   city: "福岡",
   venue: "福岡CB",
   tour: "2nd Full Album Release Tour 2024",
+  artists: [
+  "クレナズム",
+  "osage",
+],
   setlist: [
     "sniper",
     "グッナイダーリン・イマジナリーベイブ",
