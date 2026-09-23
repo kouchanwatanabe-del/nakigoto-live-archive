@@ -62,214 +62,170 @@ body {
    CAT LOADING
 ======================================== */
 
-.cat-track {
+.cat-loading-area {
   position: relative;
-  width: 180px;
-  height: 52px;
-  margin: 18px auto 0;
+  width: 240px;
+  height: 72px;
+  margin: 14px auto 0;
   overflow: visible;
 }
 
 /* 猫全体 */
-.loading-cat {
+.cat-silhouette {
   position: absolute;
-  left: 0;
-  bottom: 8px;
-  width: 42px;
-  height: 27px;
+  left: -10px;
+  bottom: 0;
+
+  width: 74px;
+  height: 52px;
+
+  color: #14526b;
+
+  transform-origin: center bottom;
 
   animation:
-    cat-walk-forward 1.35s linear forwards,
-    cat-walk-bounce 0.28s ease-in-out infinite;
+    cat-walk-position 1.35s linear forwards,
+    cat-walk-body 0.34s ease-in-out infinite;
 }
 
-/* 胴体 */
-.cat-body {
-  position: absolute;
-  left: 10px;
-  bottom: 6px;
-
-  width: 25px;
-  height: 13px;
-
-  background: #14526b;
-  border-radius: 55% 45% 45% 50%;
-}
-
-/* 頭 */
-.cat-head {
-  position: absolute;
-  right: 0;
-  bottom: 10px;
-
-  width: 14px;
-  height: 14px;
-
-  background: #14526b;
-  border-radius: 50%;
-}
-
-/* 耳 */
-.cat-ear {
-  position: absolute;
-  top: -4px;
-
-  width: 7px;
-  height: 7px;
-
-  background: #14526b;
-  transform: rotate(45deg);
-}
-
-.cat-ear-left {
-  left: 1px;
-}
-
-.cat-ear-right {
-  right: 1px;
-}
-
-/* しっぽ */
-.cat-tail {
-  position: absolute;
-  left: 1px;
-  bottom: 14px;
-
-  width: 17px;
-  height: 5px;
-
-  border-top: 4px solid #14526b;
-  border-radius: 100% 0 0 0;
-
-  transform-origin: right center;
-
-  animation: cat-tail 0.5s ease-in-out infinite alternate;
-}
-
-/* 足 */
-.cat-leg {
-  position: absolute;
-  bottom: 1px;
-
-  width: 3px;
-  height: 9px;
-
-  background: #14526b;
-  border-radius: 3px;
-
-  transform-origin: top;
-}
-
-.cat-leg-1 {
-  left: 14px;
-  animation: cat-leg-a 0.28s ease-in-out infinite alternate;
-}
-
-.cat-leg-2 {
-  left: 20px;
-  animation: cat-leg-b 0.28s ease-in-out infinite alternate;
-}
-
-.cat-leg-3 {
-  left: 29px;
-  animation: cat-leg-b 0.28s ease-in-out infinite alternate;
-}
-
-.cat-leg-4 {
-  left: 34px;
-  animation: cat-leg-a 0.28s ease-in-out infinite alternate;
+.cat-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
 }
 
 /* ========================================
-   歩行
+   歩いているとき
 ======================================== */
 
-@keyframes cat-walk-forward {
+@keyframes cat-walk-position {
   from {
-    left: 0;
+    left: -10px;
   }
 
   to {
-    left: 105px;
+    left: 125px;
   }
 }
 
-@keyframes cat-walk-bounce {
+@keyframes cat-walk-body {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) rotate(0deg);
+  }
+
+  25% {
+    transform: translateY(-1px) rotate(-0.5deg);
   }
 
   50% {
-    transform: translateY(-2px);
+    transform: translateY(-2px) rotate(0deg);
   }
+
+  75% {
+    transform: translateY(-1px) rotate(0.5deg);
+  }
+}
+
+/* 足にも少し動きを付ける */
+.cat-svg-leg {
+  transform-box: fill-box;
+  transform-origin: top center;
+}
+
+.cat-svg-leg-a {
+  animation: cat-leg-a 0.34s ease-in-out infinite alternate;
+}
+
+.cat-svg-leg-b {
+  animation: cat-leg-b 0.34s ease-in-out infinite alternate;
 }
 
 @keyframes cat-leg-a {
   from {
-    transform: rotate(22deg);
+    transform: rotate(5deg);
   }
 
   to {
-    transform: rotate(-22deg);
+    transform: rotate(-5deg);
   }
 }
 
 @keyframes cat-leg-b {
   from {
-    transform: rotate(-22deg);
+    transform: rotate(-5deg);
   }
 
   to {
-    transform: rotate(22deg);
-  }
-}
-
-@keyframes cat-tail {
-  from {
-    transform: rotate(-10deg);
-  }
-
-  to {
-    transform: rotate(14deg);
+    transform: rotate(5deg);
   }
 }
 
 /* ========================================
-   走る
+   読み込み終了 → ダッシュ
 ======================================== */
 
-.loading-cat.cat-running {
-  animation: cat-run-away 0.5s cubic-bezier(0.4, 0, 1, 1) forwards;
+.cat-silhouette.cat-silhouette-running {
+  animation: cat-run-away 0.5s cubic-bezier(0.45, 0, 0.85, 0.35) forwards;
 }
 
-.cat-running .cat-leg {
-  animation-duration: 0.1s;
+/* 走るときは足を速く */
+.cat-silhouette-running .cat-svg-leg-a {
+  animation: cat-run-leg-a 0.09s ease-in-out infinite alternate;
 }
 
-.cat-running .cat-tail {
-  animation-duration: 0.14s;
+.cat-silhouette-running .cat-svg-leg-b {
+  animation: cat-run-leg-b 0.09s ease-in-out infinite alternate;
+}
+
+@keyframes cat-run-leg-a {
+  from {
+    transform: rotate(12deg);
+  }
+
+  to {
+    transform: rotate(-12deg);
+  }
+}
+
+@keyframes cat-run-leg-b {
+  from {
+    transform: rotate(-12deg);
+  }
+
+  to {
+    transform: rotate(12deg);
+  }
 }
 
 @keyframes cat-run-away {
   0% {
-    left: 105px;
-    transform: translateY(0) scaleX(1);
+    left: 125px;
+    transform: translateY(0) rotate(0deg) scaleX(1);
   }
 
-  15% {
-    left: 108px;
-    transform: translateY(2px) scaleX(1.05);
+  /* 一瞬だけ沈み込む */
+  10% {
+    left: 127px;
+    transform: translateY(2px) rotate(1deg) scaleX(1.02);
   }
 
-  35% {
-    left: 135px;
-    transform: translateY(-3px) scaleX(1.08);
+  /* ダッと踏み出す */
+  28% {
+    left: 150px;
+    transform: translateY(-3px) rotate(-3deg) scaleX(1.08);
   }
 
+  55% {
+    left: 260px;
+    transform: translateY(-2px) rotate(-4deg) scaleX(1.1);
+  }
+
+  /* 画面右側へ走り去る */
   100% {
-    left: calc(100vw + 80px);
-    transform: translateY(-2px) scaleX(1.08);
+    left: calc(50vw + 240px);
+    transform: translateY(-2px) rotate(-4deg) scaleX(1.1);
   }
 }
 
@@ -277,38 +233,41 @@ body {
    スピード線
 ======================================== */
 
-.cat-speed-lines {
+.cat-run-lines {
   position: absolute;
-  left: -23px;
-  top: 8px;
+  left: -24px;
+  top: 22px;
 
-  width: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 
   opacity: 0;
+
+  transition: opacity 0.08s;
 }
 
-.cat-speed-lines span {
+.cat-run-lines span {
   display: block;
 
-  height: 2px;
-  margin-bottom: 4px;
+  height: 1.5px;
 
   background: #14526b;
   border-radius: 999px;
 }
 
-.cat-speed-lines span:nth-child(1) {
-  width: 16px;
+.cat-run-lines span:nth-child(1) {
+  width: 17px;
 }
 
-.cat-speed-lines span:nth-child(2) {
-  width: 10px;
+.cat-run-lines span:nth-child(2) {
+  width: 25px;
 }
 
-.cat-speed-lines span:nth-child(3) {
-  width: 14px;
+.cat-run-lines span:nth-child(3) {
+  width: 13px;
 }
 
-.cat-running .cat-speed-lines {
-  opacity: 0.35;
+.cat-silhouette-running .cat-run-lines {
+  opacity: 0.28;
 }
