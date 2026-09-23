@@ -6058,7 +6058,11 @@ export const lives = [
   city: "岡山",
   venue: "岡山CRAZYMAMA KINGDOM",
   tour: "",
-  artists: [],
+  artists: [
+  "シンガロンパレード",
+  "粟子真行（ココロオークション）",
+  "ANTENA",
+],
   setlist: [
   "合鍵",
   "忘却炉",
@@ -6071,5 +6075,64 @@ export const lives = [
   encore: [],
   memo: "",
 },
+{
+  id: "2021-02-07",
+  date: "2021.02.07",
+  title: 'the shes gone presents "man two man"',
+  city: "大阪",
+  venue: "梅田CLUB QUATTRO",
+  tour: "",
+  artists: [
+    "the shes gone",
+  ],
+  setlist: [
+    "合鍵",
+    "さよならシャンプー",
+    "メトロポリタン",
+    "ラズベリー",
+    "知らない惑星",
+    "憧れとレモンサワー",
+    "スプートニクになる",
+    "ドリー",
+    "癖",
+  ],
+  encore: [],
+  memo: "",
+},
+{
+  id: "2021-02-06",
+  date: "2021.02.06",
+  title: "でらロックフェスティバル2021",
+  city: "愛知",
+  venue: "名古屋CLUB QUATTRO",
+  tour: "",
+  artists: [],
+  setlist: [],
+  encore: [],
+  memo: "",
+},
+{
+  id: "2021-01-31",
+  date: "2021.01.31",
+  title: "murffin night 2021 -EXTRA-",
+  city: "東京",
+  venue: "渋谷CLUB QUATTRO",
+  tour: "",
+  artists: [
+    "osage",
+    "SherLock",
+  ],
+  setlist: [],
+  encore: [],
+  memo: "",
+},
+
+
+
+// ========================================
+// 2020
+// ========================================
+
+
 
 ];
