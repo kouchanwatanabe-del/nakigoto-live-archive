@@ -59,173 +59,131 @@ body {
   animation: introLine 1.3s ease-out both;
 }
 /* ========================================
-   CAT LOADING
+   INTRO CAT
 ======================================== */
 
-.cat-loading-area {
+.intro-cat-track {
   position: relative;
-  width: 240px;
-  height: 72px;
-  margin: 14px auto 0;
+
+  width: 280px;
+  height: 85px;
+
+  margin: 12px auto 0;
+
   overflow: visible;
 }
 
-/* 猫全体 */
-.cat-silhouette {
+/* ========================================
+   猫本体
+======================================== */
+
+.intro-cat {
   position: absolute;
+
   left: -10px;
   bottom: 0;
 
-  width: 74px;
-  height: 52px;
-
-  color: #14526b;
+  width: 82px;
 
   transform-origin: center bottom;
 
-  animation:
-    cat-walk-position 1.35s linear forwards,
-    cat-walk-body 0.34s ease-in-out infinite;
+  animation: intro-cat-walk-position 1.4s linear forwards;
 }
 
-.cat-svg {
+.intro-cat-image {
   display: block;
+
   width: 100%;
-  height: 100%;
-  overflow: visible;
+  height: auto;
+
+  object-fit: contain;
+
+  user-select: none;
+  pointer-events: none;
 }
 
 /* ========================================
-   歩いているとき
+   歩く
 ======================================== */
 
-@keyframes cat-walk-position {
-  from {
+@keyframes intro-cat-walk-position {
+  0% {
     left: -10px;
-  }
-
-  to {
-    left: 125px;
-  }
-}
-
-@keyframes cat-walk-body {
-  0%,
-  100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0);
   }
 
   25% {
-    transform: translateY(-1px) rotate(-0.5deg);
+    transform: translateY(-1px);
   }
 
   50% {
-    transform: translateY(-2px) rotate(0deg);
+    transform: translateY(0);
   }
 
   75% {
-    transform: translateY(-1px) rotate(0.5deg);
-  }
-}
-
-/* 足にも少し動きを付ける */
-.cat-svg-leg {
-  transform-box: fill-box;
-  transform-origin: top center;
-}
-
-.cat-svg-leg-a {
-  animation: cat-leg-a 0.34s ease-in-out infinite alternate;
-}
-
-.cat-svg-leg-b {
-  animation: cat-leg-b 0.34s ease-in-out infinite alternate;
-}
-
-@keyframes cat-leg-a {
-  from {
-    transform: rotate(5deg);
+    transform: translateY(-1px);
   }
 
-  to {
-    transform: rotate(-5deg);
-  }
-}
-
-@keyframes cat-leg-b {
-  from {
-    transform: rotate(-5deg);
-  }
-
-  to {
-    transform: rotate(5deg);
+  100% {
+    left: 145px;
+    transform: translateY(0);
   }
 }
 
 /* ========================================
-   読み込み終了 → ダッシュ
+   走る
 ======================================== */
 
-.cat-silhouette.cat-silhouette-running {
-  animation: cat-run-away 0.5s cubic-bezier(0.45, 0, 0.85, 0.35) forwards;
+.intro-cat.intro-cat-running {
+  animation: intro-cat-run-away 0.55s
+    cubic-bezier(0.45, 0, 0.85, 0.3)
+    forwards;
 }
 
-/* 走るときは足を速く */
-.cat-silhouette-running .cat-svg-leg-a {
-  animation: cat-run-leg-a 0.09s ease-in-out infinite alternate;
-}
-
-.cat-silhouette-running .cat-svg-leg-b {
-  animation: cat-run-leg-b 0.09s ease-in-out infinite alternate;
-}
-
-@keyframes cat-run-leg-a {
-  from {
-    transform: rotate(12deg);
-  }
-
-  to {
-    transform: rotate(-12deg);
-  }
-}
-
-@keyframes cat-run-leg-b {
-  from {
-    transform: rotate(-12deg);
-  }
-
-  to {
-    transform: rotate(12deg);
-  }
-}
-
-@keyframes cat-run-away {
+@keyframes intro-cat-run-away {
+  /* 歩き終わった位置 */
   0% {
-    left: 125px;
-    transform: translateY(0) rotate(0deg) scaleX(1);
+    left: 145px;
+
+    transform:
+      translateY(0)
+      scaleX(1);
   }
 
-  /* 一瞬だけ沈み込む */
-  10% {
-    left: 127px;
-    transform: translateY(2px) rotate(1deg) scaleX(1.02);
+  /* 一瞬沈む */
+  8% {
+    left: 147px;
+
+    transform:
+      translateY(2px)
+      scaleX(1.02);
   }
 
-  /* ダッと踏み出す */
-  28% {
-    left: 150px;
-    transform: translateY(-3px) rotate(-3deg) scaleX(1.08);
+  /* 踏み出す */
+  22% {
+    left: 165px;
+
+    transform:
+      translateY(-2px)
+      scaleX(1.04);
   }
 
-  55% {
-    left: 260px;
-    transform: translateY(-2px) rotate(-4deg) scaleX(1.1);
+  /* 一気に加速 */
+  50% {
+    left: 280px;
+
+    transform:
+      translateY(-3px)
+      scaleX(1.05);
   }
 
-  /* 画面右側へ走り去る */
+  /* 画面外へ */
   100% {
-    left: calc(50vw + 240px);
-    transform: translateY(-2px) rotate(-4deg) scaleX(1.1);
+    left: calc(50vw + 350px);
+
+    transform:
+      translateY(-2px)
+      scaleX(1.06);
   }
 }
 
@@ -233,13 +191,15 @@ body {
    スピード線
 ======================================== */
 
-.cat-run-lines {
+.intro-cat-speed-lines {
   position: absolute;
-  left: -24px;
-  top: 22px;
+
+  left: -25px;
+  top: 45%;
 
   display: flex;
   flex-direction: column;
+
   gap: 4px;
 
   opacity: 0;
@@ -247,27 +207,28 @@ body {
   transition: opacity 0.08s;
 }
 
-.cat-run-lines span {
+.intro-cat-speed-lines span {
   display: block;
 
   height: 1.5px;
 
   background: #14526b;
+
   border-radius: 999px;
 }
 
-.cat-run-lines span:nth-child(1) {
-  width: 17px;
+.intro-cat-speed-lines span:nth-child(1) {
+  width: 15px;
 }
 
-.cat-run-lines span:nth-child(2) {
-  width: 25px;
+.intro-cat-speed-lines span:nth-child(2) {
+  width: 24px;
 }
 
-.cat-run-lines span:nth-child(3) {
-  width: 13px;
+.intro-cat-speed-lines span:nth-child(3) {
+  width: 11px;
 }
 
-.cat-silhouette-running .cat-run-lines {
-  opacity: 0.28;
+.intro-cat-running .intro-cat-speed-lines {
+  opacity: 0.3;
 }
