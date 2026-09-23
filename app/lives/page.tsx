@@ -211,20 +211,29 @@ export default function LivesPage() {
           );
 
         const encoreMatch =
-          "encore" in live &&
-          Array.isArray(live.encore) &&
-          live.encore.some((song: string) =>
-            song.toLowerCase().includes(q)
-          );
+  "encore" in live &&
+  Array.isArray(live.encore) &&
+  live.encore.some((song: string) =>
+    song.toLowerCase().includes(q)
+  );
 
-        const keywordMatch =
-          q === "" ||
-          titleMatch ||
-          cityMatch ||
-          venueMatch ||
-          tourMatch ||
-          setlistMatch ||
-          encoreMatch;
+// 対バン相手
+const artistsMatch =
+  "artists" in live &&
+  Array.isArray(live.artists) &&
+  live.artists.some((artist: string) =>
+    artist.toLowerCase().includes(q)
+  );
+
+const keywordMatch =
+  q === "" ||
+  titleMatch ||
+  cityMatch ||
+  venueMatch ||
+  tourMatch ||
+  setlistMatch ||
+  encoreMatch ||
+  artistsMatch;
 
         return (
           yearMatch &&
@@ -399,7 +408,7 @@ export default function LivesPage() {
               onChange={(e) =>
                 setKeyword(e.target.value)
               }
-              placeholder="曲名・都市・公演名を検索"
+              placeholder="曲名・都市・公演名・対バン相手を検索"
               autoComplete="off"
               enterKeyHint="search"
               className="relative z-10 w-full appearance-none rounded-2xl border border-zinc-200 bg-white px-4 py-4 pr-12 text-base text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-[#14526B] focus:ring-2 focus:ring-[#14526B]/10"
