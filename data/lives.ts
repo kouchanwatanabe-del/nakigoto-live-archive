@@ -6122,7 +6122,17 @@ export const lives = [
     "osage",
     "SherLock",
   ],
-  setlist: [],
+  setlist: [
+  "合鍵",
+  "さよならシャンプー",
+  "セラミックナイト",
+  "メトロポリタン",
+  "知らない惑星",
+  "憧れとレモンサワー",
+  "スプートニクになる",
+  "ドリー",
+  "癖",
+],
   encore: [],
   memo: "",
 },
@@ -6144,7 +6154,17 @@ export const lives = [
   artists: [
     "Atomic Skipper",
   ],
-  setlist: [],
+  setlist: [
+  "癖",
+  "合鍵",
+  "サラブレッド",
+  "知らない惑星",
+  "メトロポリタン",
+  "のらりくらり",
+  "ドリー",
+  "スプートニクになる",
+  "深夜2時とハイボール",
+],
   encore: [],
   memo: "",
 },
@@ -6253,7 +6273,16 @@ export const lives = [
     "ハルカトミユキ Triad",
     "可愛い連中",
   ],
-  setlist: [],
+  setlist: [
+  "癖",
+  "さよならシャンプー",
+  "連れ去ってサラブレッド",
+  "メトロポリタン",
+  "セラミックナイト",
+  "のらりくらり",
+  "Oyasumi Tokyo",
+  "深夜2時とハイボール",
+],
   encore: [],
   memo: "",
 },
@@ -6418,11 +6447,41 @@ export const lives = [
 
 
 // ========================================
-// 2021
+// 2019
 // ========================================
 
 
 
 
+{
+  id: "2019-12-30",
+  date: "2019.12.30",
+  title: "MOSAiC presents COUNTDOWN MOSAiC 2019→2020",
+  city: "東京",
+  venue: "下北沢MOSAiC",
+  tour: "",
+  artists: [],
+  setlist: [],
+  encore: [],
+  memo: "",
+},
+{
+  id: "2019-12-28",
+  date: "2019.12.28",
+  title: "O-Crest YEAR END PARTY 2019 Special 5DAYS！",
+  city: "東京",
+  venue: "TSUTAYA O-Crest",
+  tour: "",
+  artists: [],
+  setlist: [
+    "合鍵",
+    "忘却炉",
+    "ユーモラル討論会",
+    "メトロポリタン",
+    "深夜2時とハイボール",
+  ],
+  encore: [],
+  memo: "",
+},
 
 ];
