@@ -1399,7 +1399,7 @@ export const lives = [
 {
   id: "2025-06-28",
   date: "2025.06.28",
-  title: "EIGHT BALL FESTIVAL 2025 アフターイベント ACOUSTIC LIVE in 杜の街グレース",
+  title: "【水上弾き語り】EIGHT BALL FESTIVAL 2025 アフターイベント ACOUSTIC LIVE in 杜の街グレース",
   city: "岡山",
   venue: "杜の街グレース",
   tour: "",
