@@ -6483,5 +6483,20 @@ export const lives = [
   encore: [],
   memo: "",
 },
+{
+  id: "2019-12-11",
+  date: "2019.12.11",
+  title: "ツタロックDIG “LIVE!” Vol.07",
+  city: "東京",
+  venue: "TSUTAYA O-nest",
+  tour: "",
+  artists: [
+    "シロとクロ",
+    "とけた電球",
+  ],
+  setlist: [],
+  encore: [],
+  memo: "",
+},
 
 ];
