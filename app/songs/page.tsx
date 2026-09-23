@@ -17,6 +17,10 @@ const hiddenSongs = [
   "暮らし（Hwylカバー）",
   "HEAT(FINLANDSカバー)",
   "ホワイトアウト(reGretGirlカバー)",
+  "ホワイトアウト（reGretGirlカバー）",
+  "ミュージックプランクトン（SAKANAMONカバー）",
+  "秘密（ドラマストアカバー）",
+  "秘密（ドラマストアカバー）",
 ];
 
 // 保存用キー
