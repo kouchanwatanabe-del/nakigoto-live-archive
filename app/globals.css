@@ -1,234 +1,51 @@
-@import "tailwindcss";
+"use client";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+import { useEffect, useState } from "react";
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-}
+export default function IntroAnimation() {
+  const [show, setShow] = useState(true);
+  const [fadeOut, setFadeOut] = useState(false);
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100%;
-  background-color: #ffffff;
-}
+  useEffect(() => {
+    // 1.4秒後にフェードアウト開始
+    const fadeTimer = setTimeout(() => {
+      setFadeOut(true);
+    }, 1400);
 
-body {
-  min-height: 100dvh;
-  background: #ffffff;
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+    // 1.9秒後に完全に非表示
+    const hideTimer = setTimeout(() => {
+      setShow(false);
+    }, 1900);
 
-/* ========================================
-   イントロアニメーション
-======================================== */
+    return () => {
+      clearTimeout(fadeTimer);
+      clearTimeout(hideTimer);
+    };
+  }, []);
 
-@keyframes introLogo {
-  0% {
-    opacity: 0;
-    transform: translateY(12px);
-  }
+  if (!show) return null;
 
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  return (
+    <div
+      className={`fixed inset-0 z-[9999] flex items-center justify-center bg-white transition-all duration-500 ${
+        fadeOut
+          ? "-translate-y-4 opacity-0"
+          : "translate-y-0 opacity-100"
+      }`}
+    >
+      <div className="text-center">
+        <p className="mb-3 text-[10px] font-medium tracking-[0.35em] text-zinc-400">
+          UNOFFICIAL LIVE ARCHIVE
+        </p>
 
-.animate-intro-logo {
-  animation: introLogo 0.7s ease-out both;
-}
+        <h1 className="animate-intro-logo text-[44px] font-black tracking-tight text-[#14526B]">
+          なきごと
+        </h1>
 
-@keyframes introLine {
-  0% {
-    width: 0%;
-  }
-
-  100% {
-    width: 100%;
-  }
-}
-
-.intro-line {
-  animation: introLine 1.3s ease-out both;
-}
-/* ========================================
-   INTRO CAT
-======================================== */
-
-.intro-cat-track {
-  position: relative;
-
-  width: 280px;
-  height: 85px;
-
-  margin: 12px auto 0;
-
-  overflow: visible;
-}
-
-/* ========================================
-   猫本体
-======================================== */
-
-.intro-cat {
-  position: absolute;
-
-  left: -10px;
-  bottom: 0;
-
-  width: 82px;
-
-  transform-origin: center bottom;
-
-  animation: intro-cat-walk-position 1.4s linear forwards;
-}
-
-.intro-cat-image {
-  display: block;
-
-  width: 100%;
-  height: auto;
-
-  object-fit: contain;
-
-  user-select: none;
-  pointer-events: none;
-}
-
-/* ========================================
-   歩く
-======================================== */
-
-@keyframes intro-cat-walk-position {
-  0% {
-    left: -10px;
-    transform: translateY(0);
-  }
-
-  25% {
-    transform: translateY(-1px);
-  }
-
-  50% {
-    transform: translateY(0);
-  }
-
-  75% {
-    transform: translateY(-1px);
-  }
-
-  100% {
-    left: 145px;
-    transform: translateY(0);
-  }
-}
-
-/* ========================================
-   走る
-======================================== */
-
-.intro-cat.intro-cat-running {
-  animation: intro-cat-run-away 0.55s
-    cubic-bezier(0.45, 0, 0.85, 0.3)
-    forwards;
-}
-
-@keyframes intro-cat-run-away {
-  /* 歩き終わった位置 */
-  0% {
-    left: 145px;
-
-    transform:
-      translateY(0)
-      scaleX(1);
-  }
-
-  /* 一瞬沈む */
-  8% {
-    left: 147px;
-
-    transform:
-      translateY(2px)
-      scaleX(1.02);
-  }
-
-  /* 踏み出す */
-  22% {
-    left: 165px;
-
-    transform:
-      translateY(-2px)
-      scaleX(1.04);
-  }
-
-  /* 一気に加速 */
-  50% {
-    left: 280px;
-
-    transform:
-      translateY(-3px)
-      scaleX(1.05);
-  }
-
-  /* 画面外へ */
-  100% {
-    left: calc(50vw + 350px);
-
-    transform:
-      translateY(-2px)
-      scaleX(1.06);
-  }
-}
-
-/* ========================================
-   スピード線
-======================================== */
-
-.intro-cat-speed-lines {
-  position: absolute;
-
-  left: -25px;
-  top: 45%;
-
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-
-  opacity: 0;
-
-  transition: opacity 0.08s;
-}
-
-.intro-cat-speed-lines span {
-  display: block;
-
-  height: 1.5px;
-
-  background: #14526b;
-
-  border-radius: 999px;
-}
-
-.intro-cat-speed-lines span:nth-child(1) {
-  width: 15px;
-}
-
-.intro-cat-speed-lines span:nth-child(2) {
-  width: 24px;
-}
-
-.intro-cat-speed-lines span:nth-child(3) {
-  width: 11px;
-}
-
-.intro-cat-running .intro-cat-speed-lines {
-  opacity: 0.3;
+        <div className="mx-auto mt-5 h-[2px] w-40 overflow-hidden rounded-full bg-zinc-100">
+          <div className="intro-line h-full bg-[#14526B]" />
+        </div>
+      </div>
+    </div>
+  );
 }
