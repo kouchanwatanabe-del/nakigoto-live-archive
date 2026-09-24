@@ -2,15 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   House,
   CalendarDays,
   Music2,
   Heart,
+  Menu,
+  X,
 } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
+  const [open, setOpen] = useState(false);
 
   const tabs = [
     {
@@ -57,89 +61,88 @@ export default function BottomNav() {
     return pathname.startsWith(href);
   };
 
-  const activeIndex = tabs.findIndex((tab) =>
-    isActive(tab.href)
-  );
-
   const handleTabClick = (active: boolean) => {
-    if (active) return;
+    if (!active) {
+      sessionStorage.setItem(
+        "bottomNavScrollPosition",
+        String(window.scrollY)
+      );
 
-    sessionStorage.setItem(
-      "bottomNavScrollPosition",
-      String(window.scrollY)
-    );
+      sessionStorage.setItem(
+        "bottomNavTabTransition",
+        "true"
+      );
 
-    sessionStorage.setItem(
-      "bottomNavTabTransition",
-      "true"
-    );
+      sessionStorage.removeItem(
+        "liveShouldRestoreScroll"
+      );
 
-    sessionStorage.removeItem(
-      "liveShouldRestoreScroll"
-    );
+      sessionStorage.removeItem(
+        "songShouldRestoreScroll"
+      );
+    }
 
-    sessionStorage.removeItem(
-      "songShouldRestoreScroll"
-    );
+    setOpen(false);
   };
 
+  // ページが変わったらメニューを閉じる
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
+
   return (
-    <nav
-      className="
-        fixed
-        bottom-3
-        left-1/2
-        z-50
-        w-[92%]
-        max-w-sm
-        -translate-x-1/2
-      "
-    >
-      <div
+    <>
+      {/* ================================= */}
+      {/* 背景 */}
+      {/* ================================= */}
+
+      <button
+        type="button"
+        aria-label="メニューを閉じる"
+        onClick={() => setOpen(false)}
+        className={`
+          fixed
+          inset-0
+          z-40
+          bg-black/5
+          backdrop-blur-[1px]
+          transition-all
+          duration-300
+
+          ${
+            open
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
+          }
+        `}
+      />
+
+      {/* ================================= */}
+      {/* 右下フローティングナビ */}
+      {/* ================================= */}
+
+      <nav
         className="
-          relative
-          rounded-[26px]
-          border
-          border-zinc-200/80
-          bg-white/90
-          p-1.5
-          shadow-[0_8px_30px_rgba(0,0,0,0.10)]
-          backdrop-blur-xl
+          fixed
+          bottom-5
+          right-4
+          z-50
+          flex
+          flex-col
+          items-end
+          sm:bottom-6
+          sm:right-6
         "
       >
-        <div className="relative h-[54px]">
+        {/* ================================= */}
+        {/* 縦メニュー */}
+        {/* ================================= */}
 
-          {/* 移動する青いカプセル */}
-          <div
-            className="
-              pointer-events-none
-              absolute
-              top-0
-              h-[54px]
-              rounded-[20px]
-              bg-[#14526B]
-              shadow-[0_4px_14px_rgba(20,82,107,0.25)]
-              transition-all
-              duration-500
-              ease-[cubic-bezier(0.22,1,0.36,1)]
-            "
-            style={{
-  width: activeIndex === 3 ? "39%" : "31%",
-  left: `${
-    activeIndex === 0
-      ? 0
-      : activeIndex === 1
-        ? 23
-        : activeIndex === 2
-          ? 46
-          : 61
-  }%`,
-}}
-          />
-
-          {/* タブ */}
-          <div className="absolute inset-0 flex items-center justify-between">
-            {tabs.map((tab) => {
+        <div className="mb-3 flex flex-col items-end gap-2">
+          {tabs
+            .slice()
+            .reverse()
+            .map((tab, index) => {
               const active = isActive(tab.href);
               const Icon = tab.icon;
 
@@ -153,69 +156,148 @@ export default function BottomNav() {
                   }
                   aria-label={tab.label}
                   className={`
-                    relative
-                    z-10
                     flex
-                    h-[54px]
+                    h-[46px]
                     items-center
-                    justify-center
-                    rounded-[20px]
+                    gap-2.5
+                    rounded-full
+                    border
+                    px-4
+                    shadow-[0_5px_18px_rgba(0,0,0,0.10)]
+                    backdrop-blur-xl
+
                     transition-all
-                    duration-500
+                    duration-300
                     ease-[cubic-bezier(0.22,1,0.36,1)]
 
                     ${
+                      open
+                        ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+                        : "pointer-events-none translate-y-3 scale-95 opacity-0"
+                    }
+
+                    ${
                       active
-  ? tab.href === "/collection"
-    ? "w-[39%] gap-2 px-3 text-white"
-    : "w-[31%] gap-2 px-3 text-white"
-  : "w-[23%] text-zinc-400 hover:text-[#14526B]"
+                        ? "border-[#14526B] bg-[#14526B] text-white"
+                        : "border-zinc-200/80 bg-white/95 text-[#14526B] hover:border-[#14526B]/40"
                     }
                   `}
+                  style={{
+                    transitionDelay: open
+                      ? `${index * 45}ms`
+                      : `${(tabs.length - index - 1) * 25}ms`,
+                  }}
                 >
                   <Icon
-                    size={21}
-                    strokeWidth={
-                      active ? 2.4 : 2
-                    }
-                    className={`
-                      shrink-0
-                      transition-transform
-                      duration-500
-                      ${
-                        active
-                          ? "scale-105"
-                          : "scale-100"
-                      }
-                    `}
+                    size={18}
+                    strokeWidth={active ? 2.4 : 2}
+                    className="shrink-0"
                   />
 
-                  {/* 選択中の文字 */}
-                  <span
-                    className={`
-                      overflow-hidden
-                      whitespace-nowrap
-                      text-[11px]
-                      font-bold
-                      tracking-[0.04em]
-                      transition-all
-                      duration-500
-
-                      ${
-                        active
-                          ? "max-w-[110px] translate-x-0 opacity-100"
-                          : "max-w-0 -translate-x-1 opacity-0"
-                      }
-                    `}
-                  >
+                  <span className="whitespace-nowrap text-[11px] font-bold tracking-[0.05em]">
                     {tab.label}
                   </span>
                 </Link>
               );
             })}
-          </div>
         </div>
-      </div>
-    </nav>
+
+        {/* ================================= */}
+        {/* MENUボタン */}
+        {/* ================================= */}
+
+        <button
+          type="button"
+          onClick={() => setOpen((prev) => !prev)}
+          aria-label={
+            open
+              ? "メニューを閉じる"
+              : "メニューを開く"
+          }
+          aria-expanded={open}
+          className={`
+            flex
+            h-[56px]
+            items-center
+            justify-center
+            overflow-hidden
+            rounded-full
+            bg-[#14526B]
+            text-white
+
+            shadow-[0_7px_24px_rgba(20,82,107,0.30)]
+
+            transition-all
+            duration-300
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+
+            active:scale-95
+
+            ${
+              open
+                ? "w-[56px]"
+                : "w-[92px] gap-2"
+            }
+          `}
+        >
+          <div className="relative h-[20px] w-[20px] shrink-0">
+            <Menu
+              size={20}
+              strokeWidth={2.2}
+              className={`
+                absolute
+                inset-0
+                transition-all
+                duration-300
+
+                ${
+                  open
+                    ? "rotate-90 scale-50 opacity-0"
+                    : "rotate-0 scale-100 opacity-100"
+                }
+              `}
+            />
+
+            <X
+              size={20}
+              strokeWidth={2.2}
+              className={`
+                absolute
+                inset-0
+                transition-all
+                duration-300
+
+                ${
+                  open
+                    ? "rotate-0 scale-100 opacity-100"
+                    : "-rotate-90 scale-50 opacity-0"
+                }
+              `}
+            />
+          </div>
+
+          <span
+            className={`
+              overflow-hidden
+              whitespace-nowrap
+              text-[11px]
+              font-bold
+              tracking-[0.08em]
+
+              transition-all
+              duration-300
+
+              ${
+                open
+                  ? "max-w-0 -translate-x-2 opacity-0"
+                  : "max-w-[50px] translate-x-0 opacity-100"
+              }
+            `}
+          >
+            MENU
+          </span>
+        </button>
+      </nav>
+    </>
   );
 }
