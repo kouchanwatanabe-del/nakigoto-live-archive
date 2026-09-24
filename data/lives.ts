@@ -2089,7 +2089,7 @@ export const lives = [
   tour: "2nd Full Album Release Tour 2024",
   artists: [
   "the quiet room",
-  "anewwhite",
+  "anewhite",
 ],
   setlist: [
     "sniper",
@@ -4075,7 +4075,7 @@ export const lives = [
     "Billyrrom",
     "moon drop",
     "yutori",
-    "リアクション ザ ブッダ",
+    "リアクション ザ ブッタ",
     "リュックと添い寝ごはん",
   ],
   setlist: [

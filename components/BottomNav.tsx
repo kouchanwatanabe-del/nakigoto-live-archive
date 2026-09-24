@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Music2,
   Users,
+  MapPin,
   Heart,
   Menu,
   X,
@@ -34,13 +35,18 @@ export default function BottomNav() {
     icon: Users,
   },
   {
+    href: "/venues",
+    label: "VENUES",
+    icon: MapPin,
+  },
+  {
     href: "/collection",
     label: "MY PAGE",
     icon: Heart,
   },
 ];
 
-  const isActive = (href: string) => {
+ const isActive = (href: string) => {
   if (href === "/") {
     return pathname === "/";
   }
@@ -54,6 +60,10 @@ export default function BottomNav() {
 
   if (href === "/artists") {
     return pathname.startsWith("/artists");
+  }
+
+  if (href === "/venues") {
+    return pathname.startsWith("/venues");
   }
 
   if (href === "/collection") {
