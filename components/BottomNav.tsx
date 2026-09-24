@@ -7,6 +7,7 @@ import {
   House,
   CalendarDays,
   Music2,
+  Users,
   Heart,
   Menu,
   X,
@@ -16,45 +17,54 @@ export default function BottomNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const menuTabs = [
-    {
-      href: "/lives",
-      label: "LIVE",
-      icon: CalendarDays,
-    },
-    {
-      href: "/songs",
-      label: "SONGS",
-      icon: Music2,
-    },
-    {
-      href: "/collection",
-      label: "MY PAGE",
-      icon: Heart,
-    },
-  ];
+ const menuTabs = [
+  {
+    href: "/lives",
+    label: "LIVE",
+    icon: CalendarDays,
+  },
+  {
+    href: "/songs",
+    label: "SONGS",
+    icon: Music2,
+  },
+  {
+    href: "/artists",
+    label: "ARTISTS",
+    icon: Users,
+  },
+  {
+    href: "/collection",
+    label: "MY PAGE",
+    icon: Heart,
+  },
+];
 
   const isActive = (href: string) => {
-    if (href === "/") {
-      return pathname === "/";
-    }
+  if (href === "/") {
+    return pathname === "/";
+  }
 
-    if (href === "/lives") {
-      return (
-        pathname === "/lives" ||
-        pathname.startsWith("/live/")
-      );
-    }
+  if (href === "/lives") {
+    return (
+      pathname === "/lives" ||
+      pathname.startsWith("/live/")
+    );
+  }
 
-    if (href === "/collection") {
-      return (
-        pathname.startsWith("/collection") ||
-        pathname.startsWith("/stats")
-      );
-    }
+  if (href === "/artists") {
+    return pathname.startsWith("/artists");
+  }
 
-    return pathname.startsWith(href);
-  };
+  if (href === "/collection") {
+    return (
+      pathname.startsWith("/collection") ||
+      pathname.startsWith("/stats")
+    );
+  }
+
+  return pathname.startsWith(href);
+};
 
   const handleTabClick = (active: boolean) => {
     if (!active) {
