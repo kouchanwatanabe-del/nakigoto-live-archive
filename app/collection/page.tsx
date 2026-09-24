@@ -372,7 +372,7 @@ export default function CollectionPage() {
                           </p>
 
                           {/* 公演名 */}
-                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900">
+                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900 text-[#14526B]">
                             {live.title}
                           </h3>
 
@@ -531,7 +531,7 @@ export default function CollectionPage() {
                         }`}
                       >
 
-                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-zinc-600">
+                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-zinc-600 text-[#14526B]">
                           {song}
                         </span>
 
