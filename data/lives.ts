@@ -6691,23 +6691,6 @@ export const lives = [
   memo: "",
 },
 {
-  id: "2019-10-21",
-  date: "2019.10.21",
-  title: 'Mix Box x DATE ME GANE 〜5Cities Promotion Event "Cassiopeia"〜 × なきごと「夜のつくり方」Release Tour 2019',
-  city: "福岡",
-  venue: "福岡Queblick",
-  tour: '「夜のつくり方」Release Tour 2019',
-  artists: [
-    "DATE ME GANE",
-    "HOPE",
-    "The tiny day",
-    "CANTOY",
-  ],
-  setlist: [],
-  encore: [],
-  memo: "",
-},
-{
   id: "2019-10-19",
   date: "2019.10.19",
   title: "JOKAFES 2019 -福山城下音楽祭-",
