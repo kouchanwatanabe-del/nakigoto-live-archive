@@ -207,7 +207,7 @@ export default function StatsPage() {
         <div className="mt-7">
 
           <p className="text-[11px] font-medium tracking-[0.2em] text-zinc-400">
-            MY LIVE ARCHIVE
+            MY LIVE LOG
           </p>
 
           <h1 className="mt-2 text-3xl font-black text-[#14526B]">

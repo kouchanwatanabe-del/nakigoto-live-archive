@@ -35,7 +35,7 @@ export default function IntroAnimation() {
     >
       <div className="text-center">
         <p className="mb-3 text-[10px] font-medium tracking-[0.35em] text-zinc-400">
-          UNOFFICIAL LIVE ARCHIVE
+          UNOFFICIAL LIVE LOG
         </p>
 
         <h1 className="animate-intro-logo text-[44px] font-black tracking-tight text-[#14526B]">

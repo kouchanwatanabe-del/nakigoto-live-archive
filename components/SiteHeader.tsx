@@ -19,7 +19,7 @@ export default function SiteHeader() {
 
           {/* 非公式表記 */}
           <span className="shrink-0 text-[7px] font-medium uppercase tracking-[0.18em] text-white/55 sm:text-[9px] sm:tracking-[0.25em]">
-            UNOFFICIAL LIVE ARCHIVE
+            UNOFFICIAL LIVE LOG
           </span>
 
           {/* 説明 */}
