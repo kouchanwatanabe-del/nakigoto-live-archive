@@ -138,16 +138,21 @@ export default function Home() {
                   {live.title}
                 </h3>
 
-                {/* ツアー・矢印 */}
+                {/* 都市・会場・矢印 */}
                 <div className="mt-1.5 flex items-center justify-between">
 
-                  {live.tour ? (
-                    <span className="min-w-0 truncate rounded-full bg-[#14526B]/10 px-2.5 py-0.5 text-[10px] font-medium text-[#14526B]">
-                      {live.tour}
-                    </span>
-                  ) : (
-                    <span />
-                  )}
+                 <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#14526B]">
+    <span>{live.city}</span>
+  )}
+
+  {live.city && live.venue && (
+    <span className="text-zinc-300">/</span>
+  )}
+
+  {live.venue && (
+    <span>{live.venue}</span>
+  )}
+</div>
 
                   <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
                     →
