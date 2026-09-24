@@ -106,7 +106,7 @@ export default function Home() {
           <div className="mb-3.5 flex items-center justify-between text-[#14526B]">
 
             <h2 className="text-[22px] font-bold">
-              最新ライブ
+              LIVE
             </h2>
 
             <Link
@@ -171,7 +171,7 @@ export default function Home() {
           <div className="mb-3.5 flex items-center justify-between">
 
             <h2 className="text-[22px] font-bold text-[#14526B]">
-              頻出曲
+              SONGS
             </h2>
 
             <Link
@@ -230,7 +230,7 @@ export default function Home() {
           <div className="mb-3.5 flex items-center justify-between">
 
             <h2 className="text-[22px] font-bold text-[#14526B]">
-              MY ARCHIVE
+              MY PAGE
             </h2>
 
             <Link
