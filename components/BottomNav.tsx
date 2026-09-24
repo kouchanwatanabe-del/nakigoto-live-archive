@@ -16,12 +16,7 @@ export default function BottomNav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
-  const tabs = [
-    {
-      href: "/",
-      label: "HOME",
-      icon: House,
-    },
+  const menuTabs = [
     {
       href: "/lives",
       label: "LIVE",
@@ -90,10 +85,12 @@ export default function BottomNav() {
     setOpen(false);
   }, [pathname]);
 
+  const homeActive = isActive("/");
+
   return (
     <>
       {/* ================================= */}
-      {/* 背景 */}
+      {/* MENU展開時の背景 */}
       {/* ================================= */}
 
       <button
@@ -118,7 +115,57 @@ export default function BottomNav() {
       />
 
       {/* ================================= */}
-      {/* 右下フローティングナビ */}
+      {/* 左下 HOME */}
+      {/* ================================= */}
+
+      <div
+        className="
+          fixed
+          bottom-5
+          left-4
+          z-50
+          sm:bottom-6
+          sm:left-6
+        "
+      >
+        <Link
+          href="/"
+          scroll={false}
+          onClick={() => handleTabClick(homeActive)}
+          aria-label="HOME"
+          className={`
+            flex
+            h-[56px]
+            w-[56px]
+            items-center
+            justify-center
+            rounded-full
+            border
+
+            shadow-[0_7px_24px_rgba(0,0,0,0.12)]
+
+            transition-all
+            duration-300
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+
+            active:scale-95
+
+            ${
+              homeActive
+                ? "border-[#14526B] bg-[#14526B] text-white"
+                : "border-zinc-200/80 bg-white/95 text-[#14526B] backdrop-blur-xl"
+            }
+          `}
+        >
+          <House
+            size={21}
+            strokeWidth={homeActive ? 2.4 : 2}
+          />
+        </Link>
+      </div>
+
+      {/* ================================= */}
+      {/* 右下 MENU */}
       {/* ================================= */}
 
       <nav
@@ -136,70 +183,72 @@ export default function BottomNav() {
       >
         {/* ================================= */}
         {/* 縦メニュー */}
+        {/* 上から LIVE → SONGS → MY ARCHIVE */}
         {/* ================================= */}
 
         <div className="mb-3 flex flex-col items-end gap-2">
-          {tabs
-            .slice()
-            .reverse()
-            .map((tab, index) => {
-              const active = isActive(tab.href);
-              const Icon = tab.icon;
+          {menuTabs.map((tab, index) => {
+            const active = isActive(tab.href);
+            const Icon = tab.icon;
 
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  scroll={false}
-                  onClick={() =>
-                    handleTabClick(active)
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                scroll={false}
+                onClick={() =>
+                  handleTabClick(active)
+                }
+                aria-label={tab.label}
+                className={`
+                  flex
+                  h-[46px]
+                  items-center
+                  gap-2.5
+                  rounded-full
+                  border
+                  px-4
+
+                  shadow-[0_5px_18px_rgba(0,0,0,0.10)]
+                  backdrop-blur-xl
+
+                  transition-all
+                  duration-300
+                  ease-[cubic-bezier(0.22,1,0.36,1)]
+
+                  ${
+                    open
+                      ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
+                      : "pointer-events-none translate-y-3 scale-95 opacity-0"
                   }
-                  aria-label={tab.label}
-                  className={`
-                    flex
-                    h-[46px]
-                    items-center
-                    gap-2.5
-                    rounded-full
-                    border
-                    px-4
-                    shadow-[0_5px_18px_rgba(0,0,0,0.10)]
-                    backdrop-blur-xl
 
-                    transition-all
-                    duration-300
-                    ease-[cubic-bezier(0.22,1,0.36,1)]
+                  ${
+                    active
+                      ? "border-[#14526B] bg-[#14526B] text-white"
+                      : "border-zinc-200/80 bg-white/95 text-[#14526B] hover:border-[#14526B]/40"
+                  }
+                `}
+                style={{
+                  transitionDelay: open
+                    ? `${index * 45}ms`
+                    : `${
+                        (menuTabs.length - index - 1) *
+                        25
+                      }ms`,
+                }}
+              >
+                <Icon
+                  size={18}
+                  strokeWidth={active ? 2.4 : 2}
+                  className="shrink-0"
+                />
 
-                    ${
-                      open
-                        ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-                        : "pointer-events-none translate-y-3 scale-95 opacity-0"
-                    }
-
-                    ${
-                      active
-                        ? "border-[#14526B] bg-[#14526B] text-white"
-                        : "border-zinc-200/80 bg-white/95 text-[#14526B] hover:border-[#14526B]/40"
-                    }
-                  `}
-                  style={{
-                    transitionDelay: open
-                      ? `${index * 45}ms`
-                      : `${(tabs.length - index - 1) * 25}ms`,
-                  }}
-                >
-                  <Icon
-                    size={18}
-                    strokeWidth={active ? 2.4 : 2}
-                    className="shrink-0"
-                  />
-
-                  <span className="whitespace-nowrap text-[11px] font-bold tracking-[0.05em]">
-                    {tab.label}
-                  </span>
-                </Link>
-              );
-            })}
+                <span className="whitespace-nowrap text-[11px] font-bold tracking-[0.05em]">
+                  {tab.label}
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         {/* ================================= */}
@@ -208,7 +257,9 @@ export default function BottomNav() {
 
         <button
           type="button"
-          onClick={() => setOpen((prev) => !prev)}
+          onClick={() =>
+            setOpen((prev) => !prev)
+          }
           aria-label={
             open
               ? "メニューを閉じる"
@@ -240,6 +291,8 @@ export default function BottomNav() {
             }
           `}
         >
+          {/* MENU / × アイコン */}
+
           <div className="relative h-[20px] w-[20px] shrink-0">
             <Menu
               size={20}
@@ -247,6 +300,7 @@ export default function BottomNav() {
               className={`
                 absolute
                 inset-0
+
                 transition-all
                 duration-300
 
@@ -264,6 +318,7 @@ export default function BottomNav() {
               className={`
                 absolute
                 inset-0
+
                 transition-all
                 duration-300
 
@@ -276,10 +331,13 @@ export default function BottomNav() {
             />
           </div>
 
+          {/* MENU文字 */}
+
           <span
             className={`
               overflow-hidden
               whitespace-nowrap
+
               text-[11px]
               font-bold
               tracking-[0.08em]
