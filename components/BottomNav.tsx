@@ -152,8 +152,9 @@ export default function BottomNav() {
 
             ${
               homeActive
-                ? "border-[#14526B] bg-[#14526B] text-white"
-                : "border-zinc-200/80 bg-white/95 text-[#14526B] backdrop-blur-xl"
+                ? "border-zinc-200/80 bg-white/95 text-[#14526B] backdrop-blur-xl"
+                : "border-[#14526B] bg-[#14526B] text-white"
+}
             }
           `}
         >
