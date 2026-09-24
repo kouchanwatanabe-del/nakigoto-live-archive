@@ -372,7 +372,7 @@ export default function CollectionPage() {
                           </p>
 
                           {/* 公演名 */}
-                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-zinc-900 text-[#14526B]">
+                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-[#14526B]">
                             {live.title}
                           </h3>
 
