@@ -141,7 +141,7 @@ export default function CollectionPage() {
         <div>
 
           <h1 className="text-3xl font-bold text-[#14526B]">
-            MY ARCHIVE
+            MY PAGE
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
