@@ -143,7 +143,7 @@ export default function Home() {
 
                  <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#14526B]">
     <span>{live.city}</span>
-  )}
+  )
 
   {live.city && live.venue && (
     <span className="text-zinc-300">/</span>
