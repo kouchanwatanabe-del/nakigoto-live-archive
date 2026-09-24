@@ -531,7 +531,7 @@ export default function CollectionPage() {
                         }`}
                       >
 
-                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-zinc-600 text-[#14526B]">
+                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-[#14526B]">
                           {song}
                         </span>
 
