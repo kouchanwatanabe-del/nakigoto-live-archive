@@ -197,7 +197,7 @@ export default function StatsPage() {
           href="/collection"
           className="text-[13px] font-medium text-[#14526B] hover:underline"
         >
-          ← COLLECTION
+          ← MY PAGE
         </Link>
 
         {/* ================================= */}
@@ -276,7 +276,7 @@ export default function StatsPage() {
                       一番よく聴いた曲
                     </p>
 
-                    <p className="mt-1 truncate text-[19px] font-bold">
+                    <p className="mt-1 truncate text-[19px] font-bold text-[#14526B]">
                       {mostPlayedSong[0]}
                     </p>
 
@@ -337,7 +337,7 @@ export default function StatsPage() {
                       {/* 年・公演数 */}
                       <div className="flex items-center justify-between">
 
-                        <span className="text-[15px] font-bold text-zinc-900">
+                        <span className="text-[15px] font-bold text-zinc-900 text-[#14526B]">
                           {year}
                         </span>
 
@@ -425,7 +425,7 @@ export default function StatsPage() {
                     {/* 曲名 */}
                     <div className="min-w-0 flex-1">
 
-                      <p className="truncate text-[14px] font-bold text-zinc-900">
+                      <p className="truncate text-[14px] font-bold text-zinc-900 text-[#14526B]">
                         {song}
                       </p>
 
@@ -494,7 +494,7 @@ export default function StatsPage() {
                     </span>
 
                     {/* 会場 */}
-                    <span className="min-w-0 flex-1 break-words text-[14px] font-semibold text-zinc-900">
+                    <span className="min-w-0 flex-1 break-words text-[14px] font-semibold text-zinc-900 text-[#14526B]">
                       {venue}
                     </span>
 
@@ -557,7 +557,7 @@ export default function StatsPage() {
                     </span>
 
                     {/* 都市 */}
-                    <span className="min-w-0 flex-1 text-[14px] font-semibold text-zinc-900">
+                    <span className="min-w-0 flex-1 text-[14px] font-semibold text-zinc-900 text-[#14526B]">
                       {city}
                     </span>
 
