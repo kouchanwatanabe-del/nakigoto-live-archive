@@ -41,7 +41,7 @@ export const lives = [
   date: "2026.08.22",
   title: "RADIO BERRY ベリテンライブ 2026",
   city: "栃木",
-  venue: "HEAVEN'S ROCK宇都宮VJ-2",
+  venue: "HEAVEN'S ROCK 宇都宮VJ-2",
   tour: "",
   artists: [
   "汐れいら",
@@ -2436,7 +2436,7 @@ export const lives = [
   date: "2024.08.17",
   title: "【宮城】なきごと 2nd Full Album Release Tour 2024",
   city: "宮城",
-  venue: "仙台enn2nd",
+  venue: "仙台enn 2nd",
   tour: "2nd Full Album Release Tour 2024",
   artists: [
     "berry meet",
@@ -3507,7 +3507,7 @@ export const lives = [
   date: "2023.10.07",
   title: "Eggs presents FM802 MINAMI WHEEL 2023",
   city: "大阪",
-  venue: "心斎橋 BIG CAT",
+  venue: "心斎橋 BIGCAT",
   tour: "",
   artists: [],
   setlist: [
@@ -3546,7 +3546,7 @@ export const lives = [
   date: "2023.09.30",
   title: "赤い愛でスタンドバイユー！ツアー",
   city: "宮城",
-  venue: "仙台LIVE HOUSE enn2nd",
+  venue: "仙台LIVE HOUSE enn 2nd",
   tour: "",
   artists: [
     "ヤユヨ",
@@ -3571,7 +3571,7 @@ export const lives = [
   date: "2023.08.29",
   title: "RADIO BERRY ベリテンライブ 2023",
   city: "栃木",
-  venue: "HEAVEN'S ROCK宇都宮VJ-2",
+  venue: "HEAVEN'S ROCK 宇都宮VJ-2",
   tour: "",
   artists: [
     "35.7",
@@ -3796,7 +3796,7 @@ export const lives = [
   date: "2023.06.03",
   title: "ツタロック DIG LIVE vol.11 -OSAKA-",
   city: "大阪",
-  venue: "心斎橋 BIG CAT",
+  venue: "心斎橋 BIGCAT",
   tour: "",
   artists: [
     "CAT ATE HOTDOGS",
@@ -3973,7 +3973,7 @@ export const lives = [
   date: "2023.04.16",
   title: "【宮城】なきごと 1st Full Album「NAKIGOTO,」Release Tour 2023",
   city: "宮城",
-  venue: "仙台enn2nd",
+  venue: "仙台enn 2nd",
   tour: "1st Full Album「NAKIGOTO,」Release Tour 2023",
   artists: [
     "yutori",
@@ -4410,7 +4410,7 @@ export const lives = [
   date: "2022.11.12",
   title: 'ザ・モアイズユー Live House Tour 2022 "為せば鳴る”',
   city: "宮城",
-  venue: "仙台enn2nd",
+  venue: "仙台enn 2nd",
   tour: 'ザ・モアイズユー Live House Tour 2022 "為せば鳴る”',
   artists: [
     "ザ・モアイズユー",
@@ -5661,7 +5661,7 @@ export const lives = [
   date: "2021.08.31",
   title: "RADIO BERRY ベリテンライブ 2021",
   city: "栃木",
-  venue: "HEAVEN'S ROCK宇都宮VJ-2",
+  venue: "HEAVEN'S ROCK 宇都宮VJ-2",
   tour: "",
   artists: [
     "さとうもか",
