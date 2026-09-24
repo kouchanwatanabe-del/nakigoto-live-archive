@@ -29,7 +29,7 @@ export default function BottomNav() {
     },
     {
       href: "/collection",
-      label: "MY ARCHIVE",
+      label: "MY PAGE",
       icon: Heart,
     },
   ];
