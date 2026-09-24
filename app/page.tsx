@@ -93,7 +93,7 @@ export default function Home() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-            非公式ライブログ
+            なきごとの非公式ライブログ
           </p>
         </div>
 
