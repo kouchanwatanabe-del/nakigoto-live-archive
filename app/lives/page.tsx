@@ -816,7 +816,7 @@ export default function LivesPage() {
                     border-zinc-200
                     bg-white
                     px-4
-                    py-4
+                    py-3
                     pr-12
                     text-[12px]
                     text-zinc-900
