@@ -213,7 +213,7 @@ export default function BottomNav() {
     <nav
       className="
         fixed
-        bottom-4
+        bottom-2
         left-1/2
         z-50
 
@@ -283,7 +283,7 @@ export default function BottomNav() {
                   h-9
                   items-center
                   justify-center
-                  gap-1.5
+                  gap-1
 
                   rounded-full
                   border
@@ -361,7 +361,7 @@ export default function BottomNav() {
           backdrop-blur-xl
         "
       >
-        <div className="relative h-[54px]">
+        <div className="relative h-[46px]">
 
           {/* ================================= */}
           {/* 青い移動カプセル */}
@@ -375,9 +375,8 @@ export default function BottomNav() {
                 absolute
                 top-0
 
-                h-[54px]
-
-                rounded-[21px]
+                h-[46px]
+rounded-[19px]
 
                 bg-[#14526B]
 
@@ -444,12 +443,12 @@ export default function BottomNav() {
                       z-10
 
                       flex
-                      h-[54px]
+                     h-[46px]
 
                       items-center
                       justify-center
 
-                      rounded-[21px]
+                      rounded-[19px]
 
                       transition-all
                       duration-500
