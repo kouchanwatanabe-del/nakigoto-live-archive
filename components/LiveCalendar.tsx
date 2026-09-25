@@ -16,6 +16,13 @@ type Props = {
 };
 
 // ========================================
+// STORAGE
+// ========================================
+
+const CALENDAR_DATE_STORAGE_KEY =
+  "liveCalendarDate";
+
+// ========================================
 // LIVE CALENDAR
 // ========================================
 
@@ -27,28 +34,53 @@ export default function LiveCalendar({
 
   // ========================================
   // 最初に表示する月
-  // 最新ライブの月を表示
+  //
+  // 保存済みの年月があれば復元
+  // なければ最新ライブの月
   // ========================================
-
-  const newestLive = useMemo(() => {
-    return [...filteredLives].sort((a, b) =>
-      b.date.localeCompare(a.date)
-    )[0];
-  }, [filteredLives]);
 
   const [calendarDate, setCalendarDate] =
     useState(() => {
-      const latest = [...lives].sort((a, b) =>
-        b.date.localeCompare(a.date)
-      )[0];
+      if (typeof window !== "undefined") {
+        const saved =
+          sessionStorage.getItem(
+            CALENDAR_DATE_STORAGE_KEY
+          );
+
+        if (saved) {
+          const [year, month] =
+            saved
+              .split(".")
+              .map(Number);
+
+          if (
+            !Number.isNaN(year) &&
+            !Number.isNaN(month) &&
+            month >= 1 &&
+            month <= 12
+          ) {
+            return new Date(
+              year,
+              month - 1,
+              1
+            );
+          }
+        }
+      }
+
+      const latest =
+        [...lives].sort((a, b) =>
+          b.date.localeCompare(a.date)
+        )[0];
 
       if (!latest) {
         return new Date();
       }
 
-      const [year, month] = latest.date
-        .split(".")
-        .map(Number);
+      const [year, month] =
+        latest.date
+          .split(".")
+          .map(Number);
 
       return new Date(
         year,
@@ -113,7 +145,7 @@ export default function LiveCalendar({
   }, []);
 
   // ========================================
-  // 参戦ON / OFF
+  // 参戦 ON / OFF
   // ========================================
 
   const toggleAttended = (
@@ -171,6 +203,25 @@ export default function LiveCalendar({
     calendarDate.getMonth();
 
   // ========================================
+  // 表示年月を保存
+  //
+  // 詳細ページ → 戻る
+  // でも年月を維持
+  // ========================================
+
+  useEffect(() => {
+    sessionStorage.setItem(
+      CALENDAR_DATE_STORAGE_KEY,
+      `${calendarYear}.${String(
+        calendarMonth + 1
+      ).padStart(2, "0")}`
+    );
+  }, [
+    calendarYear,
+    calendarMonth,
+  ]);
+
+  // ========================================
   // 表示中の月のライブ
   // ========================================
 
@@ -184,8 +235,7 @@ export default function LiveCalendar({
 
         return (
           year === calendarYear &&
-          month ===
-            calendarMonth + 1
+          month === calendarMonth + 1
         );
       })
       .sort((a, b) =>
@@ -248,6 +298,7 @@ export default function LiveCalendar({
       )[] = [];
 
       // 月初までの空白
+
       for (
         let i = 0;
         i < firstDay;
@@ -257,6 +308,7 @@ export default function LiveCalendar({
       }
 
       // 日付
+
       for (
         let day = 1;
         day <= daysInMonth;
@@ -266,6 +318,7 @@ export default function LiveCalendar({
       }
 
       // 最後の週を7列に揃える
+
       while (
         days.length % 7 !== 0
       ) {
@@ -326,7 +379,7 @@ export default function LiveCalendar({
   };
 
   // ========================================
-  // 日単位で参戦ON/OFF
+  // 日単位で参戦 ON / OFF
   // ========================================
 
   const toggleDayAttended = (
@@ -337,6 +390,7 @@ export default function LiveCalendar({
     }
 
     // 1公演なら普通に切り替え
+
     if (dayLives.length === 1) {
       toggleAttended(
         dayLives[0].id
@@ -346,6 +400,7 @@ export default function LiveCalendar({
     }
 
     // 同日複数公演
+
     const allAttended =
       dayLives.every((live) =>
         attendedIds.includes(
@@ -396,6 +451,28 @@ export default function LiveCalendar({
   };
 
   // ========================================
+  // 都市名 → 下のライブへスクロール
+  // ========================================
+
+  const scrollToLive = (
+    liveId: string
+  ) => {
+    const element =
+      document.getElementById(
+        `calendar-live-${liveId}`
+      );
+
+    if (!element) {
+      return;
+    }
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  };
+
+  // ========================================
   // JSX
   // ========================================
 
@@ -408,194 +485,198 @@ export default function LiveCalendar({
 
       <div className="flex items-center justify-between px-1">
 
-  {/* 前の月 */}
+        {/* 前の月 */}
 
-  <button
-    type="button"
-    onClick={previousMonth}
-    aria-label="前の月"
-    className="
-      flex
-      h-10
-      w-10
-      items-center
-      justify-center
-      rounded-full
-      text-[25px]
-      font-light
-      text-[#14526B]
-      transition
-      active:bg-zinc-100
-    "
-  >
-    ‹
-  </button>
+        <button
+          type="button"
+          onClick={previousMonth}
+          aria-label="前の月"
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-full
+            text-[25px]
+            font-light
+            text-[#14526B]
+            transition
+            active:bg-zinc-100
+          "
+        >
+          ‹
+        </button>
 
+        {/* ================================= */}
+        {/* 年 / 月 選択 */}
+        {/* ================================= */}
 
-  {/* ================================= */}
-  {/* 年 / 月 選択 */}
-  {/* ================================= */}
+        <div className="flex items-center justify-center gap-1">
 
-  <div className="flex items-center justify-center gap-1">
+          {/* 年 */}
 
-    {/* 年 */}
+          <div className="relative">
+            <select
+              value={calendarYear}
+              onChange={(e) => {
+                const newYear =
+                  Number(
+                    e.target.value
+                  );
 
-    <div className="relative">
-      <select
-        value={calendarYear}
-        onChange={(e) => {
-          const newYear =
-            Number(e.target.value);
-
-          setCalendarDate(
-            new Date(
-              newYear,
-              calendarMonth,
-              1
-            )
-          );
-        }}
-        className="
-          cursor-pointer
-          appearance-none
-          bg-transparent
-          py-2
-          pl-2
-          pr-5
-
-          text-[17px]
-          font-bold
-          tracking-tight
-          text-[#14526B]
-
-          outline-none
-        "
-      >
-        {[
-          ...new Set(
-            lives.map((live) =>
-              Number(
-                live.date.slice(0, 4)
-              )
-            )
-          ),
-        ]
-          .sort((a, b) => b - a)
-          .map((year) => (
-            <option
-              key={year}
-              value={year}
+                setCalendarDate(
+                  new Date(
+                    newYear,
+                    calendarMonth,
+                    1
+                  )
+                );
+              }}
+              className="
+                cursor-pointer
+                appearance-none
+                bg-transparent
+                py-2
+                pl-2
+                pr-5
+                text-[17px]
+                font-bold
+                tracking-tight
+                text-[#14526B]
+                outline-none
+              "
             >
-              {year}年
-            </option>
-          ))}
-      </select>
+              {[
+                ...new Set(
+                  lives.map(
+                    (live) =>
+                      Number(
+                        live.date.slice(
+                          0,
+                          4
+                        )
+                      )
+                  )
+                ),
+              ]
+                .sort(
+                  (a, b) =>
+                    b - a
+                )
+                .map((year) => (
+                  <option
+                    key={year}
+                    value={year}
+                  >
+                    {year}年
+                  </option>
+                ))}
+            </select>
 
-      <span
-        className="
-          pointer-events-none
-          absolute
-          right-0
-          top-1/2
-          -translate-y-1/2
-          text-[9px]
-          text-[#14526B]
-        "
-      >
-        ▼
-      </span>
-    </div>
+            <span
+              className="
+                pointer-events-none
+                absolute
+                right-0
+                top-1/2
+                -translate-y-1/2
+                text-[9px]
+                text-[#14526B]
+              "
+            >
+              ▼
+            </span>
+          </div>
 
+          {/* 月 */}
 
-    {/* 月 */}
+          <div className="relative">
+            <select
+              value={
+                calendarMonth + 1
+              }
+              onChange={(e) => {
+                const newMonth =
+                  Number(
+                    e.target.value
+                  );
 
-    <div className="relative">
-      <select
-        value={calendarMonth + 1}
-        onChange={(e) => {
-          const newMonth =
-            Number(e.target.value);
+                setCalendarDate(
+                  new Date(
+                    calendarYear,
+                    newMonth - 1,
+                    1
+                  )
+                );
+              }}
+              className="
+                cursor-pointer
+                appearance-none
+                bg-transparent
+                py-2
+                pl-1
+                pr-5
+                text-[17px]
+                font-bold
+                tracking-tight
+                text-[#14526B]
+                outline-none
+              "
+            >
+              {Array.from(
+                { length: 12 },
+                (_, index) =>
+                  index + 1
+              ).map((month) => (
+                <option
+                  key={month}
+                  value={month}
+                >
+                  {month}月
+                </option>
+              ))}
+            </select>
 
-          setCalendarDate(
-            new Date(
-              calendarYear,
-              newMonth - 1,
-              1
-            )
-          );
-        }}
-        className="
-          cursor-pointer
-          appearance-none
-          bg-transparent
-          py-2
-          pl-1
-          pr-5
+            <span
+              className="
+                pointer-events-none
+                absolute
+                right-0
+                top-1/2
+                -translate-y-1/2
+                text-[9px]
+                text-[#14526B]
+              "
+            >
+              ▼
+            </span>
+          </div>
+        </div>
 
-          text-[17px]
-          font-bold
-          tracking-tight
-          text-[#14526B]
+        {/* 次の月 */}
 
-          outline-none
-        "
-      >
-        {Array.from(
-          { length: 12 },
-          (_, index) =>
-            index + 1
-        ).map((month) => (
-          <option
-            key={month}
-            value={month}
-          >
-            {month}月
-          </option>
-        ))}
-      </select>
-
-      <span
-        className="
-          pointer-events-none
-          absolute
-          right-0
-          top-1/2
-          -translate-y-1/2
-          text-[9px]
-          text-[#14526B]
-        "
-      >
-        ▼
-      </span>
-    </div>
-
-  </div>
-
-
-  {/* 次の月 */}
-
-  <button
-    type="button"
-    onClick={nextMonth}
-    aria-label="次の月"
-    className="
-      flex
-      h-10
-      w-10
-      items-center
-      justify-center
-      rounded-full
-      text-[25px]
-      font-light
-      text-[#14526B]
-      transition
-      active:bg-zinc-100
-    "
-  >
-    ›
-  </button>
-
-</div>
+        <button
+          type="button"
+          onClick={nextMonth}
+          aria-label="次の月"
+          className="
+            flex
+            h-10
+            w-10
+            items-center
+            justify-center
+            rounded-full
+            text-[25px]
+            font-light
+            text-[#14526B]
+            transition
+            active:bg-zinc-100
+          "
+        >
+          ›
+        </button>
+      </div>
 
       {/* ================================= */}
       {/* 曜日 */}
@@ -639,17 +720,17 @@ export default function LiveCalendar({
       {/* ================================= */}
 
       <div className="grid grid-cols-7">
-
         {calendarDays.map(
           (day, index) => {
 
             // 空白
+
             if (day === null) {
               return (
                 <div
                   key={`empty-${index}`}
                   className="
-                    min-h-[92px]
+                    min-h-[96px]
                     border-b
                     border-zinc-100
                     bg-zinc-50/30
@@ -670,7 +751,7 @@ export default function LiveCalendar({
               dayLives.length > 0;
 
             // =================================
-            // 都市名
+            // 都市
             // =================================
 
             const cities = [
@@ -710,7 +791,7 @@ export default function LiveCalendar({
                 key={dateKey}
                 className={`
                   relative
-                  min-h-[92px]
+                  min-h-[96px]
                   border-b
                   border-zinc-100
                   px-1
@@ -718,7 +799,7 @@ export default function LiveCalendar({
 
                   ${
                     hasLive
-                      ? "bg-[#14526B]/10"
+                      ? "bg-[#14526B]/15"
                       : "bg-white"
                   }
                 `}
@@ -754,31 +835,58 @@ export default function LiveCalendar({
                 {hasLive && (
                   <>
 
+                    {/* ================================= */}
                     {/* 都市 */}
+                    {/* クリックで下のライブへ */}
+                    {/* ================================= */}
 
                     <div className="mt-0.5 space-y-0.5 px-0.5">
-
                       {cities
                         .slice(0, 2)
                         .map(
-                          (city) => (
-                            <p
-                              key={
-                                city
-                              }
-                              className="
-                                truncate
-                                text-[9px]
-                                font-bold
-                                leading-[1.25]
-                                text-[#14526B]
-                              "
-                            >
-                              {city}
-                            </p>
-                          )
-                        )}
+                          (city) => {
+                            const targetLive =
+                              dayLives.find(
+                                (live) =>
+                                  live.city ===
+                                  city
+                              );
 
+                            if (
+                              !targetLive
+                            ) {
+                              return null;
+                            }
+
+                            return (
+                              <button
+                                key={city}
+                                type="button"
+                                onClick={() =>
+                                  scrollToLive(
+                                    targetLive.id
+                                  )
+                                }
+                                className="
+                                  block
+                                  w-full
+                                  truncate
+                                  text-left
+                                  text-[10px]
+                                  font-bold
+                                  leading-[1.25]
+                                  text-[#14526B]
+                                  transition
+                                  hover:opacity-70
+                                  active:scale-[0.97]
+                                  active:opacity-50
+                                "
+                              >
+                                {city}
+                              </button>
+                            );
+                          }
+                        )}
                     </div>
 
                     {/* 同日複数公演 */}
@@ -820,29 +928,36 @@ export default function LiveCalendar({
                       }
                       className={`
                         absolute
-                        bottom-1
-                        right-1
+                        bottom-1.5
+                        right-1.5
 
                         flex
-                        h-7
-                        w-7
+                        h-9
+                        w-9
                         items-center
                         justify-center
 
                         rounded-full
+                        border
+                        bg-white
 
                         text-[17px]
                         leading-none
 
+                        shadow-[0_1px_4px_rgba(0,0,0,0.05)]
+
                         transition
+                        duration-200
+
+                        hover:scale-105
                         active:scale-90
 
                         ${
                           allAttended
-                            ? "text-[#14526B]"
+                            ? "border-[#14526B]/30 text-[#14526B]"
                             : someAttended
-                              ? "text-[#14526B]/50"
-                              : "text-zinc-300"
+                              ? "border-zinc-200 text-[#14526B]/50"
+                              : "border-zinc-200 text-[#14526B]"
                         }
                       `}
                     >
@@ -850,15 +965,12 @@ export default function LiveCalendar({
                         ? "♥"
                         : "♡"}
                     </button>
-
                   </>
                 )}
-
               </div>
             );
           }
         )}
-
       </div>
 
       {/* ================================= */}
@@ -875,7 +987,6 @@ export default function LiveCalendar({
             justify-between
           "
         >
-
           <p
             className="
               text-[10px]
@@ -884,13 +995,13 @@ export default function LiveCalendar({
               text-zinc-400
             "
           >
-            {calendarMonth + 1}月のライブ
+            {calendarMonth + 1}
+            月のライブ
           </p>
 
           <p className="text-[10px] text-zinc-400">
             {monthLives.length}件
           </p>
-
         </div>
 
         {/* ================================= */}
@@ -898,17 +1009,14 @@ export default function LiveCalendar({
         {/* ================================= */}
 
         {monthLives.length > 0 ? (
-
           <div
             className="
               border-y
               border-zinc-200
             "
           >
-
             {monthLives.map(
               (live: Live) => {
-
                 const attended =
                   attendedIds.includes(
                     live.id
@@ -917,8 +1025,10 @@ export default function LiveCalendar({
                 return (
                   <div
                     key={live.id}
+                    id={`calendar-live-${live.id}`}
                     className="
                       relative
+                      scroll-mt-24
                       border-b
                       border-zinc-100
                       last:border-b-0
@@ -935,7 +1045,6 @@ export default function LiveCalendar({
                         pr-12
                       "
                     >
-
                       <p
                         className="
                           text-[10px]
@@ -966,7 +1075,6 @@ export default function LiveCalendar({
                           text-zinc-400
                         "
                       >
-
                         <span
                           className="
                             font-semibold
@@ -981,9 +1089,7 @@ export default function LiveCalendar({
                         </span>
 
                         {live.venue}
-
                       </p>
-
                     </Link>
 
                     {/* ================================= */}
@@ -1014,15 +1120,24 @@ export default function LiveCalendar({
                         items-center
                         justify-center
 
+                        rounded-full
+                        border
+                        bg-white
+
                         text-[18px]
 
+                        shadow-[0_1px_4px_rgba(0,0,0,0.04)]
+
                         transition
+                        duration-200
+
+                        hover:scale-105
                         active:scale-90
 
                         ${
                           attended
-                            ? "text-[#14526B]"
-                            : "text-zinc-300"
+                            ? "border-[#14526B]/30 text-[#14526B]"
+                            : "border-zinc-200 text-[#14526B]"
                         }
                       `}
                     >
@@ -1030,32 +1145,23 @@ export default function LiveCalendar({
                         ? "♥"
                         : "♡"}
                     </button>
-
                   </div>
                 );
               }
             )}
-
           </div>
-
         ) : (
-
           // =================================
           // ライブなし
           // =================================
 
           <div className="py-10 text-center">
-
             <p className="text-[13px] text-zinc-400">
               この月のライブはありません
             </p>
-
           </div>
-
         )}
-
       </div>
-
     </section>
   );
 }
