@@ -1049,7 +1049,7 @@ const [highlightedLiveId, setHighlightedLiveId] =
 
     ${
   highlightedLiveId === live.id
-    ? "bg-[#14526B]/10"
+    ? "bg-[#14526B]/8"
     : "bg-white"
 }
   `}
