@@ -20,6 +20,7 @@ const isCoverSong = (song: string) => {
 export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
+const [secretTapCount, setSecretTapCount] = useState(0);
 
   // 最初に表示するタブ
   const [activeTab, setActiveTab] = useState<Tab>("lives");
@@ -124,7 +125,31 @@ export default function CollectionPage() {
           (heardSongs.length / allSongs.length) * 100
         )
       : 0;
+const handleSecretAdminTap = () => {
+  const nextCount = secretTapCount + 1;
 
+  if (nextCount >= 5) {
+    const current =
+      localStorage.getItem("adminMode") === "true";
+
+    const next = !current;
+
+    localStorage.setItem(
+      "adminMode",
+      String(next)
+    );
+
+    window.dispatchEvent(
+      new Event("adminModeChanged")
+    );
+
+    setSecretTapCount(0);
+
+    return;
+  }
+
+  setSecretTapCount(nextCount);
+};
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
 
@@ -140,9 +165,17 @@ export default function CollectionPage() {
 
         <div>
 
-          <h1 className="text-3xl font-bold text-[#14526B]">
-            MY PAGE
-          </h1>
+          <h1
+  onClick={handleSecretAdminTap}
+  className="
+    select-none
+    text-3xl
+    font-bold
+    text-[#14526B]
+  "
+>
+  MY PAGE
+</h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
             あなたの参戦記録
