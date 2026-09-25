@@ -938,9 +938,13 @@ const [highlightedLiveId, setHighlightedLiveId] =
 
                     <button
   type="button"
-  onClick={() =>
-    toggleDayAttended(dayLives)
-  }
+  onClick={(e) => {
+  e.stopPropagation();
+
+  toggleDayAttended(
+    dayLives
+  );
+}}
   aria-label={
     allAttended
       ? `${dateKey}の参戦登録を解除`
