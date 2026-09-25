@@ -92,9 +92,10 @@ export default function Home() {
             なきごとの非公式ライブログ
           </p>
           
-          <h1 className="text-3xl font-bold text-[#14526B]">
-            HOME
+          <h1 className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
+            なきごとの非公式ライブログ
           </h1>
+          
 
           
         </div>
