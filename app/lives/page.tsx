@@ -803,7 +803,7 @@ export default function LivesPage() {
                       e.target.value
                     )
                   }
-                  placeholder="曲名・都市・会場・公演名・対バン相手を検索"
+                  placeholder="曲名・都道府県・会場・公演名・対バン相手を検索"
                   autoComplete="off"
                   enterKeyHint="search"
                   className="
@@ -818,7 +818,7 @@ export default function LivesPage() {
                     px-4
                     py-4
                     pr-12
-                    text-base
+                    text-[13px]
                     text-zinc-900
                     shadow-sm
                     outline-none
