@@ -2,55 +2,76 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+
 import {
   House,
   CalendarDays,
   Music2,
+  Heart,
   Users,
   MapPin,
-  Heart,
-  Menu,
-  X,
 } from "lucide-react";
 
 export default function BottomNav() {
   const pathname = usePathname();
 
-  const [open, setOpen] = useState(false);
-
   // ========================================
-  // ADMIN MODE
+  // 管理者モード
   // ========================================
 
-  const [adminMode, setAdminMode] = useState(false);
-  const [adminLoaded, setAdminLoaded] = useState(false);
-  const [adminMessage, setAdminMessage] = useState<
-    "ON" | "OFF" | null
-  >(null);
-
-  const homeTapCount = useRef(0);
-  const homeTapTimer = useRef<ReturnType<
-    typeof setTimeout
-  > | null>(null);
-
-  // ========================================
-  // ADMIN状態を読み込み
-  // ========================================
+  const [adminMode, setAdminMode] =
+    useState(false);
 
   useEffect(() => {
-    const savedAdminMode =
-      localStorage.getItem("adminMode");
+    const loadAdminMode = () => {
+      const saved =
+        localStorage.getItem(
+          "adminMode"
+        );
 
-    setAdminMode(savedAdminMode === "true");
-    setAdminLoaded(true);
+      setAdminMode(
+        saved === "true"
+      );
+    };
+
+    loadAdminMode();
+
+    // 別タブなどで変更された場合
+    window.addEventListener(
+      "storage",
+      loadAdminMode
+    );
+
+    // 同じタブ内で変更した場合用
+    window.addEventListener(
+      "adminModeChanged",
+      loadAdminMode
+    );
+
+    return () => {
+      window.removeEventListener(
+        "storage",
+        loadAdminMode
+      );
+
+      window.removeEventListener(
+        "adminModeChanged",
+        loadAdminMode
+      );
+    };
   }, []);
 
   // ========================================
-  // メニュー
+  // メインTABS
   // ========================================
 
-  const normalTabs = [
+  const tabs = [
+    {
+      href: "/",
+      label: "HOME",
+      icon: House,
+    },
     {
       href: "/lives",
       label: "LIVE",
@@ -61,7 +82,16 @@ export default function BottomNav() {
       label: "SONGS",
       icon: Music2,
     },
+    {
+      href: "/collection",
+      label: "MY PAGE",
+      icon: Heart,
+    },
   ];
+
+  // ========================================
+  // 管理者用TABS
+  // ========================================
 
   const adminTabs = [
     {
@@ -76,27 +106,13 @@ export default function BottomNav() {
     },
   ];
 
-  const myPageTab = {
-    href: "/collection",
-    label: "MY PAGE",
-    icon: Heart,
-  };
-
-  const menuTabs = [
-    ...normalTabs,
-
-    ...(adminMode
-      ? adminTabs
-      : []),
-
-    myPageTab,
-  ];
-
   // ========================================
-  // 現在ページ判定
+  // ACTIVE判定
   // ========================================
 
-  const isActive = (href: string) => {
+  const isActive = (
+    href: string
+  ) => {
     if (href === "/") {
       return pathname === "/";
     }
@@ -104,27 +120,60 @@ export default function BottomNav() {
     if (href === "/lives") {
       return (
         pathname === "/lives" ||
-        pathname.startsWith("/live/")
+        pathname.startsWith(
+          "/live/"
+        )
       );
     }
 
-    if (href === "/artists") {
-      return pathname.startsWith("/artists");
+    if (href === "/songs") {
+      return pathname.startsWith(
+        "/songs"
+      );
     }
 
-    if (href === "/venues") {
-      return pathname.startsWith("/venues");
-    }
-
-    if (href === "/collection") {
+    if (
+      href === "/collection"
+    ) {
       return (
-        pathname.startsWith("/collection") ||
-        pathname.startsWith("/stats")
+        pathname.startsWith(
+          "/collection"
+        ) ||
+        pathname.startsWith(
+          "/stats"
+        )
       );
     }
 
-    return pathname.startsWith(href);
+    if (
+      href === "/artists"
+    ) {
+      return pathname.startsWith(
+        "/artists"
+      );
+    }
+
+    if (
+      href === "/venues"
+    ) {
+      return pathname.startsWith(
+        "/venues"
+      );
+    }
+
+    return pathname.startsWith(
+      href
+    );
   };
+
+  // ========================================
+  // 現在のメインタブ
+  // ========================================
+
+  const activeIndex =
+    tabs.findIndex((tab) =>
+      isActive(tab.href)
+    );
 
   // ========================================
   // タブ移動
@@ -133,493 +182,360 @@ export default function BottomNav() {
   const handleTabClick = (
     active: boolean
   ) => {
-    if (!active) {
-      sessionStorage.setItem(
-        "bottomNavScrollPosition",
-        String(window.scrollY)
-      );
-
-      sessionStorage.setItem(
-        "bottomNavTabTransition",
-        "true"
-      );
-
-      sessionStorage.removeItem(
-        "liveShouldRestoreScroll"
-      );
-
-      sessionStorage.removeItem(
-        "songShouldRestoreScroll"
-      );
-    }
-
-    setOpen(false);
-  };
-
-  // ========================================
-  // HOME 5回タップ
-  // ========================================
-
-  const handleHomeClick = (
-    event: React.MouseEvent<HTMLAnchorElement>
-  ) => {
-    /*
-      HOME以外のページでは、
-      普通にHOMEへ移動させる。
-
-      隠しコマンドはHOME画面にいる時だけ有効。
-    */
-
-    if (!homeActive) {
-      handleTabClick(false);
+    if (active) {
       return;
     }
 
-    /*
-      HOMEにいる場合はページ移動を止めて
-      タップ数をカウント
-    */
+    sessionStorage.setItem(
+      "bottomNavScrollPosition",
+      String(window.scrollY)
+    );
 
-    event.preventDefault();
+    sessionStorage.setItem(
+      "bottomNavTabTransition",
+      "true"
+    );
 
-    homeTapCount.current += 1;
+    sessionStorage.removeItem(
+      "liveShouldRestoreScroll"
+    );
 
-    // 前のタイマーをリセット
-    if (homeTapTimer.current) {
-      clearTimeout(
-        homeTapTimer.current
-      );
-    }
-
-    /*
-      1.5秒以内に次を押さなかったら
-      カウントをリセット
-    */
-
-    homeTapTimer.current =
-      setTimeout(() => {
-        homeTapCount.current = 0;
-      }, 1500);
-
-    // ======================================
-    // 5回タップ
-    // ======================================
-
-    if (homeTapCount.current >= 5) {
-      homeTapCount.current = 0;
-
-      if (homeTapTimer.current) {
-        clearTimeout(
-          homeTapTimer.current
-        );
-
-        homeTapTimer.current = null;
-      }
-
-      const nextAdminMode =
-        !adminMode;
-
-      setAdminMode(nextAdminMode);
-
-      localStorage.setItem(
-        "adminMode",
-        String(nextAdminMode)
-      );
-
-      // MENUは一旦閉じる
-      setOpen(false);
-
-      // メッセージ表示
-      setAdminMessage(
-        nextAdminMode
-          ? "ON"
-          : "OFF"
-      );
-
-      // 1.2秒後に消す
-      setTimeout(() => {
-        setAdminMessage(null);
-      }, 1200);
-    }
+    sessionStorage.removeItem(
+      "songShouldRestoreScroll"
+    );
   };
 
   // ========================================
-  // ページ変更時
+  // JSX
   // ========================================
-
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
-
-  // ========================================
-  // タイマー掃除
-  // ========================================
-
-  useEffect(() => {
-    return () => {
-      if (homeTapTimer.current) {
-        clearTimeout(
-          homeTapTimer.current
-        );
-      }
-    };
-  }, []);
-
-  const homeActive = isActive("/");
-
-  // localStorage読み込み前の
-  // メニュー内容変化を防止
-  if (!adminLoaded) {
-    return null;
-  }
 
   return (
-    <>
+    <nav
+      className="
+        fixed
+        bottom-4
+        left-1/2
+        z-50
+
+        w-[calc(100%-24px)]
+        max-w-[390px]
+
+        -translate-x-1/2
+      "
+    >
       {/* ================================= */}
-      {/* ADMIN MODE 表示 */}
+      {/* 管理者モード専用 */}
+      {/* ARTISTS / VENUES */}
       {/* ================================= */}
 
       <div
         className={`
-          pointer-events-none
-          fixed
-          left-1/2
-          top-1/2
-          z-[9999]
-          -translate-x-1/2
-          -translate-y-1/2
-
-          rounded-full
-          bg-[#14526B]
-          px-5
-          py-2.5
-
-          text-[11px]
-          font-bold
-          tracking-[0.15em]
-          text-white
-
-          shadow-[0_8px_30px_rgba(20,82,107,0.30)]
-
-          transition-all
-          duration-300
-
-          ${
-            adminMessage
-              ? "scale-100 opacity-100"
-              : "scale-90 opacity-0"
-          }
-        `}
-      >
-        ADMIN MODE {adminMessage}
-      </div>
-
-      {/* ================================= */}
-      {/* MENU展開時の背景 */}
-      {/* ================================= */}
-
-      <button
-        type="button"
-        aria-label="メニューを閉じる"
-        onClick={() =>
-          setOpen(false)
-        }
-        className={`
-          fixed
-          inset-0
-          z-40
-
-          bg-black/5
-          backdrop-blur-[1px]
-
-          transition-all
-          duration-300
-
-          ${
-            open
-              ? "pointer-events-auto opacity-100"
-              : "pointer-events-none opacity-0"
-          }
-        `}
-      />
-
-      {/* ================================= */}
-      {/* 左下 HOME */}
-      {/* ================================= */}
-
-      <div
-        className="
-          fixed
-          bottom-5
-          left-4
-          z-50
-
-          sm:bottom-6
-          sm:left-6
-        "
-      >
-        <Link
-          href="/"
-          scroll={false}
-          onClick={handleHomeClick}
-          aria-label="HOME"
-          className={`
-            flex
-            h-[56px]
-            w-[56px]
-            items-center
-            justify-center
-
-            rounded-full
-            border
-
-            shadow-[0_7px_24px_rgba(0,0,0,0.12)]
-
-            transition-all
-            duration-300
-            ease-[cubic-bezier(0.22,1,0.36,1)]
-
-            active:scale-95
-
-            ${
-              homeActive
-                ? "border-zinc-200/80 bg-white/95 text-[#14526B] backdrop-blur-xl"
-                : "border-[#14526B] bg-[#14526B] text-white"
-            }
-          `}
-        >
-          <House
-            size={21}
-            strokeWidth={
-              homeActive
-                ? 2.4
-                : 2
-            }
-          />
-        </Link>
-      </div>
-
-      {/* ================================= */}
-      {/* 右下 MENU */}
-      {/* ================================= */}
-
-      <nav
-        className="
-          fixed
-          bottom-5
-          right-4
-          z-50
-
+          mb-2
           flex
-          flex-col
-          items-end
+          items-center
+          justify-end
+          gap-2
+          pr-1
 
-          sm:bottom-6
-          sm:right-6
+          transition-all
+          duration-300
+
+          ${
+            adminMode
+              ? `
+                pointer-events-auto
+                translate-y-0
+                opacity-100
+              `
+              : `
+                pointer-events-none
+                translate-y-2
+                opacity-0
+              `
+          }
+        `}
+      >
+        {adminTabs.map(
+          (tab) => {
+            const active =
+              isActive(
+                tab.href
+              );
+
+            const Icon =
+              tab.icon;
+
+            return (
+              <Link
+                key={tab.href}
+                href={tab.href}
+                scroll={false}
+                onClick={() =>
+                  handleTabClick(
+                    active
+                  )
+                }
+                aria-label={
+                  tab.label
+                }
+                className={`
+                  flex
+                  h-9
+                  items-center
+                  justify-center
+                  gap-1.5
+
+                  rounded-full
+                  border
+                  px-3
+
+                  shadow-[0_3px_12px_rgba(0,0,0,0.08)]
+
+                  backdrop-blur-xl
+
+                  transition-all
+                  duration-200
+
+                  active:scale-95
+
+                  ${
+                    active
+                      ? `
+                        border-[#14526B]
+                        bg-[#14526B]
+                        text-white
+                      `
+                      : `
+                        border-zinc-200/80
+                        bg-white/95
+                        text-[#14526B]
+
+                        hover:border-[#14526B]/40
+                      `
+                  }
+                `}
+              >
+                <Icon
+                  size={15}
+                  strokeWidth={
+                    active
+                      ? 2.4
+                      : 2
+                  }
+                />
+
+                <span
+                  className="
+                    text-[9px]
+                    font-bold
+                    tracking-[0.06em]
+                  "
+                >
+                  {tab.label}
+                </span>
+              </Link>
+            );
+          }
+        )}
+      </div>
+
+      {/* ================================= */}
+      {/* メインナビ */}
+      {/* ================================= */}
+
+      <div
+        className="
+          relative
+
+          rounded-[28px]
+
+          border
+          border-zinc-200/80
+
+          bg-white/95
+
+          p-1.5
+
+          shadow-[0_8px_30px_rgba(0,0,0,0.12)]
+
+          backdrop-blur-xl
         "
       >
-        {/* ================================= */}
-        {/* 縦メニュー */}
-        {/* ================================= */}
+        <div className="relative h-[54px]">
 
-        <div className="mb-3 flex flex-col items-end gap-2">
-          {menuTabs.map(
-            (tab, index) => {
-              const active =
-                isActive(tab.href);
+          {/* ================================= */}
+          {/* 青い移動カプセル */}
+          {/* ================================= */}
 
-              const Icon =
-                tab.icon;
+          {activeIndex !== -1 && (
+            <div
+              className="
+                pointer-events-none
 
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  scroll={false}
-                  onClick={() =>
-                    handleTabClick(
-                      active
-                    )
-                  }
-                  aria-label={
-                    tab.label
-                  }
-                  className={`
-                    flex
-                    h-[46px]
-                    items-center
-                    gap-2.5
+                absolute
+                top-0
 
-                    rounded-full
-                    border
-                    px-4
+                h-[54px]
 
-                    shadow-[0_5px_18px_rgba(0,0,0,0.10)]
-                    backdrop-blur-xl
+                rounded-[21px]
 
-                    transition-all
-                    duration-300
-                    ease-[cubic-bezier(0.22,1,0.36,1)]
+                bg-[#14526B]
 
-                    ${
-                      open
-                        ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
-                        : "pointer-events-none translate-y-3 scale-95 opacity-0"
-                    }
+                shadow-[0_4px_14px_rgba(20,82,107,0.25)]
 
-                    ${
-                      active
-                        ? "border-[#14526B] bg-[#14526B] text-white"
-                        : "border-zinc-200/80 bg-white/95 text-[#14526B] hover:border-[#14526B]/40"
-                    }
-                  `}
-                  style={{
-                    transitionDelay:
-                      open
-                        ? `${index * 45}ms`
-                        : `${
-                            (
-                              menuTabs.length -
-                              index -
-                              1
-                            ) * 25
-                          }ms`,
-                  }}
-                >
-                  <Icon
-                    size={18}
-                    strokeWidth={
-                      active
-                        ? 2.4
-                        : 2
-                    }
-                    className="shrink-0"
-                  />
+                transition-all
+                duration-500
 
-                  <span
-                    className="
-                      whitespace-nowrap
-                      text-[11px]
-                      font-bold
-                      tracking-[0.05em]
-                    "
-                  >
-                    {tab.label}
-                  </span>
-                </Link>
-              );
-            }
+                ease-[cubic-bezier(0.22,1,0.36,1)]
+              "
+              style={{
+                width: "31%",
+                left:
+                  activeIndex === 0
+                    ? "0%"
+                    : activeIndex === 1
+                      ? "23%"
+                      : activeIndex === 2
+                        ? "46%"
+                        : "69%",
+              }}
+            />
           )}
-        </div>
 
-        {/* ================================= */}
-        {/* MENUボタン */}
-        {/* ================================= */}
+          {/* ================================= */}
+          {/* メインタブ */}
+          {/* ================================= */}
 
-        <button
-          type="button"
-          onClick={() =>
-            setOpen(
-              (prev) => !prev
-            )
-          }
-          aria-label={
-            open
-              ? "メニューを閉じる"
-              : "メニューを開く"
-          }
-          aria-expanded={open}
-          className={`
-            flex
-            h-[56px]
-            items-center
-            justify-center
-            overflow-hidden
+          <div
+            className="
+              absolute
+              inset-0
 
-            rounded-full
-            bg-[#14526B]
-            text-white
-
-            shadow-[0_7px_24px_rgba(20,82,107,0.30)]
-
-            transition-all
-            duration-300
-            ease-[cubic-bezier(0.22,1,0.36,1)]
-
-            active:scale-95
-
-            ${
-              open
-                ? "w-[56px]"
-                : "w-[92px] gap-2"
-            }
-          `}
-        >
-          {/* MENU / X */}
-
-          <div className="relative h-[20px] w-[20px] shrink-0">
-            <Menu
-              size={20}
-              strokeWidth={2.2}
-              className={`
-                absolute
-                inset-0
-
-                transition-all
-                duration-300
-
-                ${
-                  open
-                    ? "rotate-90 scale-50 opacity-0"
-                    : "rotate-0 scale-100 opacity-100"
-                }
-              `}
-            />
-
-            <X
-              size={20}
-              strokeWidth={2.2}
-              className={`
-                absolute
-                inset-0
-
-                transition-all
-                duration-300
-
-                ${
-                  open
-                    ? "rotate-0 scale-100 opacity-100"
-                    : "-rotate-90 scale-50 opacity-0"
-                }
-              `}
-            />
-          </div>
-
-          {/* MENU文字 */}
-
-          <span
-            className={`
-              overflow-hidden
-              whitespace-nowrap
-
-              text-[11px]
-              font-bold
-              tracking-[0.08em]
-
-              transition-all
-              duration-300
-
-              ${
-                open
-                  ? "max-w-0 -translate-x-2 opacity-0"
-                  : "max-w-[50px] translate-x-0 opacity-100"
-              }
-            `}
+              flex
+              items-center
+              justify-between
+            "
           >
-            MENU
-          </span>
-        </button>
-      </nav>
-    </>
+            {tabs.map(
+              (tab) => {
+                const active =
+                  isActive(
+                    tab.href
+                  );
+
+                const Icon =
+                  tab.icon;
+
+                return (
+                  <Link
+                    key={tab.href}
+                    href={tab.href}
+                    scroll={false}
+                    onClick={() =>
+                      handleTabClick(
+                        active
+                      )
+                    }
+                    aria-label={
+                      tab.label
+                    }
+                    className={`
+                      relative
+                      z-10
+
+                      flex
+                      h-[54px]
+
+                      items-center
+                      justify-center
+
+                      rounded-[21px]
+
+                      transition-all
+                      duration-500
+
+                      ease-[cubic-bezier(0.22,1,0.36,1)]
+
+                      ${
+                        active
+                          ? `
+                            w-[31%]
+                            gap-2
+                            px-3
+                            text-white
+                          `
+                          : `
+                            w-[23%]
+                            text-zinc-400
+
+                            hover:text-[#14526B]
+                          `
+                      }
+                    `}
+                  >
+                    {/* アイコン */}
+
+                    <Icon
+                      size={21}
+                      strokeWidth={
+                        active
+                          ? 2.4
+                          : 2
+                      }
+                      className={`
+                        shrink-0
+
+                        transition-transform
+                        duration-500
+
+                        ${
+                          active
+                            ? "scale-105"
+                            : "scale-100"
+                        }
+                      `}
+                    />
+
+                    {/* ================================= */}
+                    {/* 選択中だけ文字表示 */}
+                    {/* ================================= */}
+
+                    <span
+                      className={`
+                        overflow-hidden
+                        whitespace-nowrap
+
+                        text-[10px]
+                        font-bold
+                        tracking-[0.04em]
+
+                        transition-all
+                        duration-500
+
+                        ${
+                          active
+                            ? `
+                              max-w-[90px]
+                              translate-x-0
+                              opacity-100
+                            `
+                            : `
+                              max-w-0
+                              -translate-x-1
+                              opacity-0
+                            `
+                        }
+                      `}
+                    >
+                      {tab.label}
+                    </span>
+                  </Link>
+                );
+              }
+            )}
+          </div>
+        </div>
+      </div>
+    </nav>
   );
 }
