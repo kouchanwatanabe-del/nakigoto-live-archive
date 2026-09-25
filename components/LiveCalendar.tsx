@@ -718,7 +718,7 @@ export default function LiveCalendar({
 
                   ${
                     hasLive
-                      ? "bg-[#14526B]/[0.025]"
+                      ? "bg-[#14526B]/10"
                       : "bg-white"
                   }
                 `}
@@ -961,7 +961,7 @@ export default function LiveCalendar({
                       <p
                         className="
                           mt-1
-                          text-[10px]
+                          text-[12px]
                           leading-snug
                           text-zinc-400
                         "
