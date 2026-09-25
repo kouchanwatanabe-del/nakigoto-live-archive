@@ -927,9 +927,7 @@ const [highlightedLiveId, setHighlightedLiveId] =
                     <button
   type="button"
   onClick={() =>
-    toggleDayAttended(
-      dayLives
-    )
+    toggleDayAttended(dayLives)
   }
   aria-label={
     allAttended
@@ -942,15 +940,15 @@ const [highlightedLiveId, setHighlightedLiveId] =
     right-1.5
 
     flex
-    h-9
-    w-9
+    h-8
+    w-8
     items-center
     justify-center
 
     rounded-full
     border
 
-    text-[17px]
+    text-[15px]
     leading-none
 
     shadow-[0_1px_3px_rgba(0,0,0,0.04)]
@@ -1050,13 +1048,10 @@ const [highlightedLiveId, setHighlightedLiveId] =
     duration-500
 
     ${
-      highlightedLiveId === live.id
-        ? `
-          bg-[#14526B]/10
-          shadow-[inset_3px_0_0_#14526B]
-        `
-        : "bg-white"
-    }
+  highlightedLiveId === live.id
+    ? "bg-[#14526B]/10"
+    : "bg-white"
+}
   `}
 >
 
