@@ -276,7 +276,7 @@ export default function StatsPage() {
                       一番よく聴いた曲
                     </p>
 
-                    <p className="mt-1 truncate text-[19px] font-bold text-[#14526B]">
+                    <p className="mt-1 truncate text-[19px] font-bold ">
                       {mostPlayedSong[0]}
                     </p>
 
