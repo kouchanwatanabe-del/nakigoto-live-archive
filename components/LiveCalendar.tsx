@@ -31,7 +31,8 @@ export default function LiveCalendar({
 }: Props) {
   const [attendedIds, setAttendedIds] =
     useState<string[]>([]);
-
+const [highlightedLiveId, setHighlightedLiveId] =
+  useState<string | null>(null);
   // ========================================
   // 最初に表示する月
   //
@@ -455,22 +456,31 @@ export default function LiveCalendar({
   // ========================================
 
   const scrollToLive = (
-    liveId: string
-  ) => {
-    const element =
-      document.getElementById(
-        `calendar-live-${liveId}`
-      );
+  liveId: string
+) => {
+  const element =
+    document.getElementById(
+      `calendar-live-${liveId}`
+    );
 
-    if (!element) {
-      return;
-    }
+  if (!element) {
+    return;
+  }
 
-    element.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
-  };
+  // 該当カードをハイライト
+  setHighlightedLiveId(liveId);
+
+  // カードまでスクロール
+  element.scrollIntoView({
+    behavior: "smooth",
+    block: "center",
+  });
+
+  // 少し経ったらハイライト解除
+  window.setTimeout(() => {
+    setHighlightedLiveId(null);
+  }, 1400);
+};
 
   // ========================================
   // JSX
@@ -915,56 +925,59 @@ export default function LiveCalendar({
                     {/* ================================= */}
 
                     <button
-                      type="button"
-                      onClick={() =>
-                        toggleDayAttended(
-                          dayLives
-                        )
-                      }
-                      aria-label={
-                        allAttended
-                          ? `${dateKey}の参戦登録を解除`
-                          : `${dateKey}を参戦済みにする`
-                      }
-                      className={`
-                        absolute
-                        bottom-1.5
-                        right-1.5
+  type="button"
+  onClick={() =>
+    toggleDayAttended(
+      dayLives
+    )
+  }
+  aria-label={
+    allAttended
+      ? `${dateKey}の参戦登録を解除`
+      : `${dateKey}を参戦済みにする`
+  }
+  className={`
+    absolute
+    bottom-1.5
+    right-1.5
 
-                        flex
-                        h-9
-                        w-9
-                        items-center
-                        justify-center
+    flex
+    h-9
+    w-9
+    items-center
+    justify-center
 
-                        rounded-full
-                        border
-                        bg-white
+    rounded-full
+    border
 
-                        text-[17px]
-                        leading-none
+    text-[17px]
+    leading-none
 
-                        shadow-[0_1px_4px_rgba(0,0,0,0.05)]
+    shadow-[0_1px_3px_rgba(0,0,0,0.04)]
 
-                        transition
-                        duration-200
+    transition-all
+    duration-200
 
-                        hover:scale-105
-                        active:scale-90
+    hover:scale-105
+    active:scale-90
 
-                        ${
-                          allAttended
-                            ? "border-[#14526B]/30 text-[#14526B]"
-                            : someAttended
-                              ? "border-zinc-200 text-[#14526B]/50"
-                              : "border-zinc-200 text-[#14526B]"
-                        }
-                      `}
-                    >
-                      {allAttended
-                        ? "♥"
-                        : "♡"}
-                    </button>
+    ${
+      allAttended
+        ? `
+          border-[#14526B]
+          bg-[#14526B]
+          text-white
+        `
+        : `
+          border-zinc-200
+          bg-white
+          text-[#14526B]
+        `
+    }
+  `}
+>
+  {allAttended ? "♥" : "♡"}
+</button>
                   </>
                 )}
               </div>
@@ -1024,16 +1037,28 @@ export default function LiveCalendar({
 
                 return (
                   <div
-                    key={live.id}
-                    id={`calendar-live-${live.id}`}
-                    className="
-                      relative
-                      scroll-mt-24
-                      border-b
-                      border-zinc-100
-                      last:border-b-0
-                    "
-                  >
+  key={live.id}
+  id={`calendar-live-${live.id}`}
+  className={`
+    relative
+    scroll-mt-24
+    border-b
+    border-zinc-100
+    last:border-b-0
+
+    transition-all
+    duration-500
+
+    ${
+      highlightedLiveId === live.id
+        ? `
+          bg-[#14526B]/10
+          shadow-[inset_3px_0_0_#14526B]
+        `
+        : "bg-white"
+    }
+  `}
+>
 
                     {/* ライブ詳細 */}
 
@@ -1097,54 +1122,60 @@ export default function LiveCalendar({
                     {/* ================================= */}
 
                     <button
-                      type="button"
-                      onClick={() =>
-                        toggleAttended(
-                          live.id
-                        )
-                      }
-                      aria-label={
-                        attended
-                          ? "参戦済みを解除"
-                          : "参戦済みにする"
-                      }
-                      className={`
-                        absolute
-                        right-1
-                        top-1/2
+  type="button"
+  onClick={() =>
+    toggleAttended(
+      live.id
+    )
+  }
+  aria-label={
+    attended
+      ? "参戦済みを解除"
+      : "参戦済みにする"
+  }
+  className={`
+    absolute
+    right-1
+    top-1/2
 
-                        flex
-                        h-9
-                        w-9
-                        -translate-y-1/2
-                        items-center
-                        justify-center
+    flex
+    h-9
+    w-9
+    -translate-y-1/2
+    items-center
+    justify-center
 
-                        rounded-full
-                        border
-                        bg-white
+    rounded-full
+    border
 
-                        text-[18px]
+    text-[18px]
+    leading-none
 
-                        shadow-[0_1px_4px_rgba(0,0,0,0.04)]
+    shadow-[0_1px_3px_rgba(0,0,0,0.04)]
 
-                        transition
-                        duration-200
+    transition-all
+    duration-200
 
-                        hover:scale-105
-                        active:scale-90
+    hover:scale-105
+    active:scale-90
 
-                        ${
-                          attended
-                            ? "border-[#14526B]/30 text-[#14526B]"
-                            : "border-zinc-200 text-[#14526B]"
-                        }
-                      `}
-                    >
-                      {attended
-                        ? "♥"
-                        : "♡"}
-                    </button>
+    ${
+      attended
+        ? `
+          border-[#14526B]
+          bg-[#14526B]
+          text-white
+        `
+        : `
+          border-zinc-200
+          bg-white
+          text-[#14526B]
+        `
+    }
+  `}
+>
+  {attended ? "♥" : "♡"}
+</button>
                   </div>
                 );
               }
