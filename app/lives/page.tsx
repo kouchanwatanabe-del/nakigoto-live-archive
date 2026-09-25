@@ -1,1320 +1,1217 @@
-
 "use client";
 
-import Link from "next/link";
-
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
 import { lives } from "../../data/lives";
-
-import AttendedIconButton from "../../components/AttendedIconButton";
+import LiveList from "../../components/LiveList";
+import LiveCalendar from "../../components/LiveCalendar";
 
 type Live = (typeof lives)[number];
 
-type SetlistFilter = "すべて" | "あり" | "なし";
+type SetlistFilter =
+  | "すべて"
+  | "あり"
+  | "なし";
 
-const FILTER_STORAGE_KEY = "liveSearchFilters";
+type ViewMode =
+  | "list"
+  | "calendar";
 
-const SCROLL_STORAGE_KEY = "liveSearchScrollPosition";
+const FILTER_STORAGE_KEY =
+  "liveSearchFilters";
 
-const RESTORE_STORAGE_KEY = "liveShouldRestoreScroll";
+const SCROLL_STORAGE_KEY =
+  "liveSearchScrollPosition";
+
+const RESTORE_STORAGE_KEY =
+  "liveShouldRestoreScroll";
+
+const VIEW_STORAGE_KEY =
+  "liveViewMode";
 
 export default function LivesPage() {
-
-  const [keyword, setKeyword] = useState("");
-
-  const [year, setYear] = useState("すべて");
-
-  const [month, setMonth] = useState("すべて");
-
-  const [setlistFilter, setSetlistFilter] =
-
-    useState<SetlistFilter>("すべて");
-
-  const [attendedOnly, setAttendedOnly] = useState(false);
-
-  const [attendedIds, setAttendedIds] = useState<string[]>([]);
-
-  const [filtersLoaded, setFiltersLoaded] = useState(false);
-
-  const [scrollRestored, setScrollRestored] = useState(false);
-
+  // ========================================
+  // 検索・フィルター
   // ========================================
 
-  // 参戦記録を読み込む
+  const [keyword, setKeyword] =
+    useState("");
+
+  const [year, setYear] =
+    useState("すべて");
+
+  const [month, setMonth] =
+    useState("すべて");
+
+  const [
+    setlistFilter,
+    setSetlistFilter,
+  ] =
+    useState<SetlistFilter>(
+      "すべて"
+    );
+
+  const [
+    attendedOnly,
+    setAttendedOnly,
+  ] = useState(false);
+
+  const [
+    attendedIds,
+    setAttendedIds,
+  ] =
+    useState<string[]>([]);
+
+  const [
+    viewMode,
+    setViewMode,
+  ] =
+    useState<ViewMode>("list");
+
+  const [
+    filtersLoaded,
+    setFiltersLoaded,
+  ] = useState(false);
+
+  const [
+    scrollRestored,
+    setScrollRestored,
+  ] = useState(false);
 
   // ========================================
+  // 参戦記録
+  // ========================================
 
-  const loadAttendedLives = () => {
+  const loadAttendedLives =
+    () => {
+      const saved =
+        localStorage.getItem(
+          "attendedLives"
+        );
 
-    const saved = localStorage.getItem("attendedLives");
-
-    if (!saved) {
-
-      setAttendedIds([]);
-
-      return;
-
-    }
-
-    try {
-
-      const parsed = JSON.parse(saved);
-
-      if (Array.isArray(parsed)) {
-
-        setAttendedIds(parsed);
-
-      } else {
-
+      if (!saved) {
         setAttendedIds([]);
-
+        return;
       }
 
-    } catch {
+      try {
+        const parsed =
+          JSON.parse(saved);
 
-      setAttendedIds([]);
-
-    }
-
-  };
+        if (
+          Array.isArray(parsed)
+        ) {
+          setAttendedIds(
+            parsed
+          );
+        } else {
+          setAttendedIds(
+            []
+          );
+        }
+      } catch {
+        setAttendedIds([]);
+      }
+    };
 
   // ========================================
-
-  // 最初に検索条件を復元
-
+  // 初回読み込み
   // ========================================
 
   useEffect(() => {
-
     loadAttendedLives();
 
-    const savedFilters =
+    // LIST / CALENDAR復元
 
-      sessionStorage.getItem(FILTER_STORAGE_KEY);
+    const savedView =
+      sessionStorage.getItem(
+        VIEW_STORAGE_KEY
+      );
+
+    if (
+      savedView === "list" ||
+      savedView === "calendar"
+    ) {
+      setViewMode(
+        savedView
+      );
+    }
+
+    // 検索条件復元
+
+    const savedFilters =
+      sessionStorage.getItem(
+        FILTER_STORAGE_KEY
+      );
 
     if (savedFilters) {
-
       try {
+        const parsed =
+          JSON.parse(
+            savedFilters
+          );
 
-        const parsed = JSON.parse(savedFilters);
-
-        if (typeof parsed.keyword === "string") {
-
-          setKeyword(parsed.keyword);
-
-        }
-
-        if (typeof parsed.year === "string") {
-
-          setYear(parsed.year);
-
-        }
-
-        if (typeof parsed.month === "string") {
-
-          setMonth(parsed.month);
-
+        if (
+          typeof parsed.keyword ===
+          "string"
+        ) {
+          setKeyword(
+            parsed.keyword
+          );
         }
 
         if (
-
-          parsed.setlistFilter === "すべて" ||
-
-          parsed.setlistFilter === "あり" ||
-
-          parsed.setlistFilter === "なし"
-
+          typeof parsed.year ===
+          "string"
         ) {
-
-          setSetlistFilter(parsed.setlistFilter);
-
+          setYear(
+            parsed.year
+          );
         }
 
-        if (typeof parsed.attendedOnly === "boolean") {
-
-          setAttendedOnly(parsed.attendedOnly);
-
+        if (
+          typeof parsed.month ===
+          "string"
+        ) {
+          setMonth(
+            parsed.month
+          );
         }
 
+        if (
+          parsed.setlistFilter ===
+            "すべて" ||
+          parsed.setlistFilter ===
+            "あり" ||
+          parsed.setlistFilter ===
+            "なし"
+        ) {
+          setSetlistFilter(
+            parsed.setlistFilter
+          );
+        }
+
+        if (
+          typeof parsed.attendedOnly ===
+          "boolean"
+        ) {
+          setAttendedOnly(
+            parsed.attendedOnly
+          );
+        }
       } catch {
-
-        sessionStorage.removeItem(FILTER_STORAGE_KEY);
-
+        sessionStorage.removeItem(
+          FILTER_STORAGE_KEY
+        );
       }
-
     }
 
     setFiltersLoaded(true);
-
   }, []);
 
   // ========================================
-
-  // 検索条件を保存
-
+  // ページに戻った時
+  // 参戦記録を更新
   // ========================================
 
   useEffect(() => {
+    const handleFocus = () => {
+      loadAttendedLives();
+    };
 
-    if (!filtersLoaded) return;
+    window.addEventListener(
+      "focus",
+      handleFocus
+    );
+
+    return () => {
+      window.removeEventListener(
+        "focus",
+        handleFocus
+      );
+    };
+  }, []);
+
+  // ========================================
+  // 表示モード保存
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) {
+      return;
+    }
+
+    sessionStorage.setItem(
+      VIEW_STORAGE_KEY,
+      viewMode
+    );
+  }, [
+    viewMode,
+    filtersLoaded,
+  ]);
+
+  // ========================================
+  // フィルター保存
+  // ========================================
+
+  useEffect(() => {
+    if (!filtersLoaded) {
+      return;
+    }
 
     const filters = {
-
       keyword,
-
       year,
-
       month,
-
       setlistFilter,
-
       attendedOnly,
-
     };
 
     sessionStorage.setItem(
-
       FILTER_STORAGE_KEY,
-
       JSON.stringify(filters)
-
     );
-
   }, [
-
     keyword,
-
     year,
-
     month,
-
     setlistFilter,
-
     attendedOnly,
-
     filtersLoaded,
-
   ]);
 
   // ========================================
-
-  // 開催年
-
+  // 開催年一覧
   // ========================================
 
-  const years = useMemo(() => {
-
-    const yearList = lives.map((live: Live) =>
-
-      live.date.slice(0, 4)
-
-    );
-
-    return [...new Set(yearList)].sort((a, b) =>
-
-      b.localeCompare(a)
-
-    );
-
-  }, []);
-
-  // ========================================
-
-  // 選択した年の月
-
-  // ========================================
-
-  const months = useMemo(() => {
-
-    if (year === "すべて") {
-
-      return [];
-
-    }
-
-    const monthList = lives
-
-      .filter((live: Live) =>
-
-        live.date.startsWith(`${year}.`)
-
-      )
-
-      .map((live: Live) =>
-
-        live.date.slice(5, 7)
-
-      );
-
-    return [...new Set(monthList)].sort(
-
-      (a, b) => Number(a) - Number(b)
-
-    );
-
-  }, [year]);
-
-  // ========================================
-
-  // 検索・絞り込み
-
-  // ========================================
-
-  const filteredLives = useMemo(() => {
-
-    const q = keyword.trim().toLowerCase();
-
-    return lives
-
-      .filter((live: Live) => {
-
-        const yearMatch =
-
-          year === "すべて" ||
-
-          live.date.startsWith(year);
-
-        const monthMatch =
-
-          year === "すべて" ||
-
-          month === "すべて" ||
-
-          live.date.startsWith(
-
-            `${year}.${month}`
-
-          );
-
-        const hasSetlist =
-
-          live.setlist.length > 0;
-
-        const setlistFilterMatch =
-
-          setlistFilter === "すべて" ||
-
-          (setlistFilter === "あり" &&
-
-            hasSetlist) ||
-
-          (setlistFilter === "なし" &&
-
-            !hasSetlist);
-
-        const attendedMatch =
-
-          !attendedOnly ||
-
-          attendedIds.includes(live.id);
-
-        const titleMatch =
-
-          live.title.toLowerCase().includes(q);
-
-        const cityMatch =
-
-          live.city.toLowerCase().includes(q);
-
-        const venueMatch =
-
-          live.venue.toLowerCase().includes(q);
-
-        const tourMatch =
-
-          live.tour.toLowerCase().includes(q);
-
-        const setlistMatch =
-
-          live.setlist.some((song: string) =>
-
-            song.toLowerCase().includes(q)
-
-          );
-
-        const encoreMatch =
-
-  "encore" in live &&
-
-  Array.isArray(live.encore) &&
-
-  live.encore.some((song: string) =>
-
-    song.toLowerCase().includes(q)
-
-  );
-
-// 対バン相手
-
-const artistsMatch =
-
-  "artists" in live &&
-
-  Array.isArray(live.artists) &&
-
-  live.artists.some((artist: string) =>
-
-    artist.toLowerCase().includes(q)
-
-  );
-
-const keywordMatch =
-
-  q === "" ||
-
-  titleMatch ||
-
-  cityMatch ||
-
-  venueMatch ||
-
-  tourMatch ||
-
-  setlistMatch ||
-
-  encoreMatch ||
-
-  artistsMatch;
-
-        return (
-
-          yearMatch &&
-
-          monthMatch &&
-
-          setlistFilterMatch &&
-
-          attendedMatch &&
-
-          keywordMatch
-
+  const years =
+    useMemo(() => {
+      const yearList =
+        lives.map(
+          (live: Live) =>
+            live.date.slice(
+              0,
+              4
+            )
         );
 
-      })
-
-      .sort((a, b) =>
-
-        b.date.localeCompare(a.date)
-
+      return [
+        ...new Set(yearList),
+      ].sort(
+        (a, b) =>
+          b.localeCompare(a)
       );
-
-  }, [
-
-    keyword,
-
-    year,
-
-    month,
-
-    setlistFilter,
-
-    attendedOnly,
-
-    attendedIds,
-
-  ]);
+    }, []);
 
   // ========================================
+  // 月一覧
+  // ========================================
 
-  // スクロール位置を復元
+  const months =
+    useMemo(() => {
+      if (
+        year === "すべて"
+      ) {
+        return [];
+      }
 
+      const monthList =
+        lives
+          .filter(
+            (live: Live) =>
+              live.date.startsWith(
+                `${year}.`
+              )
+          )
+          .map(
+            (live: Live) =>
+              live.date.slice(
+                5,
+                7
+              )
+          );
+
+      return [
+        ...new Set(monthList),
+      ].sort(
+        (a, b) =>
+          Number(a) -
+          Number(b)
+      );
+    }, [year]);
+
+  // ========================================
+  // 検索
+  // ========================================
+
+  const filteredLives =
+    useMemo(() => {
+      const q =
+        keyword
+          .trim()
+          .toLowerCase();
+
+      return lives
+        .filter(
+          (live: Live) => {
+            // 年
+
+            const yearMatch =
+              year ===
+                "すべて" ||
+              live.date.startsWith(
+                year
+              );
+
+            // 月
+
+            const monthMatch =
+              year ===
+                "すべて" ||
+              month ===
+                "すべて" ||
+              live.date.startsWith(
+                `${year}.${month}`
+              );
+
+            // セトリ
+
+            const hasSetlist =
+              live.setlist.length >
+              0;
+
+            const setlistMatch =
+              setlistFilter ===
+                "すべて" ||
+              (setlistFilter ===
+                "あり" &&
+                hasSetlist) ||
+              (setlistFilter ===
+                "なし" &&
+                !hasSetlist);
+
+            // 参戦済み
+
+            const attendedMatch =
+              !attendedOnly ||
+              attendedIds.includes(
+                live.id
+              );
+
+            // ========================================
+            // キーワード検索
+            // ========================================
+
+            const titleMatch =
+              live.title
+                .toLowerCase()
+                .includes(q);
+
+            const cityMatch =
+              live.city
+                .toLowerCase()
+                .includes(q);
+
+            const venueMatch =
+              live.venue
+                .toLowerCase()
+                .includes(q);
+
+            const tourMatch =
+              live.tour
+                ?.toLowerCase()
+                .includes(q) ??
+              false;
+
+            // 曲名
+
+            const songMatch =
+              live.setlist.some(
+                (song: string) =>
+                  song
+                    .toLowerCase()
+                    .includes(q)
+              );
+
+            // アンコール
+
+            const encoreMatch =
+              "encore" in
+                live &&
+              Array.isArray(
+                live.encore
+              ) &&
+              live.encore.some(
+                (song: string) =>
+                  song
+                    .toLowerCase()
+                    .includes(q)
+              );
+
+            // 対バン
+
+            const artistMatch =
+              "artists" in
+                live &&
+              Array.isArray(
+                live.artists
+              ) &&
+              live.artists.some(
+                (
+                  artist: string
+                ) =>
+                  artist
+                    .toLowerCase()
+                    .includes(q)
+              );
+
+            const keywordMatch =
+              q === "" ||
+              titleMatch ||
+              cityMatch ||
+              venueMatch ||
+              tourMatch ||
+              songMatch ||
+              encoreMatch ||
+              artistMatch;
+
+            return (
+              yearMatch &&
+              monthMatch &&
+              setlistMatch &&
+              attendedMatch &&
+              keywordMatch
+            );
+          }
+        )
+        .sort(
+          (a, b) =>
+            b.date.localeCompare(
+              a.date
+            )
+        );
+    }, [
+      keyword,
+      year,
+      month,
+      setlistFilter,
+      attendedOnly,
+      attendedIds,
+    ]);
+
+  // ========================================
+  // スクロール復元
   // ========================================
 
   useEffect(() => {
+    if (!filtersLoaded) {
+      return;
+    }
 
-    if (!filtersLoaded) return;
-
-    if (scrollRestored) return;
+    if (scrollRestored) {
+      return;
+    }
 
     const shouldRestore =
-
       sessionStorage.getItem(
-
         RESTORE_STORAGE_KEY
-
       );
 
-    if (shouldRestore !== "true") {
-
+    if (
+      shouldRestore !== "true"
+    ) {
       sessionStorage.removeItem(
-
         SCROLL_STORAGE_KEY
-
       );
 
       setScrollRestored(true);
 
       return;
-
     }
 
     const savedScroll =
-
       sessionStorage.getItem(
-
         SCROLL_STORAGE_KEY
-
       );
 
     sessionStorage.removeItem(
-
       RESTORE_STORAGE_KEY
-
     );
 
     if (!savedScroll) {
-
       setScrollRestored(true);
 
       return;
-
     }
 
     const scrollPosition =
-
       Number(savedScroll);
 
-    if (Number.isNaN(scrollPosition)) {
-
+    if (
+      Number.isNaN(
+        scrollPosition
+      )
+    ) {
       sessionStorage.removeItem(
-
         SCROLL_STORAGE_KEY
-
       );
 
       setScrollRestored(true);
 
       return;
-
     }
 
     const frame =
+      requestAnimationFrame(
+        () => {
+          window.scrollTo({
+            top:
+              scrollPosition,
+            behavior:
+              "instant",
+          });
 
-      requestAnimationFrame(() => {
-
-        window.scrollTo({
-
-          top: scrollPosition,
-
-          behavior: "instant",
-
-        });
-
-        requestAnimationFrame(() => {
-
-          setScrollRestored(true);
-
-        });
-
-      });
+          requestAnimationFrame(
+            () => {
+              setScrollRestored(
+                true
+              );
+            }
+          );
+        }
+      );
 
     return () => {
-
-      cancelAnimationFrame(frame);
-
+      cancelAnimationFrame(
+        frame
+      );
     };
-
   }, [
-
     filtersLoaded,
-
     scrollRestored,
-
     filteredLives.length,
-
   ]);
 
   // ========================================
-
-  // 条件リセット
-
+  // リセット
   // ========================================
 
   const resetFilters = () => {
-
     setKeyword("");
 
     setYear("すべて");
 
     setMonth("すべて");
 
-    setSetlistFilter("すべて");
+    setSetlistFilter(
+      "すべて"
+    );
 
     setAttendedOnly(false);
 
     sessionStorage.removeItem(
-
       FILTER_STORAGE_KEY
-
     );
 
     sessionStorage.removeItem(
-
       SCROLL_STORAGE_KEY
-
     );
 
     sessionStorage.removeItem(
-
       RESTORE_STORAGE_KEY
-
     );
 
     window.scrollTo({
-
       top: 0,
-
       behavior: "smooth",
-
     });
-
   };
 
   // ========================================
-
-  // ライブ詳細へ移動する前にスクロール保存
-
+  // JSX
   // ========================================
-
-  const saveScrollPosition = () => {
-
-    sessionStorage.setItem(
-
-      SCROLL_STORAGE_KEY,
-
-      String(window.scrollY)
-
-    );
-
-    sessionStorage.setItem(
-
-      RESTORE_STORAGE_KEY,
-
-      "true"
-
-    );
-
-  };
 
   return (
-
     <main
-
       className={`min-h-screen bg-white pb-36 text-zinc-900 ${
-
-        filtersLoaded && scrollRestored
-
+        filtersLoaded &&
+        scrollRestored
           ? "visible"
-
           : "invisible"
-
       }`}
-
     >
-
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-3xl
+          px-4
+          py-8
+          sm:px-6
+          sm:py-10
+        "
+      >
         {/* ================================= */}
-
-        {/* ページヘッダー */}
-
+        {/* HEADER */}
         {/* ================================= */}
 
         <div>
-
-          <h1 className="text-3xl font-bold text-[#14526B]">
-
+          <h1
+            className="
+              text-3xl
+              font-bold
+              text-[#14526B]
+            "
+          >
             LIVE
-
           </h1>
 
-          <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-
+          <p
+            className="
+              mt-2
+              text-sm
+              leading-6
+              text-zinc-500
+              sm:text-base
+            "
+          >
             ライブ・セットリスト一覧
-
           </p>
-
         </div>
 
         {/* ================================= */}
-
-        {/* 検索エリア */}
-
+        {/* LIST / CALENDAR */}
         {/* ================================= */}
 
-        <section className="mt-8">
+        <div
+          className="
+            mt-6
+            flex
+            border-b
+            border-zinc-200
+          "
+        >
+          {/* LIST */}
 
-          {/* 検索 */}
+          <button
+            type="button"
+            onClick={() => {
+              loadAttendedLives();
 
-          <div className="relative z-10">
+              setViewMode(
+                "list"
+              );
+            }}
+            className={`
+              relative
+              px-1
+              pb-2.5
+              pr-6
 
-            <input
+              text-[12px]
+              font-bold
+              tracking-[0.08em]
 
-              type="search"
+              transition
 
-              value={keyword}
-
-              onChange={(e) =>
-
-                setKeyword(e.target.value)
-
+              ${
+                viewMode ===
+                "list"
+                  ? "text-[#14526B]"
+                  : "text-zinc-400"
               }
+            `}
+          >
+            LIST
 
-              placeholder="曲名・都市・公演名・対バン相手を検索"
+            {viewMode ===
+              "list" && (
+              <span
+                className="
+                  absolute
+                  bottom-[-1px]
+                  left-0
+                  h-[2px]
+                  w-full
+                  bg-[#14526B]
+                "
+              />
+            )}
+          </button>
 
+          {/* CALENDAR */}
+
+          <button
+            type="button"
+            onClick={() => {
+              loadAttendedLives();
+
+              setViewMode(
+                "calendar"
+              );
+            }}
+            className={`
+              relative
+              px-6
+              pb-2.5
+
+              text-[12px]
+              font-bold
+              tracking-[0.08em]
+
+              transition
+
+              ${
+                viewMode ===
+                "calendar"
+                  ? "text-[#14526B]"
+                  : "text-zinc-400"
+              }
+            `}
+          >
+            CALENDAR
+
+            {viewMode ===
+              "calendar" && (
+              <span
+                className="
+                  absolute
+                  bottom-[-1px]
+                  left-0
+                  h-[2px]
+                  w-full
+                  bg-[#14526B]
+                "
+              />
+            )}
+          </button>
+        </div>
+
+        {/* ================================= */}
+        {/* 検索 */}
+        {/* ================================= */}
+
+        <section className="mt-6">
+          <div className="relative z-10">
+            <input
+              type="search"
+              value={keyword}
+              onChange={(e) =>
+                setKeyword(
+                  e.target.value
+                )
+              }
+              placeholder="曲名・都市・会場・公演名・対バン相手を検索"
               autoComplete="off"
-
               enterKeyHint="search"
-
-              className="relative z-10 w-full appearance-none rounded-2xl border border-zinc-200 bg-white px-4 py-4 pr-12 text-base text-zinc-900 shadow-sm outline-none transition placeholder:text-zinc-400 focus:border-[#14526B] focus:ring-2 focus:ring-[#14526B]/10"
-
+              className="
+                relative
+                z-10
+                w-full
+                appearance-none
+                rounded-2xl
+                border
+                border-zinc-200
+                bg-white
+                px-4
+                py-4
+                pr-12
+                text-base
+                text-zinc-900
+                shadow-sm
+                outline-none
+                transition
+                placeholder:text-zinc-400
+                focus:border-[#14526B]
+                focus:ring-2
+                focus:ring-[#14526B]/10
+              "
             />
 
             {keyword && (
-
               <button
-
                 type="button"
-
                 onClick={() =>
-
                   setKeyword("")
-
                 }
-
-                className="absolute right-3 top-1/2 z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full text-xl text-zinc-400 active:bg-zinc-100"
-
+                className="
+                  absolute
+                  right-3
+                  top-1/2
+                  z-20
+                  flex
+                  h-10
+                  w-10
+                  -translate-y-1/2
+                  items-center
+                  justify-center
+                  rounded-full
+                  text-xl
+                  text-zinc-400
+                  active:bg-zinc-100
+                "
                 aria-label="検索文字を消去"
-
               >
-
                 ×
-
               </button>
-
             )}
-
           </div>
 
           {/* ================================= */}
-
           {/* 年 */}
-
           {/* ================================= */}
 
-          <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-
+          <div
+            className="
+              mt-3
+              flex
+              gap-2
+              overflow-x-auto
+              pb-1
+            "
+          >
             <button
-
               type="button"
-
               onClick={() => {
+                setYear(
+                  "すべて"
+                );
 
-                setYear("すべて");
-
-                setMonth("すべて");
-
+                setMonth(
+                  "すべて"
+                );
               }}
+              className={`
+                shrink-0
+                rounded-full
+                border
+                px-4
+                py-2
+                text-[12px]
+                font-medium
+                transition
 
-              className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
-
-                year === "すべて"
-
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-
-                  : "border-zinc-200 bg-white text-zinc-600"
-
-              }`}
-
+                ${
+                  year ===
+                  "すべて"
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-zinc-600"
+                }
+              `}
             >
-
               すべて
-
             </button>
 
-            {years.map((y: string) => (
+            {years.map(
+              (y: string) => (
+                <button
+                  type="button"
+                  key={y}
+                  onClick={() => {
+                    setYear(y);
 
-              <button
+                    setMonth(
+                      "すべて"
+                    );
+                  }}
+                  className={`
+                    shrink-0
+                    rounded-full
+                    border
+                    px-4
+                    py-2
+                    text-[12px]
+                    font-medium
+                    transition
 
-                type="button"
-
-                key={y}
-
-                onClick={() => {
-
-                  setYear(y);
-
-                  setMonth("すべて");
-
-                }}
-
-                className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${
-
-                  year === y
-
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-
-                    : "border-zinc-200 bg-white text-zinc-600"
-
-                }`}
-
-              >
-
-                {y}
-
-              </button>
-
-            ))}
-
+                    ${
+                      year === y
+                        ? "border-[#14526B] bg-[#14526B] text-white"
+                        : "border-zinc-200 bg-white text-zinc-600"
+                    }
+                  `}
+                >
+                  {y}
+                </button>
+              )
+            )}
           </div>
 
           {/* ================================= */}
-
           {/* 月 */}
-
           {/* ================================= */}
 
-          {year !== "すべて" && (
-
-            <div className="mt-2 flex gap-2 overflow-x-auto pb-1">
-
+          {year !==
+            "すべて" && (
+            <div
+              className="
+                mt-2
+                flex
+                gap-2
+                overflow-x-auto
+                pb-1
+              "
+            >
               <button
-
                 type="button"
-
                 onClick={() =>
-
-                  setMonth("すべて")
-
+                  setMonth(
+                    "すべて"
+                  )
                 }
+                className={`
+                  shrink-0
+                  rounded-full
+                  border
+                  px-3.5
+                  py-1.5
+                  text-[11px]
+                  font-medium
+                  transition
 
-                className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[11px] font-medium transition ${
-
-                  month === "すべて"
-
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-
-                    : "border-zinc-200 bg-white text-zinc-600"
-
-                }`}
-
+                  ${
+                    month ===
+                    "すべて"
+                      ? "border-[#14526B] bg-[#14526B] text-white"
+                      : "border-zinc-200 bg-white text-zinc-600"
+                  }
+                `}
               >
-
                 すべて
-
               </button>
 
-              {months.map((m: string) => (
+              {months.map(
+                (m: string) => (
+                  <button
+                    type="button"
+                    key={m}
+                    onClick={() =>
+                      setMonth(m)
+                    }
+                    className={`
+                      shrink-0
+                      rounded-full
+                      border
+                      px-3.5
+                      py-1.5
+                      text-[11px]
+                      font-medium
+                      transition
 
-                <button
-
-                  type="button"
-
-                  key={m}
-
-                  onClick={() =>
-
-                    setMonth(m)
-
-                  }
-
-                  className={`shrink-0 rounded-full border px-3.5 py-1.5 text-[11px] font-medium transition ${
-
-                    month === m
-
-                      ? "border-[#14526B] bg-[#14526B] text-white"
-
-                      : "border-zinc-200 bg-white text-zinc-600"
-
-                  }`}
-
-                >
-
-                  {Number(m)}月
-
-                </button>
-
-              ))}
-
+                      ${
+                        month === m
+                          ? "border-[#14526B] bg-[#14526B] text-white"
+                          : "border-zinc-200 bg-white text-zinc-600"
+                      }
+                    `}
+                  >
+                    {Number(m)}月
+                  </button>
+                )
+              )}
             </div>
-
           )}
 
           {/* ================================= */}
-
-          {/* セトリ・参戦済み */}
-
+          {/* セトリ / 参戦 */}
           {/* ================================= */}
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-
+          <div
+            className="
+              mt-2
+              flex
+              flex-wrap
+              items-center
+              gap-2
+            "
+          >
             <button
-
               type="button"
-
               onClick={() =>
-
                 setSetlistFilter(
-
-                  setlistFilter === "あり"
-
+                  setlistFilter ===
+                    "あり"
                     ? "すべて"
-
                     : "あり"
-
                 )
-
               }
+              className={`
+                rounded-full
+                border
+                px-4
+                py-2
+                text-[12px]
+                font-semibold
+                transition
 
-              className={`rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
-
-                setlistFilter === "あり"
-
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-
-                  : "border-zinc-200 bg-white text-[#14526B]"
-
-              }`}
-
+                ${
+                  setlistFilter ===
+                  "あり"
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-[#14526B]"
+                }
+              `}
             >
-
               セトリあり
-
             </button>
 
             <button
-
               type="button"
-
               onClick={() =>
-
                 setSetlistFilter(
-
-                  setlistFilter === "なし"
-
+                  setlistFilter ===
+                    "なし"
                     ? "すべて"
-
                     : "なし"
-
                 )
-
               }
+              className={`
+                rounded-full
+                border
+                px-4
+                py-2
+                text-[12px]
+                font-semibold
+                transition
 
-              className={`rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
-
-                setlistFilter === "なし"
-
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-
-                  : "border-zinc-200 bg-white text-[#14526B]"
-
-              }`}
-
+                ${
+                  setlistFilter ===
+                  "なし"
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-[#14526B]"
+                }
+              `}
             >
-
               セトリなし
-
             </button>
 
             <button
-
               type="button"
-
               onClick={() => {
-
                 loadAttendedLives();
 
-                setAttendedOnly(!attendedOnly);
-
+                setAttendedOnly(
+                  !attendedOnly
+                );
               }}
+              className={`
+                flex
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                px-4
+                py-2
+                text-[12px]
+                font-semibold
+                transition
 
-              className={`flex items-center gap-1.5 rounded-full border px-4 py-2 text-[12px] font-semibold transition ${
-
-                attendedOnly
-
-                  ? "border-[#14526B] bg-[#14526B] text-white"
-
-                  : "border-zinc-200 bg-white text-[#14526B]"
-
-              }`}
-
+                ${
+                  attendedOnly
+                    ? "border-[#14526B] bg-[#14526B] text-white"
+                    : "border-zinc-200 bg-white text-[#14526B]"
+                }
+              `}
             >
-
-              <span className="text-[14px] leading-none">
-
-                {attendedOnly ? "♥" : "♡"}
-
+              <span
+                className="
+                  text-[14px]
+                  leading-none
+                "
+              >
+                {attendedOnly
+                  ? "♥"
+                  : "♡"}
               </span>
 
               参戦済み
-
             </button>
-
           </div>
-
         </section>
 
         {/* ================================= */}
-
-        {/* 件数 */}
-
+        {/* 件数 / リセット */}
         {/* ================================= */}
 
-        <div className="mt-5 flex items-center justify-between gap-4">
-
-          <p className="shrink-0 text-sm text-zinc-500">
-
-            {filteredLives.length}件
-
+        <div
+          className="
+            mt-5
+            flex
+            items-center
+            justify-between
+            gap-4
+          "
+        >
+          <p
+            className="
+              shrink-0
+              text-sm
+              text-zinc-500
+            "
+          >
+            {filteredLives.length}
+            件
           </p>
 
           {(keyword ||
-
-            year !== "すべて" ||
-
-            month !== "すべて" ||
-
-            setlistFilter !== "すべて" ||
-
+            year !==
+              "すべて" ||
+            month !==
+              "すべて" ||
+            setlistFilter !==
+              "すべて" ||
             attendedOnly) && (
-
             <button
-
               type="button"
-
-              onClick={resetFilters}
-
-              className="text-sm font-medium text-[#14526B]"
-
+              onClick={
+                resetFilters
+              }
+              className="
+                text-sm
+                font-medium
+                text-[#14526B]
+              "
             >
-
               条件をリセット
-
             </button>
-
           )}
-
         </div>
 
         {/* ================================= */}
-
-        {/* ライブ一覧 */}
-
+        {/* LIST */}
         {/* ================================= */}
 
-        <div className="mt-4 -mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
-
-          {filteredLives.map(
-
-            (live: Live, index) => {
-
-              const attended =
-
-                attendedIds.includes(live.id);
-
-              return (
-
-                <div
-
-                  key={live.id}
-
-                  className={`relative bg-white ${
-
-                    index !== filteredLives.length - 1
-
-                      ? "border-b border-zinc-200"
-
-                      : ""
-
-                  }`}
-
-                >
-
-                  {/* ================================= */}
-
-                  {/* ライブ詳細 */}
-
-                  {/* ================================= */}
-
-                  <Link
-
-                    href={`/live/${live.id}`}
-
-                    onClick={saveScrollPosition}
-
-                    className="block px-3 py-2 pr-14 transition-colors hover:bg-zinc-50 sm:px-4 sm:py-2.5 sm:pr-16"
-
-                  >
-
-                    {/* 日付 */}
-
-                    <div className="flex items-center gap-2">
-
-                      {/* カレンダーアイコン */}
-
-                      <svg
-
-                        viewBox="0 0 24 24"
-
-                        fill="none"
-
-                        stroke="currentColor"
-
-                        strokeWidth="1.8"
-
-                        strokeLinecap="round"
-
-                        strokeLinejoin="round"
-
-                        className={`h-4 w-4 shrink-0 ${
-
-                          attended
-
-                            ? "text-[#14526B]"
-
-                            : "text-zinc-400"
-
-                        }`}
-
-                        aria-hidden="true"
-
-                      >
-
-                        {attended ? (
-
-                          <path d="M5 12.5 9 16l10-10" />
-
-                        ) : (
-
-                          <>
-
-                            <rect
-
-                              x="3"
-
-                              y="5"
-
-                              width="18"
-
-                              height="16"
-
-                              rx="2"
-
-                            />
-
-                            <path d="M16 3v4M8 3v4M3 10h18" />
-
-                          </>
-
-                        )}
-
-                      </svg>
-
-                      <p className="text-[12px] font-bold tracking-[0.02em] text-[#14526B]">
-
-                        {live.date}
-
-                      </p>
-
-                    </div>
-
-                    {/* 公演名 */}
-
-                    <h2 className="mt-1 pr-1 text-[15px] font-bold leading-[1.3] text-[#14526B] sm:text-[16px]">
-
-                      {live.title}
-
-                    </h2>
-
-                    {/* 会場 */}
-
-                    <div className="mt-1 flex min-w-0 items-start gap-1.5 text-zinc-500">
-
-                      {/* ピンアイコン */}
-
-                      <svg
-
-                        viewBox="0 0 24 24"
-
-                        fill="none"
-
-                        stroke="currentColor"
-
-                        strokeWidth="1.8"
-
-                        strokeLinecap="round"
-
-                        strokeLinejoin="round"
-
-                        className="mt-[1px] h-4 w-4 shrink-0 text-zinc-400"
-
-                        aria-hidden="true"
-
-                      >
-
-                        <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-
-                        <circle
-
-                          cx="12"
-
-                          cy="10"
-
-                          r="2.5"
-
-                        />
-
-                      </svg>
-
-                      <p className="min-w-0 text-[12px] leading-[1.35]">
-
-                        <span className="font-semibold text-[#14526B]">
-
-                          {live.city}
-
-                        </span>
-
-                        <span className="mx-2 text-zinc-300">
-
-                          ｜
-
-                        </span>
-
-                        <span>
-
-                          {live.venue}
-
-                        </span>
-
-                      </p>
-
-                    </div>
-
-                    {/* ツアー・セトリ */}
-
-                    <div className="mt-1.5 flex flex-wrap items-center gap-1">
-
-                      {live.tour && (
-
-                        <span className="max-w-full rounded-full bg-[#14526B]/10 px-2 py-0.5 text-[9px] font-medium leading-[1.35] text-[#14526B]">
-
-                          {live.tour}
-
-                        </span>
-
-                      )}
-
-                      {live.setlist.length > 0 ? (
-
-                        <span className="shrink-0 rounded-full bg-[#14526B]/10 px-2 py-0.5 text-[9px] font-semibold text-[#14526B]">
-
-                          セトリあり
-
-                        </span>
-
-                      ) : (
-
-                        <span className="shrink-0 rounded-full bg-zinc-100 px-2 py-0.5 text-[9px] font-medium text-zinc-400">
-
-                          セトリなし
-
-                        </span>
-
-                      )}
-
-                    </div>
-
-                  </Link>
-
-                  {/* ================================= */}
-
-                  {/* 参戦ボタン */}
-
-                  {/* ================================= */}
-
-                  <div
-
-                    className="absolute right-3 top-2 z-10 sm:right-4 sm:top-2.5"
-
-                    onClick={() => {
-
-                      setTimeout(() => {
-
-                        loadAttendedLives();
-
-                      }, 0);
-
-                    }}
-
-                  >
-
-                    <AttendedIconButton
-
-                      liveId={live.id}
-
-                    />
-
-                  </div>
-
-                </div>
-
-              );
-
+        {viewMode === "list" && (
+          <LiveList
+            filteredLives={
+              filteredLives
             }
-
-          )}
-
-        </div>
-
-        {/* ================================= */}
-
-        {/* 検索結果なし */}
-
-        {/* ================================= */}
-
-        {filteredLives.length === 0 && (
-
-          <div className="mt-10 rounded-2xl border border-dashed border-zinc-300 px-4 py-10 text-center sm:px-6 sm:py-12">
-
-            <p className="font-semibold text-zinc-700">
-
-              {attendedOnly
-
-                ? "条件に一致する参戦ライブがありません"
-
-                : "ライブが見つかりませんでした"}
-
-            </p>
-
-            <p className="mt-2 text-sm text-zinc-500">
-
-              検索条件を変更してみてください
-
-            </p>
-
-            <button
-
-              type="button"
-
-              onClick={resetFilters}
-
-              className="mt-5 rounded-full bg-[#14526B] px-5 py-2.5 text-sm font-medium text-white"
-
-            >
-
-              検索条件をリセット
-
-            </button>
-
-          </div>
-
+            attendedOnly={
+              attendedOnly
+            }
+            onResetFilters={
+              resetFilters
+            }
+          />
         )}
 
+        {/* ================================= */}
+        {/* CALENDAR */}
+        {/* ================================= */}
+
+        {viewMode ===
+          "calendar" && (
+          <LiveCalendar
+            filteredLives={
+              filteredLives
+            }
+          />
+        )}
       </div>
-
     </main>
-
   );
-
 }
