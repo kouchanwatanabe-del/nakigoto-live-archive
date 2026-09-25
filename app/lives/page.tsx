@@ -707,6 +707,7 @@ export default function LivesPage() {
             className={`
               relative
               px-1
+              ml-3
               pb-2.5
               pr-6
               text-[12px]
