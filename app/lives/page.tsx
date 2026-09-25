@@ -818,7 +818,7 @@ export default function LivesPage() {
                     px-4
                     py-4
                     pr-12
-                    text-[13px]
+                    text-[12px]
                     text-zinc-900
                     shadow-sm
                     outline-none
