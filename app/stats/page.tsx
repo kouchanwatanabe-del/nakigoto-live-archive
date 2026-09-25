@@ -211,7 +211,7 @@ export default function StatsPage() {
           </p>
 
           <h1 className="mt-2 text-3xl font-black text-[#14526B]">
-            STATS
+            MY STATS
           </h1>
 
           <p className="mt-2 text-[14px] text-zinc-500">
