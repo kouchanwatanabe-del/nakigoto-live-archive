@@ -400,7 +400,7 @@ export default function LiveList({
               <div
                 className="
                   absolute
-                  right-5
+                  right-8
                   top-2
                   z-10
                   sm:right-4
