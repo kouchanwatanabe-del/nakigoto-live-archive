@@ -116,7 +116,7 @@ export default function Home() {
               href="/lives"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL →
+              VIEW ALL 
             </Link>
 
           </div>
@@ -185,7 +185,7 @@ export default function Home() {
               href="/songs"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL →
+              VIEW ALL 
             </Link>
 
           </div>
@@ -244,7 +244,7 @@ export default function Home() {
               href="/collection"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL →
+              VIEW ALL 
             </Link>
 
           </div>
