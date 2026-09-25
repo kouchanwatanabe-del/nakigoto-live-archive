@@ -798,23 +798,35 @@ const [highlightedLiveId, setHighlightedLiveId] =
 
             return (
               <div
-                key={dateKey}
-                className={`
-                  relative
-                  min-h-[96px]
-                  border-b
-                  border-zinc-100
-                  px-1
-                  py-1.5
+  key={dateKey}
+  onClick={() => {
+    if (!hasLive) return;
 
-                  ${
-                    hasLive
-                      ? "bg-[#14526B]/15"
-                      : "bg-white"
-                  }
-                `}
-              >
+    scrollToLive(
+      dayLives[0].id
+    );
+  }}
+  className={`
+    relative
+    min-h-[96px]
+    border-b
+    border-zinc-100
+    px-1
+    py-1.5
 
+    transition
+
+    ${
+      hasLive
+        ? `
+          cursor-pointer
+          bg-[#14526B]/15
+          active:bg-[#14526B]/20
+        `
+        : "bg-white"
+    }
+  `}
+>
                 {/* 日付 */}
 
                 <div
