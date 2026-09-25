@@ -696,49 +696,45 @@ export default function LivesPage() {
           {/* LIST */}
 
           <button
-            type="button"
-            onClick={() => {
-              loadAttendedLives();
+  type="button"
+  onClick={() => {
+    loadAttendedLives();
 
-              setViewMode(
-                "list"
-              );
-            }}
-            className={`
-              relative
-              px-1
-              ml-3
-              pb-2.5
-              pr-6
-              text-[12px]
-              font-bold
-              tracking-[0.08em]
-              transition
+    setViewMode(
+      "list"
+    );
+  }}
+  className={`
+    relative
+    px-4
+    pb-2.5
+    text-[12px]
+    font-bold
+    tracking-[0.08em]
+    transition
 
-              ${
-                viewMode ===
-                "list"
-                  ? "text-[#14526B]"
-                  : "text-zinc-400"
-              }
-            `}
-          >
-            LIST
+    ${
+      viewMode === "list"
+        ? "text-[#14526B]"
+        : "text-zinc-400"
+    }
+  `}
+>
+  LIST
 
-            {viewMode ===
-              "list" && (
-              <span
-                className="
-                  absolute
-                  bottom-[-1px]
-                  left-0
-                  h-[2px]
-                  w-full
-                  bg-[#14526B]
-                "
-              />
-            )}
-          </button>
+  {viewMode === "list" && (
+    <span
+      className="
+        absolute
+        bottom-[-1px]
+        left-0
+        h-[2px]
+        w-full
+        bg-[#14526B]
+      "
+    />
+  )}
+</button>
 
           {/* CALENDAR */}
 
