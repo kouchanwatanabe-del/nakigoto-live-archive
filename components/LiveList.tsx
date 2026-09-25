@@ -413,9 +413,8 @@ export default function LiveList({
   }}
 >
   <AttendedIconButton
-    liveId={live.id}
-    variant="wide"
-  />
+  liveId={live.id}
+/>
 </div>
             </div>
           );
