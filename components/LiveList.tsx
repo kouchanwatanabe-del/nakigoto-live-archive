@@ -398,24 +398,25 @@ export default function LiveList({
               {/* ================================= */}
 
               <div
-                className="
-                  absolute
-                  right-5
-                  top-2
-                  z-10
-                  sm:right-4
-                  sm:top-2.5
-                "
-                onClick={() => {
-                  setTimeout(() => {
-                    loadAttendedLives();
-                  }, 0);
-                }}
-              >
-                <AttendedIconButton
-                  liveId={live.id}
-                />
-              </div>
+  className="
+    absolute
+    right-3
+    top-2
+    z-10
+    sm:right-4
+    sm:top-2.5
+  "
+  onClick={() => {
+    setTimeout(() => {
+      loadAttendedLives();
+    }, 0);
+  }}
+>
+  <AttendedIconButton
+    liveId={live.id}
+    variant="wide"
+  />
+</div>
             </div>
           );
         }
