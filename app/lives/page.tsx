@@ -35,7 +35,7 @@ const VIEW_STORAGE_KEY =
 
 export default function LivesPage() {
   // ========================================
-  // 検索・フィルター
+  // LIST用 検索・フィルター
   // ========================================
 
   const [keyword, setKeyword] =
@@ -50,10 +50,9 @@ export default function LivesPage() {
   const [
     setlistFilter,
     setSetlistFilter,
-  ] =
-    useState<SetlistFilter>(
-      "すべて"
-    );
+  ] = useState<SetlistFilter>(
+    "すべて"
+  );
 
   const [
     attendedOnly,
@@ -63,14 +62,16 @@ export default function LivesPage() {
   const [
     attendedIds,
     setAttendedIds,
-  ] =
-    useState<string[]>([]);
+  ] = useState<string[]>([]);
+
+  // ========================================
+  // LIST / CALENDAR
+  // ========================================
 
   const [
     viewMode,
     setViewMode,
-  ] =
-    useState<ViewMode>("list");
+  ] = useState<ViewMode>("list");
 
   const [
     filtersLoaded,
@@ -86,37 +87,34 @@ export default function LivesPage() {
   // 参戦記録
   // ========================================
 
-  const loadAttendedLives =
-    () => {
-      const saved =
-        localStorage.getItem(
-          "attendedLives"
+  const loadAttendedLives = () => {
+    const saved =
+      localStorage.getItem(
+        "attendedLives"
+      );
+
+    if (!saved) {
+      setAttendedIds([]);
+      return;
+    }
+
+    try {
+      const parsed =
+        JSON.parse(saved);
+
+      if (
+        Array.isArray(parsed)
+      ) {
+        setAttendedIds(
+          parsed
         );
-
-      if (!saved) {
-        setAttendedIds([]);
-        return;
-      }
-
-      try {
-        const parsed =
-          JSON.parse(saved);
-
-        if (
-          Array.isArray(parsed)
-        ) {
-          setAttendedIds(
-            parsed
-          );
-        } else {
-          setAttendedIds(
-            []
-          );
-        }
-      } catch {
+      } else {
         setAttendedIds([]);
       }
-    };
+    } catch {
+      setAttendedIds([]);
+    }
+  };
 
   // ========================================
   // 初回読み込み
@@ -136,12 +134,10 @@ export default function LivesPage() {
       savedView === "list" ||
       savedView === "calendar"
     ) {
-      setViewMode(
-        savedView
-      );
+      setViewMode(savedView);
     }
 
-    // 検索条件復元
+    // LIST検索条件復元
 
     const savedFilters =
       sessionStorage.getItem(
@@ -214,8 +210,8 @@ export default function LivesPage() {
   }, []);
 
   // ========================================
-  // ページに戻った時
-  // 参戦記録を更新
+  // ページに戻ったとき
+  // 参戦記録更新
   // ========================================
 
   useEffect(() => {
@@ -237,7 +233,7 @@ export default function LivesPage() {
   }, []);
 
   // ========================================
-  // 表示モード保存
+  // LIST / CALENDAR状態保存
   // ========================================
 
   useEffect(() => {
@@ -255,7 +251,7 @@ export default function LivesPage() {
   ]);
 
   // ========================================
-  // フィルター保存
+  // LIST検索条件保存
   // ========================================
 
   useEffect(() => {
@@ -285,7 +281,7 @@ export default function LivesPage() {
   ]);
 
   // ========================================
-  // 開催年一覧
+  // 開催年
   // ========================================
 
   const years =
@@ -308,7 +304,7 @@ export default function LivesPage() {
     }, []);
 
   // ========================================
-  // 月一覧
+  // 月
   // ========================================
 
   const months =
@@ -345,7 +341,7 @@ export default function LivesPage() {
     }, [year]);
 
   // ========================================
-  // 検索
+  // LIST用検索
   // ========================================
 
   const filteredLives =
@@ -402,24 +398,28 @@ export default function LivesPage() {
                 live.id
               );
 
-            // ========================================
-            // キーワード検索
-            // ========================================
+            // 公演名
 
             const titleMatch =
               live.title
                 .toLowerCase()
                 .includes(q);
 
+            // 都市
+
             const cityMatch =
               live.city
                 .toLowerCase()
                 .includes(q);
 
+            // 会場
+
             const venueMatch =
               live.venue
                 .toLowerCase()
                 .includes(q);
+
+            // ツアー
 
             const tourMatch =
               live.tour
@@ -440,8 +440,7 @@ export default function LivesPage() {
             // アンコール
 
             const encoreMatch =
-              "encore" in
-                live &&
+              "encore" in live &&
               Array.isArray(
                 live.encore
               ) &&
@@ -455,8 +454,7 @@ export default function LivesPage() {
             // 対バン
 
             const artistMatch =
-              "artists" in
-                live &&
+              "artists" in live &&
               Array.isArray(
                 live.artists
               ) &&
@@ -597,7 +595,7 @@ export default function LivesPage() {
   ]);
 
   // ========================================
-  // リセット
+  // LIST検索条件リセット
   // ========================================
 
   const resetFilters = () => {
@@ -711,11 +709,9 @@ export default function LivesPage() {
               px-1
               pb-2.5
               pr-6
-
               text-[12px]
               font-bold
               tracking-[0.08em]
-
               transition
 
               ${
@@ -758,11 +754,9 @@ export default function LivesPage() {
               relative
               px-6
               pb-2.5
-
               text-[12px]
               font-bold
               tracking-[0.08em]
-
               transition
 
               ${
@@ -792,127 +786,101 @@ export default function LivesPage() {
         </div>
 
         {/* ================================= */}
-        {/* 検索 */}
+        {/* LISTのときだけ検索条件を表示 */}
         {/* ================================= */}
 
-        <section className="mt-6">
-          <div className="relative z-10">
-            <input
-              type="search"
-              value={keyword}
-              onChange={(e) =>
-                setKeyword(
-                  e.target.value
-                )
-              }
-              placeholder="曲名・都市・会場・公演名・対バン相手を検索"
-              autoComplete="off"
-              enterKeyHint="search"
-              className="
-                relative
-                z-10
-                w-full
-                appearance-none
-                rounded-2xl
-                border
-                border-zinc-200
-                bg-white
-                px-4
-                py-4
-                pr-12
-                text-base
-                text-zinc-900
-                shadow-sm
-                outline-none
-                transition
-                placeholder:text-zinc-400
-                focus:border-[#14526B]
-                focus:ring-2
-                focus:ring-[#14526B]/10
-              "
-            />
+        {viewMode === "list" && (
+          <>
+            <section className="mt-6">
 
-            {keyword && (
-              <button
-                type="button"
-                onClick={() =>
-                  setKeyword("")
-                }
+              {/* ================================= */}
+              {/* 検索 */}
+              {/* ================================= */}
+
+              <div className="relative z-10">
+                <input
+                  type="search"
+                  value={keyword}
+                  onChange={(e) =>
+                    setKeyword(
+                      e.target.value
+                    )
+                  }
+                  placeholder="曲名・都市・会場・公演名・対バン相手を検索"
+                  autoComplete="off"
+                  enterKeyHint="search"
+                  className="
+                    relative
+                    z-10
+                    w-full
+                    appearance-none
+                    rounded-2xl
+                    border
+                    border-zinc-200
+                    bg-white
+                    px-4
+                    py-4
+                    pr-12
+                    text-base
+                    text-zinc-900
+                    shadow-sm
+                    outline-none
+                    transition
+                    placeholder:text-zinc-400
+                    focus:border-[#14526B]
+                    focus:ring-2
+                    focus:ring-[#14526B]/10
+                  "
+                />
+
+                {keyword && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setKeyword("")
+                    }
+                    className="
+                      absolute
+                      right-3
+                      top-1/2
+                      z-20
+                      flex
+                      h-10
+                      w-10
+                      -translate-y-1/2
+                      items-center
+                      justify-center
+                      rounded-full
+                      text-xl
+                      text-zinc-400
+                      active:bg-zinc-100
+                    "
+                    aria-label="検索文字を消去"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+
+              {/* ================================= */}
+              {/* 年 */}
+              {/* ================================= */}
+
+              <div
                 className="
-                  absolute
-                  right-3
-                  top-1/2
-                  z-20
+                  mt-3
                   flex
-                  h-10
-                  w-10
-                  -translate-y-1/2
-                  items-center
-                  justify-center
-                  rounded-full
-                  text-xl
-                  text-zinc-400
-                  active:bg-zinc-100
+                  gap-2
+                  overflow-x-auto
+                  pb-1
                 "
-                aria-label="検索文字を消去"
               >
-                ×
-              </button>
-            )}
-          </div>
-
-          {/* ================================= */}
-          {/* 年 */}
-          {/* ================================= */}
-
-          <div
-            className="
-              mt-3
-              flex
-              gap-2
-              overflow-x-auto
-              pb-1
-            "
-          >
-            <button
-              type="button"
-              onClick={() => {
-                setYear(
-                  "すべて"
-                );
-
-                setMonth(
-                  "すべて"
-                );
-              }}
-              className={`
-                shrink-0
-                rounded-full
-                border
-                px-4
-                py-2
-                text-[12px]
-                font-medium
-                transition
-
-                ${
-                  year ===
-                  "すべて"
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-                    : "border-zinc-200 bg-white text-zinc-600"
-                }
-              `}
-            >
-              すべて
-            </button>
-
-            {years.map(
-              (y: string) => (
                 <button
                   type="button"
-                  key={y}
                   onClick={() => {
-                    setYear(y);
+                    setYear(
+                      "すべて"
+                    );
 
                     setMonth(
                       "すべて"
@@ -929,68 +897,72 @@ export default function LivesPage() {
                     transition
 
                     ${
-                      year === y
+                      year ===
+                      "すべて"
                         ? "border-[#14526B] bg-[#14526B] text-white"
                         : "border-zinc-200 bg-white text-zinc-600"
                     }
                   `}
                 >
-                  {y}
+                  すべて
                 </button>
-              )
-            )}
-          </div>
 
-          {/* ================================= */}
-          {/* 月 */}
-          {/* ================================= */}
+                {years.map(
+                  (y: string) => (
+                    <button
+                      type="button"
+                      key={y}
+                      onClick={() => {
+                        setYear(y);
 
-          {year !==
-            "すべて" && (
-            <div
-              className="
-                mt-2
-                flex
-                gap-2
-                overflow-x-auto
-                pb-1
-              "
-            >
-              <button
-                type="button"
-                onClick={() =>
-                  setMonth(
-                    "すべて"
+                        setMonth(
+                          "すべて"
+                        );
+                      }}
+                      className={`
+                        shrink-0
+                        rounded-full
+                        border
+                        px-4
+                        py-2
+                        text-[12px]
+                        font-medium
+                        transition
+
+                        ${
+                          year === y
+                            ? "border-[#14526B] bg-[#14526B] text-white"
+                            : "border-zinc-200 bg-white text-zinc-600"
+                        }
+                      `}
+                    >
+                      {y}
+                    </button>
                   )
-                }
-                className={`
-                  shrink-0
-                  rounded-full
-                  border
-                  px-3.5
-                  py-1.5
-                  text-[11px]
-                  font-medium
-                  transition
+                )}
+              </div>
 
-                  ${
-                    month ===
-                    "すべて"
-                      ? "border-[#14526B] bg-[#14526B] text-white"
-                      : "border-zinc-200 bg-white text-zinc-600"
-                  }
-                `}
-              >
-                すべて
-              </button>
+              {/* ================================= */}
+              {/* 月 */}
+              {/* ================================= */}
 
-              {months.map(
-                (m: string) => (
+              {year !==
+                "すべて" && (
+                <div
+                  className="
+                    mt-2
+                    flex
+                    gap-2
+                    overflow-x-auto
+                    pb-1
+                  "
+                >
                   <button
                     type="button"
-                    key={m}
                     onClick={() =>
-                      setMonth(m)
+                      setMonth(
+                        "すべて"
+                      )
                     }
                     className={`
                       shrink-0
@@ -1003,183 +975,214 @@ export default function LivesPage() {
                       transition
 
                       ${
-                        month === m
+                        month ===
+                        "すべて"
                           ? "border-[#14526B] bg-[#14526B] text-white"
                           : "border-zinc-200 bg-white text-zinc-600"
                       }
                     `}
                   >
-                    {Number(m)}月
+                    すべて
                   </button>
-                )
+
+                  {months.map(
+                    (m: string) => (
+                      <button
+                        type="button"
+                        key={m}
+                        onClick={() =>
+                          setMonth(m)
+                        }
+                        className={`
+                          shrink-0
+                          rounded-full
+                          border
+                          px-3.5
+                          py-1.5
+                          text-[11px]
+                          font-medium
+                          transition
+
+                          ${
+                            month === m
+                              ? "border-[#14526B] bg-[#14526B] text-white"
+                              : "border-zinc-200 bg-white text-zinc-600"
+                          }
+                        `}
+                      >
+                        {Number(m)}月
+                      </button>
+                    )
+                  )}
+                </div>
               )}
-            </div>
-          )}
 
-          {/* ================================= */}
-          {/* セトリ / 参戦 */}
-          {/* ================================= */}
+              {/* ================================= */}
+              {/* セトリ / 参戦 */}
+              {/* ================================= */}
 
-          <div
-            className="
-              mt-2
-              flex
-              flex-wrap
-              items-center
-              gap-2
-            "
-          >
-            <button
-              type="button"
-              onClick={() =>
-                setSetlistFilter(
-                  setlistFilter ===
-                    "あり"
-                    ? "すべて"
-                    : "あり"
-                )
-              }
-              className={`
-                rounded-full
-                border
-                px-4
-                py-2
-                text-[12px]
-                font-semibold
-                transition
-
-                ${
-                  setlistFilter ===
-                  "あり"
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-                    : "border-zinc-200 bg-white text-[#14526B]"
-                }
-              `}
-            >
-              セトリあり
-            </button>
-
-            <button
-              type="button"
-              onClick={() =>
-                setSetlistFilter(
-                  setlistFilter ===
-                    "なし"
-                    ? "すべて"
-                    : "なし"
-                )
-              }
-              className={`
-                rounded-full
-                border
-                px-4
-                py-2
-                text-[12px]
-                font-semibold
-                transition
-
-                ${
-                  setlistFilter ===
-                  "なし"
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-                    : "border-zinc-200 bg-white text-[#14526B]"
-                }
-              `}
-            >
-              セトリなし
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                loadAttendedLives();
-
-                setAttendedOnly(
-                  !attendedOnly
-                );
-              }}
-              className={`
-                flex
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                px-4
-                py-2
-                text-[12px]
-                font-semibold
-                transition
-
-                ${
-                  attendedOnly
-                    ? "border-[#14526B] bg-[#14526B] text-white"
-                    : "border-zinc-200 bg-white text-[#14526B]"
-                }
-              `}
-            >
-              <span
+              <div
                 className="
-                  text-[14px]
-                  leading-none
+                  mt-2
+                  flex
+                  flex-wrap
+                  items-center
+                  gap-2
                 "
               >
-                {attendedOnly
-                  ? "♥"
-                  : "♡"}
-              </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSetlistFilter(
+                      setlistFilter ===
+                        "あり"
+                        ? "すべて"
+                        : "あり"
+                    )
+                  }
+                  className={`
+                    rounded-full
+                    border
+                    px-4
+                    py-2
+                    text-[12px]
+                    font-semibold
+                    transition
 
-              参戦済み
-            </button>
-          </div>
-        </section>
+                    ${
+                      setlistFilter ===
+                      "あり"
+                        ? "border-[#14526B] bg-[#14526B] text-white"
+                        : "border-zinc-200 bg-white text-[#14526B]"
+                    }
+                  `}
+                >
+                  セトリあり
+                </button>
 
-        {/* ================================= */}
-        {/* 件数 / リセット */}
-        {/* ================================= */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    setSetlistFilter(
+                      setlistFilter ===
+                        "なし"
+                        ? "すべて"
+                        : "なし"
+                    )
+                  }
+                  className={`
+                    rounded-full
+                    border
+                    px-4
+                    py-2
+                    text-[12px]
+                    font-semibold
+                    transition
 
-        <div
-          className="
-            mt-5
-            flex
-            items-center
-            justify-between
-            gap-4
-          "
-        >
-          <p
-            className="
-              shrink-0
-              text-sm
-              text-zinc-500
-            "
-          >
-            {filteredLives.length}
-            件
-          </p>
+                    ${
+                      setlistFilter ===
+                      "なし"
+                        ? "border-[#14526B] bg-[#14526B] text-white"
+                        : "border-zinc-200 bg-white text-[#14526B]"
+                    }
+                  `}
+                >
+                  セトリなし
+                </button>
 
-          {(keyword ||
-            year !==
-              "すべて" ||
-            month !==
-              "すべて" ||
-            setlistFilter !==
-              "すべて" ||
-            attendedOnly) && (
-            <button
-              type="button"
-              onClick={
-                resetFilters
-              }
+                <button
+                  type="button"
+                  onClick={() => {
+                    loadAttendedLives();
+
+                    setAttendedOnly(
+                      !attendedOnly
+                    );
+                  }}
+                  className={`
+                    flex
+                    items-center
+                    gap-1.5
+                    rounded-full
+                    border
+                    px-4
+                    py-2
+                    text-[12px]
+                    font-semibold
+                    transition
+
+                    ${
+                      attendedOnly
+                        ? "border-[#14526B] bg-[#14526B] text-white"
+                        : "border-zinc-200 bg-white text-[#14526B]"
+                    }
+                  `}
+                >
+                  <span
+                    className="
+                      text-[14px]
+                      leading-none
+                    "
+                  >
+                    {attendedOnly
+                      ? "♥"
+                      : "♡"}
+                  </span>
+
+                  参戦済み
+                </button>
+              </div>
+            </section>
+
+            {/* ================================= */}
+            {/* LIST 件数 / リセット */}
+            {/* ================================= */}
+
+            <div
               className="
-                text-sm
-                font-medium
-                text-[#14526B]
+                mt-5
+                flex
+                items-center
+                justify-between
+                gap-4
               "
             >
-              条件をリセット
-            </button>
-          )}
-        </div>
+              <p
+                className="
+                  shrink-0
+                  text-sm
+                  text-zinc-500
+                "
+              >
+                {filteredLives.length}
+                件
+              </p>
+
+              {(keyword ||
+                year !==
+                  "すべて" ||
+                month !==
+                  "すべて" ||
+                setlistFilter !==
+                  "すべて" ||
+                attendedOnly) && (
+                <button
+                  type="button"
+                  onClick={
+                    resetFilters
+                  }
+                  className="
+                    text-sm
+                    font-medium
+                    text-[#14526B]
+                  "
+                >
+                  条件をリセット
+                </button>
+              )}
+            </div>
+          </>
+        )}
 
         {/* ================================= */}
         {/* LIST */}
@@ -1201,15 +1204,18 @@ export default function LivesPage() {
 
         {/* ================================= */}
         {/* CALENDAR */}
+        {/* LISTの検索条件を一切使わない */}
         {/* ================================= */}
 
         {viewMode ===
           "calendar" && (
-          <LiveCalendar
-            filteredLives={
-              filteredLives
-            }
-          />
+          <div className="mt-5">
+            <LiveCalendar
+              filteredLives={
+                lives
+              }
+            />
+          </div>
         )}
       </div>
     </main>

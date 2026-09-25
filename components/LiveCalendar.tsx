@@ -408,61 +408,194 @@ export default function LiveCalendar({
 
       <div className="flex items-center justify-between px-1">
 
-        <button
-          type="button"
-          onClick={previousMonth}
-          aria-label="前の月"
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            text-[25px]
-            font-light
-            text-[#14526B]
-            transition
-            active:bg-zinc-100
-          "
-        >
-          ‹
-        </button>
+  {/* 前の月 */}
 
-        <h2
-          className="
-            text-[17px]
-            font-bold
-            tracking-tight
-            text-[#14526B]
-          "
-        >
-          {calendarYear}年{" "}
-          {calendarMonth + 1}月
-        </h2>
+  <button
+    type="button"
+    onClick={previousMonth}
+    aria-label="前の月"
+    className="
+      flex
+      h-10
+      w-10
+      items-center
+      justify-center
+      rounded-full
+      text-[25px]
+      font-light
+      text-[#14526B]
+      transition
+      active:bg-zinc-100
+    "
+  >
+    ‹
+  </button>
 
-        <button
-          type="button"
-          onClick={nextMonth}
-          aria-label="次の月"
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            text-[25px]
-            font-light
-            text-[#14526B]
-            transition
-            active:bg-zinc-100
-          "
-        >
-          ›
-        </button>
 
-      </div>
+  {/* ================================= */}
+  {/* 年 / 月 選択 */}
+  {/* ================================= */}
+
+  <div className="flex items-center justify-center gap-1">
+
+    {/* 年 */}
+
+    <div className="relative">
+      <select
+        value={calendarYear}
+        onChange={(e) => {
+          const newYear =
+            Number(e.target.value);
+
+          setCalendarDate(
+            new Date(
+              newYear,
+              calendarMonth,
+              1
+            )
+          );
+        }}
+        className="
+          cursor-pointer
+          appearance-none
+          bg-transparent
+          py-2
+          pl-2
+          pr-5
+
+          text-[17px]
+          font-bold
+          tracking-tight
+          text-[#14526B]
+
+          outline-none
+        "
+      >
+        {[
+          ...new Set(
+            lives.map((live) =>
+              Number(
+                live.date.slice(0, 4)
+              )
+            )
+          ),
+        ]
+          .sort((a, b) => b - a)
+          .map((year) => (
+            <option
+              key={year}
+              value={year}
+            >
+              {year}年
+            </option>
+          ))}
+      </select>
+
+      <span
+        className="
+          pointer-events-none
+          absolute
+          right-0
+          top-1/2
+          -translate-y-1/2
+          text-[9px]
+          text-[#14526B]
+        "
+      >
+        ▼
+      </span>
+    </div>
+
+
+    {/* 月 */}
+
+    <div className="relative">
+      <select
+        value={calendarMonth + 1}
+        onChange={(e) => {
+          const newMonth =
+            Number(e.target.value);
+
+          setCalendarDate(
+            new Date(
+              calendarYear,
+              newMonth - 1,
+              1
+            )
+          );
+        }}
+        className="
+          cursor-pointer
+          appearance-none
+          bg-transparent
+          py-2
+          pl-1
+          pr-5
+
+          text-[17px]
+          font-bold
+          tracking-tight
+          text-[#14526B]
+
+          outline-none
+        "
+      >
+        {Array.from(
+          { length: 12 },
+          (_, index) =>
+            index + 1
+        ).map((month) => (
+          <option
+            key={month}
+            value={month}
+          >
+            {month}月
+          </option>
+        ))}
+      </select>
+
+      <span
+        className="
+          pointer-events-none
+          absolute
+          right-0
+          top-1/2
+          -translate-y-1/2
+          text-[9px]
+          text-[#14526B]
+        "
+      >
+        ▼
+      </span>
+    </div>
+
+  </div>
+
+
+  {/* 次の月 */}
+
+  <button
+    type="button"
+    onClick={nextMonth}
+    aria-label="次の月"
+    className="
+      flex
+      h-10
+      w-10
+      items-center
+      justify-center
+      rounded-full
+      text-[25px]
+      font-light
+      text-[#14526B]
+      transition
+      active:bg-zinc-100
+    "
+  >
+    ›
+  </button>
+
+</div>
 
       {/* ================================= */}
       {/* 曜日 */}
