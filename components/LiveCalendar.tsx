@@ -1648,7 +1648,7 @@ const cancelSwipe = () => {
                         }
                       </p>
                     </Link>
-                    <div className="mt-1.5">
+                    <div className="mt-0.5">
   <span
     className={`
       inline-flex
