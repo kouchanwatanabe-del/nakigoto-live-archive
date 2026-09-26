@@ -917,7 +917,7 @@ const cancelSwipe = () => {
                   <div
                     key={`empty-${index}`}
                     className="
-                      min-h-[96px]
+                      min-h-[82px]
                       border-b
                       border-zinc-100
                       bg-zinc-50/30
@@ -999,7 +999,7 @@ const cancelSwipe = () => {
                   }}
                   className={`
                     relative
-                    min-h-[96px]
+                    min-h-[82px]
                     border-b
                     border-zinc-100
                     px-1
@@ -1551,13 +1551,14 @@ const cancelSwipe = () => {
             "
           >
             {monthLives.map(
-              (
-                live: Live
-              ) => {
-                const attended =
-                  attendedIds.includes(
-                    live.id
-                  );
+  (live: Live) => {
+    const attended =
+      attendedIds.includes(
+        live.id
+      );
+
+    const hasSetlist =
+      live.setlist.length > 0;
 
                 return (
                   <div
@@ -1647,6 +1648,30 @@ const cancelSwipe = () => {
                         }
                       </p>
                     </Link>
+                    <div className="mt-1.5">
+  <span
+    className={`
+      inline-flex
+      items-center
+      rounded-full
+      px-2
+      py-0.5
+      text-[9px]
+      font-bold
+      tracking-[0.04em]
+
+      ${
+        hasSetlist
+          ? "bg-[#14526B]/10 text-[#14526B]"
+          : "bg-zinc-100 text-zinc-400"
+      }
+    `}
+  >
+    {hasSetlist
+      ? "セトリあり"
+      : "セトリなし"}
+  </span>
+</div>
 
                     {/* 参戦 */}
 
