@@ -4,6 +4,7 @@ import Link from "next/link";
 import {
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -31,8 +32,24 @@ export default function LiveCalendar({
 }: Props) {
   const [attendedIds, setAttendedIds] =
     useState<string[]>([]);
-const [highlightedLiveId, setHighlightedLiveId] =
-  useState<string | null>(null);
+
+  const [
+    highlightedLiveId,
+    setHighlightedLiveId,
+  ] = useState<string | null>(null);
+
+  // ========================================
+  // スワイプ
+  // ========================================
+
+  const touchStartX =
+    useRef<number | null>(null);
+
+  const touchStartY =
+    useRef<number | null>(null);
+
+  const SWIPE_THRESHOLD = 50;
+
   // ========================================
   // 最初に表示する月
   //
@@ -175,9 +192,10 @@ const [highlightedLiveId, setHighlightedLiveId] =
     let updated: string[];
 
     if (current.includes(liveId)) {
-      updated = current.filter(
-        (id) => id !== liveId
-      );
+      updated =
+        current.filter(
+          (id) => id !== liveId
+        );
     } else {
       updated = [
         ...current,
@@ -380,6 +398,77 @@ const [highlightedLiveId, setHighlightedLiveId] =
   };
 
   // ========================================
+  // カレンダー スワイプ
+  // ========================================
+
+  const handleTouchStart = (
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    const touch = e.touches[0];
+
+    touchStartX.current =
+      touch.clientX;
+
+    touchStartY.current =
+      touch.clientY;
+  };
+
+  const handleTouchEnd = (
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (
+      touchStartX.current === null ||
+      touchStartY.current === null
+    ) {
+      return;
+    }
+
+    const touch =
+      e.changedTouches[0];
+
+    const diffX =
+      touch.clientX -
+      touchStartX.current;
+
+    const diffY =
+      touch.clientY -
+      touchStartY.current;
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+
+    // 縦方向の動きが大きいなら
+    // 通常のスクロールとして扱う
+
+    if (
+      Math.abs(diffY) >
+      Math.abs(diffX)
+    ) {
+      return;
+    }
+
+    // 小さい横移動では切り替えない
+
+    if (
+      Math.abs(diffX) <
+      SWIPE_THRESHOLD
+    ) {
+      return;
+    }
+
+    // 左スワイプ → 翌月
+
+    if (diffX < 0) {
+      nextMonth();
+      return;
+    }
+
+    // 右スワイプ → 前月
+
+    previousMonth();
+  };
+
+  // ========================================
   // 日単位で参戦 ON / OFF
   // ========================================
 
@@ -452,35 +541,42 @@ const [highlightedLiveId, setHighlightedLiveId] =
   };
 
   // ========================================
-  // 都市名 → 下のライブへスクロール
+  // 日付 → 下のライブへスクロール
   // ========================================
 
   const scrollToLive = (
-  liveId: string
-) => {
-  const element =
-    document.getElementById(
-      `calendar-live-${liveId}`
+    liveId: string
+  ) => {
+    const element =
+      document.getElementById(
+        `calendar-live-${liveId}`
+      );
+
+    if (!element) {
+      return;
+    }
+
+    // 該当カードをハイライト
+
+    setHighlightedLiveId(
+      liveId
     );
 
-  if (!element) {
-    return;
-  }
+    // カードまでスクロール
 
-  // 該当カードをハイライト
-  setHighlightedLiveId(liveId);
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
 
-  // カードまでスクロール
-  element.scrollIntoView({
-    behavior: "smooth",
-    block: "center",
-  });
+    // 少し経ったらハイライト解除
 
-  // 少し経ったらハイライト解除
-  window.setTimeout(() => {
-    setHighlightedLiveId(null);
-  }, 1400);
-};
+    window.setTimeout(() => {
+      setHighlightedLiveId(
+        null
+      );
+    }, 1400);
+  };
 
   // ========================================
   // JSX
@@ -689,315 +785,342 @@ const [highlightedLiveId, setHighlightedLiveId] =
       </div>
 
       {/* ================================= */}
-      {/* 曜日 */}
+      {/* スワイプエリア */}
+      {/* 左スワイプ → 次の月 */}
+      {/* 右スワイプ → 前の月 */}
       {/* ================================= */}
 
       <div
+        onTouchStart={
+          handleTouchStart
+        }
+        onTouchEnd={
+          handleTouchEnd
+        }
         className="
-          mt-2
-          grid
-          grid-cols-7
-          border-b
-          border-zinc-100
+          touch-pan-y
+          select-none
         "
       >
-        {[
-          "日",
-          "月",
-          "火",
-          "水",
-          "木",
-          "金",
-          "土",
-        ].map((weekday) => (
-          <div
-            key={weekday}
-            className="
-              py-2
-              text-center
-              text-[10px]
-              font-bold
-              text-zinc-400
-            "
-          >
-            {weekday}
-          </div>
-        ))}
-      </div>
 
-      {/* ================================= */}
-      {/* カレンダー */}
-      {/* ================================= */}
+        {/* ================================= */}
+        {/* 曜日 */}
+        {/* ================================= */}
 
-      <div className="grid grid-cols-7">
-        {calendarDays.map(
-          (day, index) => {
+        <div
+          className="
+            mt-2
+            grid
+            grid-cols-7
+            border-b
+            border-zinc-100
+          "
+        >
+          {[
+            "日",
+            "月",
+            "火",
+            "水",
+            "木",
+            "金",
+            "土",
+          ].map((weekday) => (
+            <div
+              key={weekday}
+              className="
+                py-2
+                text-center
+                text-[10px]
+                font-bold
+                text-zinc-400
+              "
+            >
+              {weekday}
+            </div>
+          ))}
+        </div>
 
-            // 空白
+        {/* ================================= */}
+        {/* カレンダー */}
+        {/* ================================= */}
 
-            if (day === null) {
+        <div className="grid grid-cols-7">
+          {calendarDays.map(
+            (day, index) => {
+
+              // =================================
+              // 空白
+              // =================================
+
+              if (day === null) {
+                return (
+                  <div
+                    key={`empty-${index}`}
+                    className="
+                      min-h-[96px]
+                      border-b
+                      border-zinc-100
+                      bg-zinc-50/30
+                    "
+                  />
+                );
+              }
+
+              const dateKey =
+                createDateKey(day);
+
+              const dayLives =
+                livesByDate[
+                  dateKey
+                ] ?? [];
+
+              const hasLive =
+                dayLives.length > 0;
+
+              // =================================
+              // 都市
+              // =================================
+
+              const cities = [
+                ...new Set(
+                  dayLives
+                    .map(
+                      (live) =>
+                        live.city
+                    )
+                    .filter(Boolean)
+                ),
+              ];
+
+              // =================================
+              // 参戦状態
+              // =================================
+
+              const attendedCount =
+                dayLives.filter(
+                  (live) =>
+                    attendedIds.includes(
+                      live.id
+                    )
+                ).length;
+
+              const allAttended =
+                hasLive &&
+                attendedCount ===
+                  dayLives.length;
+
               return (
                 <div
-                  key={`empty-${index}`}
-                  className="
+                  key={dateKey}
+                  onClick={() => {
+                    if (!hasLive) {
+                      return;
+                    }
+
+                    scrollToLive(
+                      dayLives[0].id
+                    );
+                  }}
+                  className={`
+                    relative
                     min-h-[96px]
                     border-b
                     border-zinc-100
-                    bg-zinc-50/30
-                  "
-                />
-              );
-            }
+                    px-1
+                    py-1.5
 
-            const dateKey =
-              createDateKey(day);
-
-            const dayLives =
-              livesByDate[
-                dateKey
-              ] ?? [];
-
-            const hasLive =
-              dayLives.length > 0;
-
-            // =================================
-            // 都市
-            // =================================
-
-            const cities = [
-              ...new Set(
-                dayLives
-                  .map(
-                    (live) =>
-                      live.city
-                  )
-                  .filter(Boolean)
-              ),
-            ];
-
-            // =================================
-            // 参戦状態
-            // =================================
-
-            const attendedCount =
-              dayLives.filter(
-                (live) =>
-                  attendedIds.includes(
-                    live.id
-                  )
-              ).length;
-
-            const allAttended =
-              hasLive &&
-              attendedCount ===
-                dayLives.length;
-
-            const someAttended =
-              attendedCount > 0 &&
-              !allAttended;
-
-            return (
-              <div
-  key={dateKey}
-  onClick={() => {
-    if (!hasLive) return;
-
-    scrollToLive(
-      dayLives[0].id
-    );
-  }}
-  className={`
-    relative
-    min-h-[96px]
-    border-b
-    border-zinc-100
-    px-1
-    py-1.5
-
-    transition
-
-    ${
-      hasLive
-        ? `
-          cursor-pointer
-          bg-[#14526B]/15
-          active:bg-[#14526B]/20
-        `
-        : "bg-white"
-    }
-  `}
->
-                {/* 日付 */}
-
-                <div
-                  className={`
-                    flex
-                    h-6
-                    w-6
-                    items-center
-                    justify-center
-                    rounded-full
-                    text-[11px]
-                    font-semibold
+                    transition
 
                     ${
                       hasLive
-                        ? "text-[#14526B]"
-                        : "text-zinc-500"
+                        ? `
+                          cursor-pointer
+                          bg-[#14526B]/15
+                          active:bg-[#14526B]/20
+                        `
+                        : "bg-white"
                     }
                   `}
                 >
-                  {day}
-                </div>
 
-                {/* ================================= */}
-                {/* ライブあり */}
-                {/* ================================= */}
+                  {/* 日付 */}
 
-                {hasLive && (
-                  <>
+                  <div
+                    className={`
+                      flex
+                      h-6
+                      w-6
+                      items-center
+                      justify-center
+                      rounded-full
+                      text-[11px]
+                      font-semibold
 
-                    {/* ================================= */}
-                    {/* 都市 */}
-                    {/* クリックで下のライブへ */}
-                    {/* ================================= */}
+                      ${
+                        hasLive
+                          ? "text-[#14526B]"
+                          : "text-zinc-500"
+                      }
+                    `}
+                  >
+                    {day}
+                  </div>
 
-                    <div className="mt-0.5 space-y-0.5 px-0.5">
-                      {cities
-                        .slice(0, 2)
-                        .map(
-                          (city) => {
-                            const targetLive =
-                              dayLives.find(
-                                (live) =>
-                                  live.city ===
-                                  city
+                  {/* ================================= */}
+                  {/* ライブあり */}
+                  {/* ================================= */}
+
+                  {hasLive && (
+                    <>
+
+                      {/* ================================= */}
+                      {/* 都市 */}
+                      {/* ================================= */}
+
+                      <div className="mt-0.5 space-y-0.5 px-0.5">
+                        {cities
+                          .slice(0, 2)
+                          .map(
+                            (city) => {
+                              const targetLive =
+                                dayLives.find(
+                                  (live) =>
+                                    live.city ===
+                                    city
+                                );
+
+                              if (
+                                !targetLive
+                              ) {
+                                return null;
+                              }
+
+                              return (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onClick={(
+                                    e
+                                  ) => {
+                                    e.stopPropagation();
+
+                                    scrollToLive(
+                                      targetLive.id
+                                    );
+                                  }}
+                                  className="
+                                    block
+                                    w-full
+                                    truncate
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    leading-[1.25]
+                                    text-[#14526B]
+                                    transition
+                                    hover:opacity-70
+                                    active:scale-[0.97]
+                                    active:opacity-50
+                                  "
+                                >
+                                  {city}
+                                </button>
                               );
-
-                            if (
-                              !targetLive
-                            ) {
-                              return null;
                             }
+                          )}
+                      </div>
 
-                            return (
-                              <button
-                                key={city}
-                                type="button"
-                                onClick={() =>
-                                  scrollToLive(
-                                    targetLive.id
-                                  )
-                                }
-                                className="
-                                  block
-                                  w-full
-                                  truncate
-                                  text-left
-                                  text-[10px]
-                                  font-bold
-                                  leading-[1.25]
-                                  text-[#14526B]
-                                  transition
-                                  hover:opacity-70
-                                  active:scale-[0.97]
-                                  active:opacity-50
-                                "
-                              >
-                                {city}
-                              </button>
-                            );
-                          }
-                        )}
-                    </div>
+                      {/* 同日複数公演 */}
 
-                    {/* 同日複数公演 */}
+                      {dayLives.length >
+                        1 && (
+                        <p
+                          className="
+                            mt-1
+                            px-0.5
+                            text-[8px]
+                            font-medium
+                            leading-none
+                            text-zinc-400
+                          "
+                        >
+                          {
+                            dayLives.length
+                          }{" "}
+                          LIVES
+                        </p>
+                      )}
 
-                    {dayLives.length >
-                      1 && (
-                      <p
-                        className="
-                          mt-1
-                          px-0.5
-                          text-[8px]
-                          font-medium
+                      {/* ================================= */}
+                      {/* 参戦ボタン */}
+                      {/* ================================= */}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+
+                          toggleDayAttended(
+                            dayLives
+                          );
+                        }}
+                        aria-label={
+                          allAttended
+                            ? `${dateKey}の参戦登録を解除`
+                            : `${dateKey}を参戦済みにする`
+                        }
+                        className={`
+                          absolute
+                          bottom-1.5
+                          right-1.5
+
+                          flex
+                          h-8
+                          w-8
+                          items-center
+                          justify-center
+
+                          rounded-full
+                          border
+
+                          text-[15px]
                           leading-none
-                          text-zinc-400
-                        "
+
+                          shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+
+                          transition-all
+                          duration-200
+
+                          hover:scale-105
+                          active:scale-90
+
+                          ${
+                            allAttended
+                              ? `
+                                border-[#14526B]
+                                bg-[#14526B]
+                                text-white
+                              `
+                              : `
+                                border-zinc-200
+                                bg-white
+                                text-[#14526B]
+                              `
+                          }
+                        `}
                       >
-                        {
-                          dayLives.length
-                        }{" "}
-                        LIVES
-                      </p>
-                    )}
+                        {allAttended
+                          ? "♥"
+                          : "♡"}
+                      </button>
 
-                    {/* ================================= */}
-                    {/* 参戦ボタン */}
-                    {/* ================================= */}
-
-                    <button
-  type="button"
-  onClick={(e) => {
-  e.stopPropagation();
-
-  toggleDayAttended(
-    dayLives
-  );
-}}
-  aria-label={
-    allAttended
-      ? `${dateKey}の参戦登録を解除`
-      : `${dateKey}を参戦済みにする`
-  }
-  className={`
-    absolute
-    bottom-1.5
-    right-1.5
-
-    flex
-    h-8
-    w-8
-    items-center
-    justify-center
-
-    rounded-full
-    border
-
-    text-[15px]
-    leading-none
-
-    shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-
-    transition-all
-    duration-200
-
-    hover:scale-105
-    active:scale-90
-
-    ${
-      allAttended
-        ? `
-          border-[#14526B]
-          bg-[#14526B]
-          text-white
-        `
-        : `
-          border-zinc-200
-          bg-white
-          text-[#14526B]
-        `
-    }
-  `}
->
-  {allAttended ? "♥" : "♡"}
-</button>
-                  </>
-                )}
-              </div>
-            );
-          }
-        )}
+                    </>
+                  )}
+                </div>
+              );
+            }
+          )}
+        </div>
       </div>
 
       {/* ================================= */}
@@ -1051,25 +1174,26 @@ const [highlightedLiveId, setHighlightedLiveId] =
 
                 return (
                   <div
-  key={live.id}
-  id={`calendar-live-${live.id}`}
-  className={`
-    relative
-    scroll-mt-24
-    border-b
-    border-zinc-100
-    last:border-b-0
+                    key={live.id}
+                    id={`calendar-live-${live.id}`}
+                    className={`
+                      relative
+                      scroll-mt-24
+                      border-b
+                      border-zinc-100
+                      last:border-b-0
 
-    transition-all
-    duration-500
+                      transition-all
+                      duration-500
 
-    ${
-  highlightedLiveId === live.id
-    ? "bg-[#14526B]/8"
-    : "bg-white"
-}
-  `}
->
+                      ${
+                        highlightedLiveId ===
+                        live.id
+                          ? "bg-[#14526B]/8"
+                          : "bg-white"
+                      }
+                    `}
+                  >
 
                     {/* ライブ詳細 */}
 
@@ -1133,66 +1257,69 @@ const [highlightedLiveId, setHighlightedLiveId] =
                     {/* ================================= */}
 
                     <button
-  type="button"
-  onClick={() =>
-    toggleAttended(
-      live.id
-    )
-  }
-  aria-label={
-    attended
-      ? "参戦済みを解除"
-      : "参戦済みにする"
-  }
-  className={`
-    absolute
-    right-1
-    top-1/2
+                      type="button"
+                      onClick={() =>
+                        toggleAttended(
+                          live.id
+                        )
+                      }
+                      aria-label={
+                        attended
+                          ? "参戦済みを解除"
+                          : "参戦済みにする"
+                      }
+                      className={`
+                        absolute
+                        right-1
+                        top-1/2
 
-    flex
-    h-9
-    w-9
-    -translate-y-1/2
-    items-center
-    justify-center
+                        flex
+                        h-9
+                        w-9
+                        -translate-y-1/2
+                        items-center
+                        justify-center
 
-    rounded-full
-    border
+                        rounded-full
+                        border
 
-    text-[18px]
-    leading-none
+                        text-[18px]
+                        leading-none
 
-    shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+                        shadow-[0_1px_3px_rgba(0,0,0,0.04)]
 
-    transition-all
-    duration-200
+                        transition-all
+                        duration-200
 
-    hover:scale-105
-    active:scale-90
+                        hover:scale-105
+                        active:scale-90
 
-    ${
-      attended
-        ? `
-          border-[#14526B]
-          bg-[#14526B]
-          text-white
-        `
-        : `
-          border-zinc-200
-          bg-white
-          text-[#14526B]
-        `
-    }
-  `}
->
-  {attended ? "♥" : "♡"}
-</button>
+                        ${
+                          attended
+                            ? `
+                              border-[#14526B]
+                              bg-[#14526B]
+                              text-white
+                            `
+                            : `
+                              border-zinc-200
+                              bg-white
+                              text-[#14526B]
+                            `
+                        }
+                      `}
+                    >
+                      {attended
+                        ? "♥"
+                        : "♡"}
+                    </button>
                   </div>
                 );
               }
             )}
           </div>
         ) : (
+
           // =================================
           // ライブなし
           // =================================
