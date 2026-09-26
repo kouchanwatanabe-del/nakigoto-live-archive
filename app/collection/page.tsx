@@ -36,6 +36,7 @@ const hiddenSongs = [
   "安酒にロマンス（仮）",
   "虫けら'20",
   "19",
+  "秘密",
 ];
 
 const isHiddenSong = (song: string) => {
