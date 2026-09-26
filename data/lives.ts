@@ -6242,7 +6242,7 @@ excludeFromSongHistory: true,
 {
   id: "2020-11-30",
   date: "2020.11.30",
-  title: "心臓爆発日和-SHIBUYA03-",
+  title: "【水上弾き語り】心臓爆発日和-SHIBUYA03-",
   city: "東京",
   venue: "shibuya eggman",
   tour: "",
