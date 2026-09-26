@@ -544,7 +544,13 @@ const availableMonthNumbers =
 const calendarPages =
   useMemo(() => {
     const previous =
-      new Date(
+  isEarliestMonth
+    ? new Date(
+        calendarYear,
+        calendarMonth,
+        1
+      )
+    : new Date(
         calendarYear,
         calendarMonth - 1,
         1
@@ -592,6 +598,7 @@ const calendarPages =
     calendarMonth,
     filteredLives,
     isLatestMonth,
+    isEarliestMonth,
   ]);
 
   // ========================================
@@ -703,10 +710,46 @@ const calendarPages =
   };
 
   // ========================================
-  // 月変更
-  // ========================================
+// 月変更
+// ========================================
 
-  // ========================================
+// ========================================
+// プルダウンから年月を変更
+// ========================================
+
+const jumpToMonth = (
+  year: number,
+  month: number
+) => {
+  // スワイプ状態を完全にリセット
+  setIsAnimating(false);
+  setIsDragging(true);
+  setDragX(0);
+
+  // 指の位置もリセット
+  touchStartX.current = null;
+  touchStartY.current = null;
+
+  // 年月を変更
+  setCalendarDate(
+    new Date(
+      year,
+      month,
+      1
+    )
+  );
+
+  // 新しい3枚カレンダーが描画されてから
+  // 通常状態へ戻す
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      setDragX(0);
+      setIsDragging(false);
+    });
+  });
+};
+
+// ========================================
 // 月変更完了
 // ========================================
 
@@ -1490,63 +1533,37 @@ const handleTouchCancel =
   <select
     value={calendarYear}
     onChange={(e) => {
-      const newYear = Number(
-        e.target.value
-      );
+  const newYear =
+    Number(e.target.value);
 
-      let newMonth =
-        calendarMonth;
+  let newMonth =
+    calendarMonth;
 
-      // 今年に移動したとき、
-      // 現在月より未来なら今月にする
-      if (
-        newYear === currentYear &&
-        newMonth > currentMonth
-      ) {
-        newMonth =
-          currentMonth;
-      }
+  // 今年に移動したとき
+  // 未来月なら今月にする
+  if (
+    newYear === currentYear &&
+    newMonth > currentMonth
+  ) {
+    newMonth =
+      currentMonth;
+  }
 
-      // 2018年に移動したとき、
-      // 10月より前なら10月にする
-      if (
-        newYear === earliestYear &&
-        newMonth < earliestMonth
-      ) {
-        newMonth =
-          earliestMonth;
-      }
+  // 2018年に移動したとき
+  // 1〜9月なら10月にする
+  if (
+    newYear === earliestYear &&
+    newMonth < earliestMonth
+  ) {
+    newMonth =
+      earliestMonth;
+  }
 
-      // =================================
-      // カレンダーのスライド状態をリセット
-      // =================================
-
-      setIsDragging(true);
-      setIsAnimating(false);
-      setDragX(0);
-
-      // =================================
-      // 年を変更
-      // =================================
-
-      setCalendarDate(
-        new Date(
-          newYear,
-          newMonth,
-          1
-        )
-      );
-
-      // =================================
-      // 次の描画で通常状態に戻す
-      // =================================
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsDragging(false);
-        });
-      });
-    }}
+  jumpToMonth(
+    newYear,
+    newMonth
+  );
+}}
     className="
       cursor-pointer
       appearance-none
@@ -1596,40 +1613,14 @@ const handleTouchCancel =
   <select
     value={calendarMonth + 1}
     onChange={(e) => {
-      const newMonth = Number(
-        e.target.value
-      );
+  const newMonth =
+    Number(e.target.value);
 
-      // =================================
-      // カレンダーのスライド状態をリセット
-      // =================================
-
-      setIsDragging(true);
-      setIsAnimating(false);
-      setDragX(0);
-
-      // =================================
-      // 月を変更
-      // =================================
-
-      setCalendarDate(
-        new Date(
-          calendarYear,
-          newMonth - 1,
-          1
-        )
-      );
-
-      // =================================
-      // 次の描画で通常状態に戻す
-      // =================================
-
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setIsDragging(false);
-        });
-      });
-    }}
+  jumpToMonth(
+    calendarYear,
+    newMonth - 1
+  );
+}}
     className="
       cursor-pointer
       appearance-none
