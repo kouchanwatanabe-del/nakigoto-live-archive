@@ -1671,6 +1671,7 @@ const handleTouchCancel =
       {/* ================================= */}
 
       <div
+      key={`${calendarYear}-${calendarMonth}`}
         ref={
           calendarContainerRef
         }
