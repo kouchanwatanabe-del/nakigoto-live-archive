@@ -364,10 +364,10 @@ export default function LiveCalendar({
     }
 
     while (
-      days.length % 7 !== 0
-    ) {
-      days.push(null);
-    }
+  days.length % 7 !== 0
+) {
+  days.push(null);
+}
 
     const monthLivesForPage =
       filteredLives.filter(
@@ -582,33 +582,28 @@ export default function LiveCalendar({
 const finishMonthChange = (
   direction: "next" | "previous"
 ) => {
-  // 重要：
-  // 月を切り替える瞬間は
-  // transitionを無効にする
-
-  setIsAnimating(false);
+  // ここから位置リセット時の
+  // transitionを完全に切る
   setIsDragging(true);
+  setIsAnimating(false);
 
+  // 先に3枚の位置を中央へ戻す
+  // transition-none なのでアニメーションしない
+  setDragX(0);
+
+  // 同じ描画タイミングで月データを更新
   setCalendarDate((current) => {
     return new Date(
       current.getFullYear(),
       current.getMonth() +
-        (direction === "next"
-          ? 1
-          : -1),
+        (direction === "next" ? 1 : -1),
       1
     );
   });
 
-  // 月が切り替わったあと
-  // 3枚構成を中央位置へ瞬間移動
-  //
-  // transitionが無効なので
-  // ユーザーにはこの移動は見えない
-
+  // DOM更新が完了してから
+  // 次回用のtransitionを復活
   requestAnimationFrame(() => {
-    setDragX(0);
-
     requestAnimationFrame(() => {
       setIsDragging(false);
     });
@@ -627,11 +622,12 @@ const animateToNextMonth = () => {
     return;
   }
 
+  // 指追従を終了
+  // → transitionをON
   setIsDragging(false);
   setIsAnimating(true);
 
-  // 現在の位置から
-  // 次月が中央に来る位置まで動かす
+  // 次月が中央まで移動
   setDragX(-containerWidth);
 
   window.setTimeout(() => {
@@ -651,17 +647,16 @@ const animateToPreviousMonth = () => {
     return;
   }
 
+  // 指追従を終了
+  // → transitionをON
   setIsDragging(false);
   setIsAnimating(true);
 
-  // 現在の位置から
-  // 前月が中央に来る位置まで動かす
+  // 前月が中央まで移動
   setDragX(containerWidth);
 
   window.setTimeout(() => {
-    finishMonthChange(
-      "previous"
-    );
+    finishMonthChange("previous");
   }, 300);
 };
 
