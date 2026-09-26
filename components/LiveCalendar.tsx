@@ -260,14 +260,98 @@ export default function LiveCalendar({
   };
 
   // ========================================
-  // 現在年月
-  // ========================================
+// 現在年月
+// ========================================
 
-  const calendarYear =
-    calendarDate.getFullYear();
+const calendarYear =
+  calendarDate.getFullYear();
 
-  const calendarMonth =
-    calendarDate.getMonth();
+const calendarMonth =
+  calendarDate.getMonth();
+
+// ========================================
+// 実際の現在年月
+// 未来の月は表示しない
+// ========================================
+
+const now = new Date();
+
+const currentYear =
+  now.getFullYear();
+
+const currentMonth =
+  now.getMonth();
+
+// 現在表示している月が今月か
+
+const isLatestMonth =
+  calendarYear === currentYear &&
+  calendarMonth === currentMonth;
+
+// ========================================
+// 選択できる年
+// ========================================
+
+const availableYears =
+  useMemo(() => {
+    return [
+      ...new Set(
+        lives.map((live) =>
+          Number(
+            live.date.slice(
+              0,
+              4
+            )
+          )
+        )
+      ),
+    ]
+      .filter(
+        (year) =>
+          year <= currentYear
+      )
+      .sort(
+        (a, b) =>
+          b - a
+      );
+  }, [currentYear]);
+
+// ========================================
+// 選択できる月
+// ========================================
+
+const availableMonthNumbers =
+  useMemo(() => {
+    // 今年なら今月まで
+
+    if (
+      calendarYear ===
+      currentYear
+    ) {
+      return Array.from(
+        {
+          length:
+            currentMonth + 1,
+        },
+        (_, index) =>
+          index + 1
+      );
+    }
+
+    // 過去年なら12月まで
+
+    return Array.from(
+      {
+        length: 12,
+      },
+      (_, index) =>
+        index + 1
+    );
+  }, [
+    calendarYear,
+    currentYear,
+    currentMonth,
+  ]);
 
   // ========================================
   // 年月保存
@@ -420,48 +504,61 @@ export default function LiveCalendar({
   };
 
   // ========================================
-  // 前月・現在月・次月
-  // ========================================
+// 前月・現在月・次月
+// ========================================
 
-  const calendarPages =
-    useMemo(() => {
-      const previous =
-        new Date(
-          calendarYear,
-          calendarMonth - 1,
-          1
-        );
+const calendarPages =
+  useMemo(() => {
+    const previous =
+      new Date(
+        calendarYear,
+        calendarMonth - 1,
+        1
+      );
 
-      const current =
-        new Date(
-          calendarYear,
-          calendarMonth,
-          1
-        );
+    const current =
+      new Date(
+        calendarYear,
+        calendarMonth,
+        1
+      );
 
-      const next =
-        new Date(
-          calendarYear,
-          calendarMonth + 1,
-          1
-        );
+    // 今月の場合は
+    // 未来月を生成しない
+    //
+    // 3枚構成自体は維持するため
+    // 右側にも現在月を入れておく
 
-      return [
-        createCalendarPage(
-          previous
-        ),
-        createCalendarPage(
-          current
-        ),
-        createCalendarPage(
-          next
-        ),
-      ];
-    }, [
-      calendarYear,
-      calendarMonth,
-      filteredLives,
-    ]);
+    const next =
+      isLatestMonth
+        ? new Date(
+            calendarYear,
+            calendarMonth,
+            1
+          )
+        : new Date(
+            calendarYear,
+            calendarMonth + 1,
+            1
+          );
+
+    return [
+      createCalendarPage(
+        previous
+      ),
+      createCalendarPage(
+        current
+      ),
+      createCalendarPage(
+        next
+      ),
+    ];
+  }, [
+    calendarYear,
+    calendarMonth,
+    filteredLives,
+    isLatestMonth,
+  ]);
 
   // ========================================
   // 日単位で参戦 ON / OFF
@@ -579,53 +676,59 @@ export default function LiveCalendar({
 // 月変更完了
 // ========================================
 
-// ========================================
-// 月変更完了
-// ========================================
-
 const finishMonthChange = (
   direction: "next" | "previous"
 ) => {
-  // 再配置中はアニメーションOFF
   setIsDragging(true);
   setIsAnimating(false);
 
-  // 位置を中央へ瞬間的に戻す
+  // 3枚カレンダーを
+  // 中央位置へ瞬間的に戻す
+
   setDragX(0);
 
-  // ========================================
-  // 年またぎも含めて年月を更新
-  // ========================================
-
   setCalendarDate((current) => {
-    const year = current.getFullYear();
-    const month = current.getMonth();
+    const year =
+      current.getFullYear();
 
-    if (direction === "next") {
-      // 12月 → 翌年1月
-      if (month === 11) {
-        return new Date(
-          year + 1,
-          0,
+    const month =
+      current.getMonth();
+
+    // ========================================
+    // 次月
+    // ========================================
+
+    if (
+      direction === "next"
+    ) {
+      const nextDate =
+        new Date(
+          year,
+          month + 1,
           1
         );
+
+      // 念のため未来月をブロック
+
+      if (
+        nextDate.getFullYear() >
+          currentYear ||
+        (
+          nextDate.getFullYear() ===
+            currentYear &&
+          nextDate.getMonth() >
+            currentMonth
+        )
+      ) {
+        return current;
       }
 
-      return new Date(
-        year,
-        month + 1,
-        1
-      );
+      return nextDate;
     }
 
-    // 1月 → 前年12月
-    if (month === 0) {
-      return new Date(
-        year - 1,
-        11,
-        1
-      );
-    }
+    // ========================================
+    // 前月
+    // ========================================
 
     return new Date(
       year,
@@ -652,21 +755,25 @@ const finishMonthChange = (
 const animateToNextMonth = () => {
   if (
     isAnimating ||
-    containerWidth === 0
+    containerWidth === 0 ||
+    isLatestMonth
   ) {
     return;
   }
 
-  // 指追従を終了
-  // → transitionをON
   setIsDragging(false);
   setIsAnimating(true);
 
-  // 次月が中央まで移動
-  setDragX(-containerWidth);
+  // 次月を中央へ
+
+  setDragX(
+    -containerWidth
+  );
 
   window.setTimeout(() => {
-    finishMonthChange("next");
+    finishMonthChange(
+      "next"
+    );
   }, 300);
 };
 
@@ -674,26 +781,30 @@ const animateToNextMonth = () => {
 // 前月へ
 // ========================================
 
-const animateToPreviousMonth = () => {
-  if (
-    isAnimating ||
-    containerWidth === 0
-  ) {
-    return;
-  }
+const animateToPreviousMonth =
+  () => {
+    if (
+      isAnimating ||
+      containerWidth === 0
+    ) {
+      return;
+    }
 
-  // 指追従を終了
-  // → transitionをON
-  setIsDragging(false);
-  setIsAnimating(true);
+    setIsDragging(false);
+    setIsAnimating(true);
 
-  // 前月が中央まで移動
-  setDragX(containerWidth);
+    // 前月を中央へ
 
-  window.setTimeout(() => {
-    finishMonthChange("previous");
-  }, 300);
-};
+    setDragX(
+      containerWidth
+    );
+
+    window.setTimeout(() => {
+      finishMonthChange(
+        "previous"
+      );
+    }, 300);
+  };
 
 // ========================================
 // スワイプキャンセル
@@ -710,155 +821,183 @@ const cancelSwipe = () => {
   }, 300);
 };
 
-  // ========================================
-  // TOUCH START
-  // ========================================
+// ========================================
+// TOUCH START
+// ========================================
 
-  const handleTouchStart = (
-    e: React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (isAnimating) {
-      return;
-    }
+const handleTouchStart = (
+  e: React.TouchEvent<HTMLDivElement>
+) => {
+  if (isAnimating) {
+    return;
+  }
 
-    const touch =
-      e.touches[0];
+  const touch =
+    e.touches[0];
 
-    touchStartX.current =
-      touch.clientX;
+  touchStartX.current =
+    touch.clientX;
 
-    touchStartY.current =
-      touch.clientY;
+  touchStartY.current =
+    touch.clientY;
 
-    setIsDragging(true);
-  };
+  setIsDragging(true);
+};
 
-  // ========================================
-  // TOUCH MOVE
-  // ========================================
+// ========================================
+// TOUCH MOVE
+// ========================================
 
-  const handleTouchMove = (
-    e: React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (
-      isAnimating ||
-      touchStartX.current ===
-        null ||
-      touchStartY.current ===
-        null
-    ) {
-      return;
-    }
+const handleTouchMove = (
+  e: React.TouchEvent<HTMLDivElement>
+) => {
+  if (
+    isAnimating ||
+    touchStartX.current ===
+      null ||
+    touchStartY.current ===
+      null
+  ) {
+    return;
+  }
 
-    const touch =
-      e.touches[0];
+  const touch =
+    e.touches[0];
 
-    const diffX =
-      touch.clientX -
-      touchStartX.current;
+  const diffX =
+    touch.clientX -
+    touchStartX.current;
 
-    const diffY =
-      touch.clientY -
-      touchStartY.current;
-
-    // 縦方向の動きが強ければ
-    // カレンダーは横移動させない
-
-    if (
-      Math.abs(diffY) >
-      Math.abs(diffX)
-    ) {
-      return;
-    }
-
-    // 指に追従
-
-    setDragX(diffX);
-  };
+  const diffY =
+    touch.clientY -
+    touchStartY.current;
 
   // ========================================
-  // TOUCH END
+  // 縦スクロールを優先
   // ========================================
 
-  const handleTouchEnd = (
-    e: React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (
-      touchStartX.current ===
-        null ||
-      touchStartY.current ===
-        null
-    ) {
-      return;
-    }
+  if (
+    Math.abs(diffY) >
+    Math.abs(diffX)
+  ) {
+    return;
+  }
 
-    const touch =
-      e.changedTouches[0];
+  // ========================================
+  // 今月から未来方向へは
+  // 動かさない
+  // ========================================
 
-    const diffX =
-      touch.clientX -
-      touchStartX.current;
+  if (
+    isLatestMonth &&
+    diffX < 0
+  ) {
+    setDragX(0);
+    return;
+  }
 
-    const diffY =
-      touch.clientY -
-      touchStartY.current;
+  // 指に追従
 
-    touchStartX.current =
-      null;
+  setDragX(diffX);
+};
 
-    touchStartY.current =
-      null;
+// ========================================
+// TOUCH END
+// ========================================
 
-    if (
-      Math.abs(diffY) >
-      Math.abs(diffX)
-    ) {
+const handleTouchEnd = (
+  e: React.TouchEvent<HTMLDivElement>
+) => {
+  if (
+    touchStartX.current ===
+      null ||
+    touchStartY.current ===
+      null
+  ) {
+    return;
+  }
+
+  const touch =
+    e.changedTouches[0];
+
+  const diffX =
+    touch.clientX -
+    touchStartX.current;
+
+  const diffY =
+    touch.clientY -
+    touchStartY.current;
+
+  touchStartX.current =
+    null;
+
+  touchStartY.current =
+    null;
+
+  // ========================================
+  // 縦方向
+  // ========================================
+
+  if (
+    Math.abs(diffY) >
+    Math.abs(diffX)
+  ) {
+    cancelSwipe();
+    return;
+  }
+
+  // ========================================
+  // 左スワイプ
+  // → 次月
+  // ========================================
+
+  if (
+    diffX <
+    -SWIPE_THRESHOLD
+  ) {
+    if (isLatestMonth) {
       cancelSwipe();
       return;
     }
 
-    // 左へ十分スワイプ
-    // → 次月
+    animateToNextMonth();
+    return;
+  }
 
-    if (
-      diffX <
-      -SWIPE_THRESHOLD
-    ) {
-      animateToNextMonth();
-      return;
-    }
+  // ========================================
+  // 右スワイプ
+  // → 前月
+  // ========================================
 
-    // 右へ十分スワイプ
-    // → 前月
+  if (
+    diffX >
+    SWIPE_THRESHOLD
+  ) {
+    animateToPreviousMonth();
+    return;
+  }
 
-    if (
-      diffX >
-      SWIPE_THRESHOLD
-    ) {
-      animateToPreviousMonth();
-      return;
-    }
+  // ========================================
+  // 移動量不足
+  // ========================================
 
-    // 足りなければ元へ
+  cancelSwipe();
+};
+
+// ========================================
+// TOUCH CANCEL
+// ========================================
+
+const handleTouchCancel =
+  () => {
+    touchStartX.current =
+      null;
+
+    touchStartY.current =
+      null;
 
     cancelSwipe();
   };
-
-  // ========================================
-  // TOUCH CANCEL
-  // ========================================
-
-  const handleTouchCancel =
-    () => {
-      touchStartX.current =
-        null;
-
-      touchStartY.current =
-        null;
-
-      cancelSwipe();
-    };
-
   // ========================================
   // カレンダー1枚
   // ========================================
@@ -1287,205 +1426,195 @@ const cancelSwipe = () => {
         </button>
 
         {/* ================================= */}
-        {/* 年 / 月 */}
-        {/* ================================= */}
+{/* 年 / 月 */}
+{/* ================================= */}
 
-        <div className="flex items-center justify-center gap-1">
+<div className="flex items-center justify-center gap-1">
 
-          {/* 年 */}
+  {/* ================================= */}
+  {/* 年 */}
+  {/* ================================= */}
 
-          <div className="relative">
-            <select
-              value={
-                calendarYear
-              }
-              onChange={(e) => {
-                const newYear =
-                  Number(
-                    e.target
-                      .value
-                  );
+  <div className="relative">
+    <select
+      value={
+        calendarYear
+      }
+      onChange={(e) => {
+        const newYear =
+          Number(
+            e.target.value
+          );
 
-                setDragX(0);
+        let newMonth =
+          calendarMonth;
 
-                setCalendarDate(
-                  new Date(
-                    newYear,
-                    calendarMonth,
-                    1
-                  )
-                );
-              }}
-              className="
-                cursor-pointer
-                appearance-none
-                bg-transparent
-                py-2
-                pl-2
-                pr-5
-                text-[17px]
-                font-bold
-                tracking-tight
-                text-[#14526B]
-                outline-none
-              "
-            >
-              {[
-                ...new Set(
-                  lives.map(
-                    (live) =>
-                      Number(
-                        live.date.slice(
-                          0,
-                          4
-                        )
-                      )
-                  )
-                ),
-              ]
-                .sort(
-                  (a, b) =>
-                    b - a
-                )
-                .map(
-                  (year) => (
-                    <option
-                      key={
-                        year
-                      }
-                      value={
-                        year
-                      }
-                    >
-                      {year}年
-                    </option>
-                  )
-                )}
-            </select>
+        // =================================
+        // 今年へ戻ったとき、
+        // 現在月より未来だった場合は
+        // 今月に補正
+        // =================================
 
-            <span
-              className="
-                pointer-events-none
-                absolute
-                right-0
-                top-1/2
-                -translate-y-1/2
-                text-[9px]
-                text-[#14526B]
-              "
-            >
-              ▼
-            </span>
-          </div>
+        if (
+          newYear ===
+            currentYear &&
+          newMonth >
+            currentMonth
+        ) {
+          newMonth =
+            currentMonth;
+        }
 
-          {/* 月 */}
+        setDragX(0);
 
-          <div className="relative">
-            <select
-              value={
-                calendarMonth +
-                1
-              }
-              onChange={(e) => {
-                const newMonth =
-                  Number(
-                    e.target
-                      .value
-                  );
+        setCalendarDate(
+          new Date(
+            newYear,
+            newMonth,
+            1
+          )
+        );
+      }}
+      className="
+        cursor-pointer
+        appearance-none
+        bg-transparent
+        py-2
+        pl-2
+        pr-5
+        text-[17px]
+        font-bold
+        tracking-tight
+        text-[#14526B]
+        outline-none
+      "
+    >
+      {availableYears.map(
+        (year) => (
+          <option
+            key={year}
+            value={year}
+          >
+            {year}年
+          </option>
+        )
+      )}
+    </select>
 
-                setDragX(0);
+    <span
+      className="
+        pointer-events-none
+        absolute
+        right-0
+        top-1/2
+        -translate-y-1/2
+        text-[9px]
+        text-[#14526B]
+      "
+    >
+      ▼
+    </span>
+  </div>
 
-                setCalendarDate(
-                  new Date(
-                    calendarYear,
-                    newMonth -
-                      1,
-                    1
-                  )
-                );
-              }}
-              className="
-                cursor-pointer
-                appearance-none
-                bg-transparent
-                py-2
-                pl-1
-                pr-5
-                text-[17px]
-                font-bold
-                tracking-tight
-                text-[#14526B]
-                outline-none
-              "
-            >
-              {Array.from(
-                {
-                  length: 12,
-                },
-                (_, index) =>
-                  index + 1
-              ).map(
-                (month) => (
-                  <option
-                    key={
-                      month
-                    }
-                    value={
-                      month
-                    }
-                  >
-                    {month}月
-                  </option>
-                )
-              )}
-            </select>
+  {/* ================================= */}
+  {/* 月 */}
+  {/* ================================= */}
 
-            <span
-              className="
-                pointer-events-none
-                absolute
-                right-0
-                top-1/2
-                -translate-y-1/2
-                text-[9px]
-                text-[#14526B]
-              "
-            >
-              ▼
-            </span>
-          </div>
-        </div>
+  <div className="relative">
+    <select
+      value={
+        calendarMonth + 1
+      }
+      onChange={(e) => {
+        const newMonth =
+          Number(
+            e.target.value
+          );
 
-        {/* 次月 */}
+        setDragX(0);
 
-        <button
-          type="button"
-          onClick={
-            animateToNextMonth
-          }
-          disabled={
-            isAnimating
-          }
-          aria-label="次の月"
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-full
-            text-[25px]
-            font-light
-            text-[#14526B]
-            transition
-            active:bg-zinc-100
-            disabled:pointer-events-none
-          "
-        >
-          ›
-        </button>
-      </div>
+        setCalendarDate(
+          new Date(
+            calendarYear,
+            newMonth - 1,
+            1
+          )
+        );
+      }}
+      className="
+        cursor-pointer
+        appearance-none
+        bg-transparent
+        py-2
+        pl-1
+        pr-5
+        text-[17px]
+        font-bold
+        tracking-tight
+        text-[#14526B]
+        outline-none
+      "
+    >
+      {availableMonthNumbers.map(
+        (month) => (
+          <option
+            key={month}
+            value={month}
+          >
+            {month}月
+          </option>
+        )
+      )}
+    </select>
 
+    <span
+      className="
+        pointer-events-none
+        absolute
+        right-0
+        top-1/2
+        -translate-y-1/2
+        text-[9px]
+        text-[#14526B]
+      "
+    >
+      ▼
+    </span>
+  </div>
+
+</div>
+       {/* 次月 */}
+
+<button
+  type="button"
+  onClick={
+    animateToNextMonth
+  }
+  disabled={
+    isAnimating ||
+    isLatestMonth
+  }
+  aria-label="次の月"
+  className="
+    flex
+    h-10
+    w-10
+    items-center
+    justify-center
+    rounded-full
+    text-[25px]
+    font-light
+    text-[#14526B]
+    transition
+    active:bg-zinc-100
+
+    disabled:pointer-events-none
+    disabled:opacity-20
+  "
+>
+  ›
+</button>
+</div>
       {/* ================================= */}
       {/* 3枚カレンダー */}
       {/* ================================= */}
