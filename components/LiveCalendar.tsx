@@ -917,7 +917,7 @@ const cancelSwipe = () => {
                   <div
                     key={`empty-${index}`}
                     className="
-                      min-h-[82px]
+                      min-h-[88px]
                       border-b
                       border-zinc-100
                       bg-zinc-50/30
@@ -999,7 +999,7 @@ const cancelSwipe = () => {
                   }}
                   className={`
                     relative
-                    min-h-[82px]
+                    min-h-[88px]
                     border-b
                     border-zinc-100
                     px-1
