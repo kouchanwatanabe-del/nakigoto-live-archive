@@ -1586,92 +1586,77 @@ const cancelSwipe = () => {
                   >
                     {/* ライブ詳細 */}
 
-                    <Link
-                      href={`/live/${live.id}`}
-                      className="
-                        block
-                        py-2.5
-                        pr-12
-                      "
-                    >
-                      <p
-                        className="
-                          text-[10px]
-                          font-bold
-                          text-[#14526B]
-                        "
-                      >
-                        {
-                          live.date
-                        }
-                      </p>
+<Link
+  href={`/live/${live.id}`}
+  className="
+    block
+    py-2.5
+    pr-12
+  "
+>
+  <p className="text-[10px] font-bold text-[#14526B]">
+    {live.date}
+  </p>
 
-                      <h3
-                        className="
-                          mt-0.5
-                          text-[13px]
-                          font-bold
-                          leading-[1.35]
-                          text-[#14526B]
-                        "
-                      >
-                        {
-                          live.title
-                        }
-                      </h3>
-
-                      <p
-                        className="
-                          mt-1
-                          text-[12px]
-                          leading-snug
-                          text-zinc-400
-                        "
-                      >
-                        <span
-                          className="
-                            font-semibold
-                            text-[#14526B]
-                          "
-                        >
-                          {
-                            live.city
-                          }
-                        </span>
-
-                        <span className="mx-1.5 text-zinc-300">
-                          /
-                        </span>
-
-                        {
-                          live.venue
-                        }
-                      </p>
-                    </Link>
-                    <div className="mt-0.5">
-  <span
-    className={`
-      inline-flex
-      items-center
-      rounded-full
-      px-2
-      py-0.5
-      text-[9px]
+  <h3
+    className="
+      mt-0.5
+      text-[13px]
       font-bold
-      tracking-[0.04em]
-
-      ${
-        hasSetlist
-          ? "bg-[#14526B]/10 text-[#14526B]"
-          : "bg-zinc-100 text-zinc-400"
-      }
-    `}
+      leading-[1.35]
+      text-[#14526B]
+    "
   >
-    {hasSetlist
-      ? "セトリあり"
-      : "セトリなし"}
-  </span>
-</div>
+    {live.title}
+  </h3>
+
+  {/* 都市・会場 */}
+  <p
+    className="
+      mt-1
+      text-[12px]
+      leading-snug
+      text-zinc-400
+    "
+  >
+    <span className="font-semibold text-[#14526B]">
+      {live.city}
+    </span>
+
+    <span className="mx-1.5 text-zinc-300">
+      /
+    </span>
+
+    {live.venue}
+  </p>
+
+  {/* セトリ有無 */}
+  <div className="mt-1">
+    <span
+      className={`
+        inline-flex
+        items-center
+        rounded-full
+        px-2
+        py-0.5
+        text-[9px]
+        font-bold
+        leading-none
+        tracking-[0.04em]
+
+        ${
+          hasSetlist
+            ? "bg-[#14526B]/10 text-[#14526B]"
+            : "bg-zinc-100 text-zinc-400"
+        }
+      `}
+    >
+      {hasSetlist
+        ? "セトリあり"
+        : "セトリなし"}
+    </span>
+  </div>
+</Link>
 
                     {/* 参戦 */}
 
