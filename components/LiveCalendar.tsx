@@ -16,6 +16,14 @@ type Props = {
   filteredLives?: Live[];
 };
 
+type CalendarPage = {
+  date: Date;
+  year: number;
+  month: number;
+  days: (number | null)[];
+  livesByDate: Record<string, Live[]>;
+};
+
 // ========================================
 // STORAGE
 // ========================================
@@ -39,43 +47,12 @@ export default function LiveCalendar({
   ] = useState<string | null>(null);
 
   // ========================================
-  // スワイプ
-  // ========================================
-
-  const touchStartX =
-    useRef<number | null>(null);
-
-  const touchStartY =
-    useRef<number | null>(null);
-
-  const SWIPE_THRESHOLD = 50;
-
-  // ========================================
-  // スライドアニメーション
-  // ========================================
-
-  const [
-    slideDirection,
-    setSlideDirection,
-  ] = useState<
-    "left" | "right" | null
-  >(null);
-
-  const [
-    isSliding,
-    setIsSliding,
-  ] = useState(false);
-
-  // ========================================
   // 最初に表示する月
   // ========================================
 
   const [calendarDate, setCalendarDate] =
     useState(() => {
-      if (
-        typeof window !==
-        "undefined"
-      ) {
+      if (typeof window !== "undefined") {
         const saved =
           sessionStorage.getItem(
             CALENDAR_DATE_STORAGE_KEY
@@ -83,9 +60,7 @@ export default function LiveCalendar({
 
         if (saved) {
           const [year, month] =
-            saved
-              .split(".")
-              .map(Number);
+            saved.split(".").map(Number);
 
           if (
             !Number.isNaN(year) &&
@@ -124,6 +99,33 @@ export default function LiveCalendar({
     });
 
   // ========================================
+  // スワイプ
+  // ========================================
+
+  const touchStartX =
+    useRef<number | null>(null);
+
+  const touchStartY =
+    useRef<number | null>(null);
+
+  const [dragX, setDragX] =
+    useState(0);
+
+  const [isDragging, setIsDragging] =
+    useState(false);
+
+  const [isAnimating, setIsAnimating] =
+    useState(false);
+
+  const [containerWidth, setContainerWidth] =
+    useState(0);
+
+  const calendarContainerRef =
+    useRef<HTMLDivElement | null>(null);
+
+  const SWIPE_THRESHOLD = 55;
+
+  // ========================================
   // 参戦記録読み込み
   // ========================================
 
@@ -156,10 +158,6 @@ export default function LiveCalendar({
     loadAttendedLives();
   }, []);
 
-  // ========================================
-  // 他ページから戻ってきた場合も更新
-  // ========================================
-
   useEffect(() => {
     const handleFocus = () => {
       loadAttendedLives();
@@ -174,6 +172,37 @@ export default function LiveCalendar({
       window.removeEventListener(
         "focus",
         handleFocus
+      );
+    };
+  }, []);
+
+  // ========================================
+  // カレンダー横幅
+  // ========================================
+
+  useEffect(() => {
+    const updateWidth = () => {
+      if (
+        calendarContainerRef.current
+      ) {
+        setContainerWidth(
+          calendarContainerRef.current
+            .clientWidth
+        );
+      }
+    };
+
+    updateWidth();
+
+    window.addEventListener(
+      "resize",
+      updateWidth
+    );
+
+    return () => {
+      window.removeEventListener(
+        "resize",
+        updateWidth
       );
     };
   }, []);
@@ -231,7 +260,7 @@ export default function LiveCalendar({
   };
 
   // ========================================
-  // 現在表示中の年月
+  // 現在年月
   // ========================================
 
   const calendarYear =
@@ -241,7 +270,7 @@ export default function LiveCalendar({
     calendarDate.getMonth();
 
   // ========================================
-  // 表示年月を保存
+  // 年月保存
   // ========================================
 
   useEffect(() => {
@@ -263,25 +292,18 @@ export default function LiveCalendar({
   const monthLives =
     useMemo(() => {
       return filteredLives
-        .filter(
-          (live: Live) => {
-            const [
-              year,
-              month,
-            ] =
-              live.date
-                .split(".")
-                .map(Number);
+        .filter((live: Live) => {
+          const [year, month] =
+            live.date
+              .split(".")
+              .map(Number);
 
-            return (
-              year ===
-                calendarYear &&
-              month ===
-                calendarMonth +
-                  1
-            );
-          }
-        )
+          return (
+            year === calendarYear &&
+            month ===
+              calendarMonth + 1
+          );
+        })
         .sort((a, b) =>
           a.date.localeCompare(
             b.date
@@ -294,303 +316,152 @@ export default function LiveCalendar({
     ]);
 
   // ========================================
-  // 日付ごとにライブをまとめる
+  // 指定月のカレンダー情報を作る
   // ========================================
 
-  const livesByDate =
-    useMemo(() => {
-      const result: Record<
-        string,
-        Live[]
-      > = {};
+  const createCalendarPage = (
+    date: Date
+  ): CalendarPage => {
+    const year =
+      date.getFullYear();
 
-      monthLives.forEach(
+    const month =
+      date.getMonth();
+
+    const firstDay =
+      new Date(
+        year,
+        month,
+        1
+      ).getDay();
+
+    const daysInMonth =
+      new Date(
+        year,
+        month + 1,
+        0
+      ).getDate();
+
+    const days: (
+      | number
+      | null
+    )[] = [];
+
+    for (
+      let i = 0;
+      i < firstDay;
+      i++
+    ) {
+      days.push(null);
+    }
+
+    for (
+      let day = 1;
+      day <= daysInMonth;
+      day++
+    ) {
+      days.push(day);
+    }
+
+    while (
+      days.length % 7 !== 0
+    ) {
+      days.push(null);
+    }
+
+    const monthLivesForPage =
+      filteredLives.filter(
         (live: Live) => {
-          if (
-            !result[live.date]
-          ) {
-            result[
-              live.date
-            ] = [];
-          }
-
-          result[
+          const [
+            liveYear,
+            liveMonth,
+          ] =
             live.date
-          ].push(live);
+              .split(".")
+              .map(Number);
+
+          return (
+            liveYear === year &&
+            liveMonth === month + 1
+          );
         }
       );
 
-      return result;
-    }, [monthLives]);
+    const livesByDate: Record<
+      string,
+      Live[]
+    > = {};
+
+    monthLivesForPage.forEach(
+      (live) => {
+        if (
+          !livesByDate[
+            live.date
+          ]
+        ) {
+          livesByDate[
+            live.date
+          ] = [];
+        }
+
+        livesByDate[
+          live.date
+        ].push(live);
+      }
+    );
+
+    return {
+      date,
+      year,
+      month,
+      days,
+      livesByDate,
+    };
+  };
 
   // ========================================
-  // カレンダーの日付を作成
+  // 前月・現在月・次月
   // ========================================
 
-  const calendarDays =
+  const calendarPages =
     useMemo(() => {
-      const firstDay =
+      const previous =
+        new Date(
+          calendarYear,
+          calendarMonth - 1,
+          1
+        );
+
+      const current =
         new Date(
           calendarYear,
           calendarMonth,
           1
-        ).getDay();
+        );
 
-      const daysInMonth =
+      const next =
         new Date(
           calendarYear,
           calendarMonth + 1,
-          0
-        ).getDate();
+          1
+        );
 
-      const days: (
-        | number
-        | null
-      )[] = [];
-
-      // 月初までの空白
-
-      for (
-        let i = 0;
-        i < firstDay;
-        i++
-      ) {
-        days.push(null);
-      }
-
-      // 日付
-
-      for (
-        let day = 1;
-        day <= daysInMonth;
-        day++
-      ) {
-        days.push(day);
-      }
-
-      // 最後の週を7列に揃える
-
-      while (
-        days.length % 7 !==
-        0
-      ) {
-        days.push(null);
-      }
-
-      return days;
+      return [
+        createCalendarPage(
+          previous
+        ),
+        createCalendarPage(
+          current
+        ),
+        createCalendarPage(
+          next
+        ),
+      ];
     }, [
       calendarYear,
       calendarMonth,
+      filteredLives,
     ]);
-
-  // ========================================
-  // YYYY.MM.DD生成
-  // ========================================
-
-  const createDateKey = (
-    day: number
-  ) => {
-    return (
-      `${calendarYear}.` +
-      `${String(
-        calendarMonth + 1
-      ).padStart(
-        2,
-        "0"
-      )}.` +
-      `${String(day).padStart(
-        2,
-        "0"
-      )}`
-    );
-  };
-
-  // ========================================
-  // 前月
-  // ========================================
-
-  const previousMonth = () => {
-    setCalendarDate(
-      new Date(
-        calendarYear,
-        calendarMonth - 1,
-        1
-      )
-    );
-  };
-
-  // ========================================
-  // 翌月
-  // ========================================
-
-  const nextMonth = () => {
-    setCalendarDate(
-      new Date(
-        calendarYear,
-        calendarMonth + 1,
-        1
-      )
-    );
-  };
-
-  // ========================================
-  // スライド付き月変更
-  // ========================================
-
-  const changeMonthWithSlide = (
-  direction: "left" | "right"
-) => {
-  if (isSliding) {
-    return;
-  }
-
-  setIsSliding(true);
-
-  // ========================================
-  // ① 現在のカレンダーを
-  // スワイプ方向へ外に出す
-  // ========================================
-
-  setSlideDirection(direction);
-
-  window.setTimeout(() => {
-
-    // ========================================
-    // ② 月を変更
-    // ========================================
-
-    setCalendarDate((current) => {
-      return new Date(
-        current.getFullYear(),
-        current.getMonth() +
-          (direction === "left" ? 1 : -1),
-        1
-      );
-    });
-
-    // ========================================
-    // ③ 新しいカレンダーを
-    // 反対側に配置
-    //
-    // 左スワイプ
-    // → 次月は右側から入る
-    //
-    // 右スワイプ
-    // → 前月は左側から入る
-    // ========================================
-
-    if (direction === "left") {
-      setSlideDirection("right");
-    } else {
-      setSlideDirection("left");
-    }
-
-    // ========================================
-    // ④ 中央へスライド
-    // ========================================
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setSlideDirection(null);
-
-        window.setTimeout(() => {
-          setIsSliding(false);
-        }, 300);
-      });
-    });
-  }, 300);
-};
-
-  // ========================================
-  // カレンダー スワイプ開始
-  // ========================================
-
-  const handleTouchStart = (
-    e: React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (isSliding) {
-      return;
-    }
-
-    const touch =
-      e.touches[0];
-
-    touchStartX.current =
-      touch.clientX;
-
-    touchStartY.current =
-      touch.clientY;
-  };
-
-  // ========================================
-  // カレンダー スワイプ終了
-  // ========================================
-
-  const handleTouchEnd = (
-    e: React.TouchEvent<HTMLDivElement>
-  ) => {
-    if (
-      touchStartX.current ===
-        null ||
-      touchStartY.current ===
-        null
-    ) {
-      return;
-    }
-
-    const touch =
-      e.changedTouches[0];
-
-    const diffX =
-      touch.clientX -
-      touchStartX.current;
-
-    const diffY =
-      touch.clientY -
-      touchStartY.current;
-
-    touchStartX.current =
-      null;
-
-    touchStartY.current =
-      null;
-
-    // 縦スクロールなら無視
-
-    if (
-      Math.abs(diffY) >
-      Math.abs(diffX)
-    ) {
-      return;
-    }
-
-    // 横移動が小さい場合は無視
-
-    if (
-      Math.abs(diffX) <
-      SWIPE_THRESHOLD
-    ) {
-      return;
-    }
-
-    // 左スワイプ
-    // → 次の月
-
-    if (diffX < 0) {
-      changeMonthWithSlide(
-        "left"
-      );
-
-      return;
-    }
-
-    // 右スワイプ
-    // → 前の月
-
-    changeMonthWithSlide(
-      "right"
-    );
-  };
 
   // ========================================
   // 日単位で参戦 ON / OFF
@@ -605,8 +476,6 @@ export default function LiveCalendar({
       return;
     }
 
-    // 1公演
-
     if (
       dayLives.length === 1
     ) {
@@ -616,8 +485,6 @@ export default function LiveCalendar({
 
       return;
     }
-
-    // 同日複数公演
 
     const allAttended =
       dayLives.every(
@@ -705,6 +572,644 @@ export default function LiveCalendar({
   };
 
   // ========================================
+  // 月変更
+  // ========================================
+
+  const finishMonthChange = (
+    direction:
+      | "next"
+      | "previous"
+  ) => {
+    setCalendarDate(
+      (current) =>
+        new Date(
+          current.getFullYear(),
+          current.getMonth() +
+            (direction === "next"
+              ? 1
+              : -1),
+          1
+        )
+    );
+
+    setIsAnimating(false);
+    setIsDragging(false);
+    setDragX(0);
+  };
+
+  // ========================================
+  // 次月へアニメーション
+  // ========================================
+
+  const animateToNextMonth =
+    () => {
+      if (
+        isAnimating ||
+        containerWidth === 0
+      ) {
+        return;
+      }
+
+      setIsAnimating(true);
+      setIsDragging(false);
+
+      setDragX(
+        -containerWidth
+      );
+
+      window.setTimeout(
+        () => {
+          finishMonthChange(
+            "next"
+          );
+        },
+        300
+      );
+    };
+
+  // ========================================
+  // 前月へアニメーション
+  // ========================================
+
+  const animateToPreviousMonth =
+    () => {
+      if (
+        isAnimating ||
+        containerWidth === 0
+      ) {
+        return;
+      }
+
+      setIsAnimating(true);
+      setIsDragging(false);
+
+      setDragX(
+        containerWidth
+      );
+
+      window.setTimeout(
+        () => {
+          finishMonthChange(
+            "previous"
+          );
+        },
+        300
+      );
+    };
+
+  // ========================================
+  // 元の月へ戻す
+  // ========================================
+
+  const cancelSwipe = () => {
+    setIsDragging(false);
+    setIsAnimating(true);
+
+    setDragX(0);
+
+    window.setTimeout(
+      () => {
+        setIsAnimating(false);
+      },
+      300
+    );
+  };
+
+  // ========================================
+  // TOUCH START
+  // ========================================
+
+  const handleTouchStart = (
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (isAnimating) {
+      return;
+    }
+
+    const touch =
+      e.touches[0];
+
+    touchStartX.current =
+      touch.clientX;
+
+    touchStartY.current =
+      touch.clientY;
+
+    setIsDragging(true);
+  };
+
+  // ========================================
+  // TOUCH MOVE
+  // ========================================
+
+  const handleTouchMove = (
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (
+      isAnimating ||
+      touchStartX.current ===
+        null ||
+      touchStartY.current ===
+        null
+    ) {
+      return;
+    }
+
+    const touch =
+      e.touches[0];
+
+    const diffX =
+      touch.clientX -
+      touchStartX.current;
+
+    const diffY =
+      touch.clientY -
+      touchStartY.current;
+
+    // 縦方向の動きが強ければ
+    // カレンダーは横移動させない
+
+    if (
+      Math.abs(diffY) >
+      Math.abs(diffX)
+    ) {
+      return;
+    }
+
+    // 指に追従
+
+    setDragX(diffX);
+  };
+
+  // ========================================
+  // TOUCH END
+  // ========================================
+
+  const handleTouchEnd = (
+    e: React.TouchEvent<HTMLDivElement>
+  ) => {
+    if (
+      touchStartX.current ===
+        null ||
+      touchStartY.current ===
+        null
+    ) {
+      return;
+    }
+
+    const touch =
+      e.changedTouches[0];
+
+    const diffX =
+      touch.clientX -
+      touchStartX.current;
+
+    const diffY =
+      touch.clientY -
+      touchStartY.current;
+
+    touchStartX.current =
+      null;
+
+    touchStartY.current =
+      null;
+
+    if (
+      Math.abs(diffY) >
+      Math.abs(diffX)
+    ) {
+      cancelSwipe();
+      return;
+    }
+
+    // 左へ十分スワイプ
+    // → 次月
+
+    if (
+      diffX <
+      -SWIPE_THRESHOLD
+    ) {
+      animateToNextMonth();
+      return;
+    }
+
+    // 右へ十分スワイプ
+    // → 前月
+
+    if (
+      diffX >
+      SWIPE_THRESHOLD
+    ) {
+      animateToPreviousMonth();
+      return;
+    }
+
+    // 足りなければ元へ
+
+    cancelSwipe();
+  };
+
+  // ========================================
+  // TOUCH CANCEL
+  // ========================================
+
+  const handleTouchCancel =
+    () => {
+      touchStartX.current =
+        null;
+
+      touchStartY.current =
+        null;
+
+      cancelSwipe();
+    };
+
+  // ========================================
+  // カレンダー1枚
+  // ========================================
+
+  const renderCalendarPage = (
+    page: CalendarPage
+  ) => {
+    const createDateKey = (
+      day: number
+    ) => {
+      return (
+        `${page.year}.` +
+        `${String(
+          page.month + 1
+        ).padStart(
+          2,
+          "0"
+        )}.` +
+        `${String(
+          day
+        ).padStart(
+          2,
+          "0"
+        )}`
+      );
+    };
+
+    return (
+      <div
+        key={`${page.year}-${page.month}`}
+        className="
+          w-1/3
+          shrink-0
+        "
+      >
+        {/* ================================= */}
+        {/* 曜日 */}
+        {/* ================================= */}
+
+        <div
+          className="
+            mt-2
+            grid
+            grid-cols-7
+            border-b
+            border-zinc-100
+          "
+        >
+          {[
+            "日",
+            "月",
+            "火",
+            "水",
+            "木",
+            "金",
+            "土",
+          ].map(
+            (weekday) => (
+              <div
+                key={
+                  weekday
+                }
+                className="
+                  py-2
+                  text-center
+                  text-[10px]
+                  font-bold
+                  text-zinc-400
+                "
+              >
+                {weekday}
+              </div>
+            )
+          )}
+        </div>
+
+        {/* ================================= */}
+        {/* 日付 */}
+        {/* ================================= */}
+
+        <div className="grid grid-cols-7">
+          {page.days.map(
+            (
+              day,
+              index
+            ) => {
+              if (
+                day === null
+              ) {
+                return (
+                  <div
+                    key={`empty-${index}`}
+                    className="
+                      min-h-[96px]
+                      border-b
+                      border-zinc-100
+                      bg-zinc-50/30
+                    "
+                  />
+                );
+              }
+
+              const dateKey =
+                createDateKey(
+                  day
+                );
+
+              const dayLives =
+                page
+                  .livesByDate[
+                  dateKey
+                ] ?? [];
+
+              const hasLive =
+                dayLives.length >
+                0;
+
+              const cities = [
+                ...new Set(
+                  dayLives
+                    .map(
+                      (
+                        live
+                      ) =>
+                        live.city
+                    )
+                    .filter(
+                      Boolean
+                    )
+                ),
+              ];
+
+              const attendedCount =
+                dayLives.filter(
+                  (live) =>
+                    attendedIds.includes(
+                      live.id
+                    )
+                ).length;
+
+              const allAttended =
+                hasLive &&
+                attendedCount ===
+                  dayLives.length;
+
+              return (
+                <div
+                  key={
+                    dateKey
+                  }
+                  onClick={() => {
+                    // 現在月以外では
+                    // 下のライブへ飛ばさない
+                    if (
+                      page.year !==
+                        calendarYear ||
+                      page.month !==
+                        calendarMonth
+                    ) {
+                      return;
+                    }
+
+                    if (
+                      !hasLive
+                    ) {
+                      return;
+                    }
+
+                    scrollToLive(
+                      dayLives[0]
+                        .id
+                    );
+                  }}
+                  className={`
+                    relative
+                    min-h-[96px]
+                    border-b
+                    border-zinc-100
+                    px-1
+                    py-1.5
+                    transition
+
+                    ${
+                      hasLive
+                        ? `
+                          cursor-pointer
+                          bg-[#14526B]/15
+                          active:bg-[#14526B]/20
+                        `
+                        : "bg-white"
+                    }
+                  `}
+                >
+                  {/* 日付 */}
+
+                  <div
+                    className={`
+                      flex
+                      h-6
+                      w-6
+                      items-center
+                      justify-center
+                      rounded-full
+                      text-[11px]
+                      font-semibold
+
+                      ${
+                        hasLive
+                          ? "text-[#14526B]"
+                          : "text-zinc-500"
+                      }
+                    `}
+                  >
+                    {day}
+                  </div>
+
+                  {hasLive && (
+                    <>
+                      {/* 都市 */}
+
+                      <div className="mt-0.5 space-y-0.5 px-0.5">
+                        {cities
+                          .slice(
+                            0,
+                            2
+                          )
+                          .map(
+                            (
+                              city
+                            ) => {
+                              const targetLive =
+                                dayLives.find(
+                                  (
+                                    live
+                                  ) =>
+                                    live.city ===
+                                    city
+                                );
+
+                              if (
+                                !targetLive
+                              ) {
+                                return null;
+                              }
+
+                              return (
+                                <button
+                                  key={
+                                    city
+                                  }
+                                  type="button"
+                                  onClick={(
+                                    e
+                                  ) => {
+                                    e.stopPropagation();
+
+                                    if (
+                                      page.year !==
+                                        calendarYear ||
+                                      page.month !==
+                                        calendarMonth
+                                    ) {
+                                      return;
+                                    }
+
+                                    scrollToLive(
+                                      targetLive.id
+                                    );
+                                  }}
+                                  className="
+                                    block
+                                    w-full
+                                    truncate
+                                    text-left
+                                    text-[10px]
+                                    font-bold
+                                    leading-[1.25]
+                                    text-[#14526B]
+                                    transition
+                                    hover:opacity-70
+                                    active:scale-[0.97]
+                                    active:opacity-50
+                                  "
+                                >
+                                  {city}
+                                </button>
+                              );
+                            }
+                          )}
+                      </div>
+
+                      {/* 同日複数公演 */}
+
+                      {dayLives.length >
+                        1 && (
+                        <p
+                          className="
+                            mt-1
+                            px-0.5
+                            text-[8px]
+                            font-medium
+                            leading-none
+                            text-zinc-400
+                          "
+                        >
+                          {
+                            dayLives.length
+                          }{" "}
+                          LIVES
+                        </p>
+                      )}
+
+                      {/* 参戦 */}
+
+                      <button
+                        type="button"
+                        onClick={(
+                          e
+                        ) => {
+                          e.stopPropagation();
+
+                          toggleDayAttended(
+                            dayLives
+                          );
+                        }}
+                        aria-label={
+                          allAttended
+                            ? `${dateKey}の参戦登録を解除`
+                            : `${dateKey}を参戦済みにする`
+                        }
+                        className={`
+                          absolute
+                          bottom-1.5
+                          right-1.5
+
+                          flex
+                          h-8
+                          w-8
+                          items-center
+                          justify-center
+
+                          rounded-full
+                          border
+
+                          text-[15px]
+                          leading-none
+
+                          shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+
+                          transition-all
+                          duration-200
+
+                          hover:scale-105
+                          active:scale-90
+
+                          ${
+                            allAttended
+                              ? `
+                                border-[#14526B]
+                                bg-[#14526B]
+                                text-white
+                              `
+                              : `
+                                border-zinc-200
+                                bg-white
+                                text-[#14526B]
+                              `
+                          }
+                        `}
+                      >
+                        {allAttended
+                          ? "♥"
+                          : "♡"}
+                      </button>
+                    </>
+                  )}
+                </div>
+              );
+            }
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ========================================
   // JSX
   // ========================================
 
@@ -717,16 +1222,16 @@ export default function LiveCalendar({
 
       <div className="flex items-center justify-between px-1">
 
-        {/* 前の月 */}
+        {/* 前月 */}
 
         <button
           type="button"
-          onClick={() =>
-            changeMonthWithSlide(
-              "right"
-            )
+          onClick={
+            animateToPreviousMonth
           }
-          disabled={isSliding}
+          disabled={
+            isAnimating
+          }
           aria-label="前の月"
           className="
             flex
@@ -747,7 +1252,7 @@ export default function LiveCalendar({
         </button>
 
         {/* ================================= */}
-        {/* 年 / 月 選択 */}
+        {/* 年 / 月 */}
         {/* ================================= */}
 
         <div className="flex items-center justify-center gap-1">
@@ -765,6 +1270,8 @@ export default function LiveCalendar({
                     e.target
                       .value
                   );
+
+                setDragX(0);
 
                 setCalendarDate(
                   new Date(
@@ -851,6 +1358,8 @@ export default function LiveCalendar({
                       .value
                   );
 
+                setDragX(0);
+
                 setCalendarDate(
                   new Date(
                     calendarYear,
@@ -912,16 +1421,16 @@ export default function LiveCalendar({
           </div>
         </div>
 
-        {/* 次の月 */}
+        {/* 次月 */}
 
         <button
           type="button"
-          onClick={() =>
-            changeMonthWithSlide(
-              "left"
-            )
+          onClick={
+            animateToNextMonth
           }
-          disabled={isSliding}
+          disabled={
+            isAnimating
+          }
           aria-label="次の月"
           className="
             flex
@@ -943,386 +1452,58 @@ export default function LiveCalendar({
       </div>
 
       {/* ================================= */}
-      {/* カレンダー スライドエリア */}
+      {/* 3枚カレンダー */}
       {/* ================================= */}
 
-      <div className="overflow-hidden">
-
-        {/* ================================= */}
-        {/* 実際に左右へ動く部分 */}
-        {/* ================================= */}
-
+      <div
+        ref={
+          calendarContainerRef
+        }
+        className="
+          overflow-hidden
+          touch-pan-y
+          select-none
+        "
+        onTouchStart={
+          handleTouchStart
+        }
+        onTouchMove={
+          handleTouchMove
+        }
+        onTouchEnd={
+          handleTouchEnd
+        }
+        onTouchCancel={
+          handleTouchCancel
+        }
+      >
         <div
-          onTouchStart={
-            handleTouchStart
-          }
-          onTouchEnd={
-            handleTouchEnd
-          }
           className={`
-            touch-pan-y
-            select-none
-            transition-transform
-            duration-300
-            ease-[cubic-bezier(0.22,1,0.36,1)]
+            flex
+            w-[300%]
 
             ${
-              slideDirection ===
-              "left"
-                ? "-translate-x-full"
-                : slideDirection ===
-                    "right"
-                  ? "translate-x-full"
-                  : "translate-x-0"
+              isDragging
+                ? ""
+                : "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
             }
           `}
+          style={{
+            transform:
+              containerWidth >
+              0
+                ? `translate3d(calc(-33.333333% + ${dragX}px), 0, 0)`
+                : "translate3d(-33.333333%, 0, 0)",
+          }}
         >
-
-          {/* ================================= */}
-          {/* 曜日 */}
-          {/* ================================= */}
-
-          <div
-            className="
-              mt-2
-              grid
-              grid-cols-7
-              border-b
-              border-zinc-100
-            "
-          >
-            {[
-              "日",
-              "月",
-              "火",
-              "水",
-              "木",
-              "金",
-              "土",
-            ].map(
-              (weekday) => (
-                <div
-                  key={
-                    weekday
-                  }
-                  className="
-                    py-2
-                    text-center
-                    text-[10px]
-                    font-bold
-                    text-zinc-400
-                  "
-                >
-                  {
-                    weekday
-                  }
-                </div>
+          {calendarPages.map(
+            (
+              page
+            ) =>
+              renderCalendarPage(
+                page
               )
-            )}
-          </div>
-
-          {/* ================================= */}
-          {/* カレンダー */}
-          {/* ================================= */}
-
-          <div className="grid grid-cols-7">
-            {calendarDays.map(
-              (
-                day,
-                index
-              ) => {
-
-                // 空白
-
-                if (
-                  day === null
-                ) {
-                  return (
-                    <div
-                      key={`empty-${index}`}
-                      className="
-                        min-h-[96px]
-                        border-b
-                        border-zinc-100
-                        bg-zinc-50/30
-                      "
-                    />
-                  );
-                }
-
-                const dateKey =
-                  createDateKey(
-                    day
-                  );
-
-                const dayLives =
-                  livesByDate[
-                    dateKey
-                  ] ?? [];
-
-                const hasLive =
-                  dayLives.length >
-                  0;
-
-                // 都市
-
-                const cities = [
-                  ...new Set(
-                    dayLives
-                      .map(
-                        (
-                          live
-                        ) =>
-                          live.city
-                      )
-                      .filter(
-                        Boolean
-                      )
-                  ),
-                ];
-
-                // 参戦状態
-
-                const attendedCount =
-                  dayLives.filter(
-                    (live) =>
-                      attendedIds.includes(
-                        live.id
-                      )
-                  ).length;
-
-                const allAttended =
-                  hasLive &&
-                  attendedCount ===
-                    dayLives.length;
-
-                return (
-                  <div
-                    key={
-                      dateKey
-                    }
-                    onClick={() => {
-                      if (
-                        !hasLive
-                      ) {
-                        return;
-                      }
-
-                      scrollToLive(
-                        dayLives[0]
-                          .id
-                      );
-                    }}
-                    className={`
-                      relative
-                      min-h-[96px]
-                      border-b
-                      border-zinc-100
-                      px-1
-                      py-1.5
-                      transition
-
-                      ${
-                        hasLive
-                          ? `
-                            cursor-pointer
-                            bg-[#14526B]/15
-                            active:bg-[#14526B]/20
-                          `
-                          : "bg-white"
-                      }
-                    `}
-                  >
-
-                    {/* 日付 */}
-
-                    <div
-                      className={`
-                        flex
-                        h-6
-                        w-6
-                        items-center
-                        justify-center
-                        rounded-full
-                        text-[11px]
-                        font-semibold
-
-                        ${
-                          hasLive
-                            ? "text-[#14526B]"
-                            : "text-zinc-500"
-                        }
-                      `}
-                    >
-                      {day}
-                    </div>
-
-                    {/* ================================= */}
-                    {/* ライブあり */}
-                    {/* ================================= */}
-
-                    {hasLive && (
-                      <>
-
-                        {/* 都市 */}
-
-                        <div className="mt-0.5 space-y-0.5 px-0.5">
-                          {cities
-                            .slice(
-                              0,
-                              2
-                            )
-                            .map(
-                              (
-                                city
-                              ) => {
-                                const targetLive =
-                                  dayLives.find(
-                                    (
-                                      live
-                                    ) =>
-                                      live.city ===
-                                      city
-                                  );
-
-                                if (
-                                  !targetLive
-                                ) {
-                                  return null;
-                                }
-
-                                return (
-                                  <button
-                                    key={
-                                      city
-                                    }
-                                    type="button"
-                                    onClick={(
-                                      e
-                                    ) => {
-                                      e.stopPropagation();
-
-                                      scrollToLive(
-                                        targetLive.id
-                                      );
-                                    }}
-                                    className="
-                                      block
-                                      w-full
-                                      truncate
-                                      text-left
-                                      text-[10px]
-                                      font-bold
-                                      leading-[1.25]
-                                      text-[#14526B]
-                                      transition
-                                      hover:opacity-70
-                                      active:scale-[0.97]
-                                      active:opacity-50
-                                    "
-                                  >
-                                    {
-                                      city
-                                    }
-                                  </button>
-                                );
-                              }
-                            )}
-                        </div>
-
-                        {/* 同日複数公演 */}
-
-                        {dayLives.length >
-                          1 && (
-                          <p
-                            className="
-                              mt-1
-                              px-0.5
-                              text-[8px]
-                              font-medium
-                              leading-none
-                              text-zinc-400
-                            "
-                          >
-                            {
-                              dayLives.length
-                            }{" "}
-                            LIVES
-                          </p>
-                        )}
-
-                        {/* ================================= */}
-                        {/* 参戦ボタン */}
-                        {/* ================================= */}
-
-                        <button
-                          type="button"
-                          onClick={(
-                            e
-                          ) => {
-                            e.stopPropagation();
-
-                            toggleDayAttended(
-                              dayLives
-                            );
-                          }}
-                          aria-label={
-                            allAttended
-                              ? `${dateKey}の参戦登録を解除`
-                              : `${dateKey}を参戦済みにする`
-                          }
-                          className={`
-                            absolute
-                            bottom-1.5
-                            right-1.5
-
-                            flex
-                            h-8
-                            w-8
-                            items-center
-                            justify-center
-
-                            rounded-full
-                            border
-
-                            text-[15px]
-                            leading-none
-
-                            shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-
-                            transition-all
-                            duration-200
-
-                            hover:scale-105
-                            active:scale-90
-
-                            ${
-                              allAttended
-                                ? `
-                                  border-[#14526B]
-                                  bg-[#14526B]
-                                  text-white
-                                `
-                                : `
-                                  border-zinc-200
-                                  bg-white
-                                  text-[#14526B]
-                                `
-                            }
-                          `}
-                        >
-                          {allAttended
-                            ? "♥"
-                            : "♡"}
-                        </button>
-                      </>
-                    )}
-                  </div>
-                );
-              }
-            )}
-          </div>
-
+          )}
         </div>
       </div>
 
@@ -1360,10 +1541,6 @@ export default function LiveCalendar({
             件
           </p>
         </div>
-
-        {/* ================================= */}
-        {/* ライブあり */}
-        {/* ================================= */}
 
         {monthLives.length >
         0 ? (
@@ -1406,7 +1583,6 @@ export default function LiveCalendar({
                       }
                     `}
                   >
-
                     {/* ライブ詳細 */}
 
                     <Link
@@ -1472,9 +1648,7 @@ export default function LiveCalendar({
                       </p>
                     </Link>
 
-                    {/* ================================= */}
-                    {/* 参戦ボタン */}
-                    {/* ================================= */}
+                    {/* 参戦 */}
 
                     <button
                       type="button"
