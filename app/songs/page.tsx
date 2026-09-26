@@ -96,34 +96,47 @@ export default function SongsPage() {
   // 全楽曲を集計
   // ========================================
 
-  const songs = useMemo(() => {
-    const allSongs = lives.flatMap((live) => [
+ const songs = useMemo(() => {
+  // SONGSの集計対象にするライブだけ
+  const songHistoryLives = lives.filter(
+    (live) =>
+      live.excludeFromSongHistory !== true
+  );
+
+  // 対象ライブから全楽曲を取得
+  const allSongs = songHistoryLives.flatMap(
+    (live) => [
       ...live.setlist,
       ...(live.encore ?? []),
-    ]);
+    ]
+  );
 
-    const uniqueSongs = [
-      ...new Set(allSongs),
-    ].filter(
-      (song) => !hiddenSongs.includes(song)
-    );
+  // 重複を削除
+  const uniqueSongs = [
+    ...new Set(allSongs),
+  ].filter(
+    (song) => !hiddenSongs.includes(song)
+  );
 
-    return uniqueSongs.map((song) => {
-      const count = lives.filter((live) => {
+  // 各曲の演奏公演数
+  return uniqueSongs.map((song) => {
+    const count = songHistoryLives.filter(
+      (live) => {
         const playedSongs = [
           ...live.setlist,
           ...(live.encore ?? []),
         ];
 
         return playedSongs.includes(song);
-      }).length;
+      }
+    ).length;
 
-      return {
-        name: song,
-        count,
-      };
-    });
-  }, []);
+    return {
+      name: song,
+      count,
+    };
+  });
+}, []);
 
   // ========================================
   // 検索 + 並び替え
