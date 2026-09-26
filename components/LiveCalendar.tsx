@@ -287,6 +287,19 @@ const currentMonth =
 const isLatestMonth =
   calendarYear === currentYear &&
   calendarMonth === currentMonth;
+  // ========================================
+// 最古の表示年月
+// 2018年10月より前は表示しない
+// ========================================
+
+const earliestYear = 2018;
+const earliestMonth = 9;
+// getMonth() は0始まり
+// 9 = 10月
+
+const isEarliestMonth =
+  calendarYear === earliestYear &&
+  calendarMonth === earliestMonth;
 
 // ========================================
 // 選択できる年
@@ -322,7 +335,26 @@ const availableYears =
 
 const availableMonthNumbers =
   useMemo(() => {
-    // 今年なら今月まで
+    // ========================================
+    // 2018年
+    // → 10〜12月だけ
+    // ========================================
+
+    if (
+      calendarYear ===
+      earliestYear
+    ) {
+      return [
+        10,
+        11,
+        12,
+      ];
+    }
+
+    // ========================================
+    // 現在年
+    // → 今月まで
+    // ========================================
 
     if (
       calendarYear ===
@@ -338,7 +370,10 @@ const availableMonthNumbers =
       );
     }
 
-    // 過去年なら12月まで
+    // ========================================
+    // それ以外
+    // → 1〜12月
+    // ========================================
 
     return Array.from(
       {
@@ -352,7 +387,6 @@ const availableMonthNumbers =
     currentYear,
     currentMonth,
   ]);
-
   // ========================================
   // 年月保存
   // ========================================
@@ -781,31 +815,30 @@ const animateToNextMonth = () => {
 // 前月へ
 // ========================================
 
-const animateToPreviousMonth =
-  () => {
-    if (
-      isAnimating ||
-      containerWidth === 0
-    ) {
-      return;
-    }
+const animateToPreviousMonth = () => {
+  if (
+    isAnimating ||
+    containerWidth === 0 ||
+    isEarliestMonth
+  ) {
+    return;
+  }
 
-    setIsDragging(false);
-    setIsAnimating(true);
+  setIsDragging(false);
+  setIsAnimating(true);
 
-    // 前月を中央へ
+  // 前月を中央へ
 
-    setDragX(
-      containerWidth
+  setDragX(
+    containerWidth
+  );
+
+  window.setTimeout(() => {
+    finishMonthChange(
+      "previous"
     );
-
-    window.setTimeout(() => {
-      finishMonthChange(
-        "previous"
-      );
-    }, 300);
-  };
-
+  }, 300);
+};
 // ========================================
 // スワイプキャンセル
 // ========================================
@@ -853,16 +886,13 @@ const handleTouchMove = (
 ) => {
   if (
     isAnimating ||
-    touchStartX.current ===
-      null ||
-    touchStartY.current ===
-      null
+    touchStartX.current === null ||
+    touchStartY.current === null
   ) {
     return;
   }
 
-  const touch =
-    e.touches[0];
+  const touch = e.touches[0];
 
   const diffX =
     touch.clientX -
@@ -896,7 +926,22 @@ const handleTouchMove = (
     return;
   }
 
+  // ========================================
+  // 2018年10月から過去方向へは
+  // 動かさない
+  // ========================================
+
+  if (
+    isEarliestMonth &&
+    diffX > 0
+  ) {
+    setDragX(0);
+    return;
+  }
+
+  // ========================================
   // 指に追従
+  // ========================================
 
   setDragX(diffX);
 };
@@ -970,13 +1015,17 @@ const handleTouchEnd = (
   // ========================================
 
   if (
-    diffX >
-    SWIPE_THRESHOLD
-  ) {
-    animateToPreviousMonth();
+  diffX >
+  SWIPE_THRESHOLD
+) {
+  if (isEarliestMonth) {
+    cancelSwipe();
     return;
   }
 
+  animateToPreviousMonth();
+  return;
+}
   // ========================================
   // 移動量不足
   // ========================================
@@ -1404,8 +1453,9 @@ const handleTouchCancel =
             animateToPreviousMonth
           }
           disabled={
-            isAnimating
-          }
+  isAnimating ||
+  isEarliestMonth
+}
           aria-label="前の月"
           className="
             flex
@@ -1420,6 +1470,7 @@ const handleTouchCancel =
             transition
             active:bg-zinc-100
             disabled:pointer-events-none
+            disabled:opacity-20
           "
         >
           ‹
