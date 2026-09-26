@@ -579,30 +579,65 @@ export default function LiveCalendar({
 // 月変更完了
 // ========================================
 
+// ========================================
+// 月変更完了
+// ========================================
+
 const finishMonthChange = (
   direction: "next" | "previous"
 ) => {
-  // ここから位置リセット時の
-  // transitionを完全に切る
+  // 再配置中はアニメーションOFF
   setIsDragging(true);
   setIsAnimating(false);
 
-  // 先に3枚の位置を中央へ戻す
-  // transition-none なのでアニメーションしない
+  // 位置を中央へ瞬間的に戻す
   setDragX(0);
 
-  // 同じ描画タイミングで月データを更新
+  // ========================================
+  // 年またぎも含めて年月を更新
+  // ========================================
+
   setCalendarDate((current) => {
+    const year = current.getFullYear();
+    const month = current.getMonth();
+
+    if (direction === "next") {
+      // 12月 → 翌年1月
+      if (month === 11) {
+        return new Date(
+          year + 1,
+          0,
+          1
+        );
+      }
+
+      return new Date(
+        year,
+        month + 1,
+        1
+      );
+    }
+
+    // 1月 → 前年12月
+    if (month === 0) {
+      return new Date(
+        year - 1,
+        11,
+        1
+      );
+    }
+
     return new Date(
-      current.getFullYear(),
-      current.getMonth() +
-        (direction === "next" ? 1 : -1),
+      year,
+      month - 1,
       1
     );
   });
 
-  // DOM更新が完了してから
-  // 次回用のtransitionを復活
+  // ========================================
+  // 次回用アニメーションを復活
+  // ========================================
+
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setIsDragging(false);
