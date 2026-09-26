@@ -544,13 +544,7 @@ const availableMonthNumbers =
 const calendarPages =
   useMemo(() => {
     const previous =
-  isEarliestMonth
-    ? new Date(
-        calendarYear,
-        calendarMonth,
-        1
-      )
-    : new Date(
+      new Date(
         calendarYear,
         calendarMonth - 1,
         1
@@ -563,12 +557,8 @@ const calendarPages =
         1
       );
 
-    // 今月の場合は
-    // 未来月を生成しない
-    //
-    // 3枚構成自体は維持するため
-    // 右側にも現在月を入れておく
-
+    // 今月の場合は未来月を生成しない
+    // 3枚構成を維持するため右側にも現在月を入れる
     const next =
       isLatestMonth
         ? new Date(
@@ -583,24 +573,16 @@ const calendarPages =
           );
 
     return [
-      createCalendarPage(
-        previous
-      ),
-      createCalendarPage(
-        current
-      ),
-      createCalendarPage(
-        next
-      ),
+      createCalendarPage(previous),
+      createCalendarPage(current),
+      createCalendarPage(next),
     ];
   }, [
     calendarYear,
     calendarMonth,
     filteredLives,
     isLatestMonth,
-    isEarliestMonth,
   ]);
-
   // ========================================
   // 日単位で参戦 ON / OFF
   // ========================================
@@ -721,16 +703,16 @@ const jumpToMonth = (
   year: number,
   month: number
 ) => {
-  // スワイプ状態を完全にリセット
+  // スワイプ状態をリセット
   setIsAnimating(false);
-  setIsDragging(true);
+  setIsDragging(false);
   setDragX(0);
 
-  // 指の位置もリセット
+  // タッチ状態もリセット
   touchStartX.current = null;
   touchStartY.current = null;
 
-  // 年月を変更
+  // 選択した年月へ直接移動
   setCalendarDate(
     new Date(
       year,
@@ -738,17 +720,7 @@ const jumpToMonth = (
       1
     )
   );
-
-  // 新しい3枚カレンダーが描画されてから
-  // 通常状態へ戻す
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setDragX(0);
-      setIsDragging(false);
-    });
-  });
 };
-
 // ========================================
 // 月変更完了
 // ========================================
