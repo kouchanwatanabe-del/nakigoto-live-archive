@@ -438,66 +438,68 @@ export default function LiveCalendar({
   // ========================================
 
   const changeMonthWithSlide = (
-    direction:
-      | "left"
-      | "right"
-  ) => {
-    if (isSliding) {
-      return;
+  direction: "left" | "right"
+) => {
+  if (isSliding) {
+    return;
+  }
+
+  setIsSliding(true);
+
+  // ========================================
+  // ① 現在のカレンダーを
+  // スワイプ方向へ外に出す
+  // ========================================
+
+  setSlideDirection(direction);
+
+  window.setTimeout(() => {
+
+    // ========================================
+    // ② 月を変更
+    // ========================================
+
+    setCalendarDate((current) => {
+      return new Date(
+        current.getFullYear(),
+        current.getMonth() +
+          (direction === "left" ? 1 : -1),
+        1
+      );
+    });
+
+    // ========================================
+    // ③ 新しいカレンダーを
+    // 反対側に配置
+    //
+    // 左スワイプ
+    // → 次月は右側から入る
+    //
+    // 右スワイプ
+    // → 前月は左側から入る
+    // ========================================
+
+    if (direction === "left") {
+      setSlideDirection("right");
+    } else {
+      setSlideDirection("left");
     }
 
-    setIsSliding(true);
+    // ========================================
+    // ④ 中央へスライド
+    // ========================================
 
-    // 現在の月を外へ
-    setSlideDirection(
-      direction
-    );
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setSlideDirection(null);
 
-    window.setTimeout(
-      () => {
-        // 月変更
-        setCalendarDate(
-          (current) =>
-            new Date(
-              current.getFullYear(),
-              current.getMonth() +
-                (direction ===
-                "left"
-                  ? 1
-                  : -1),
-              1
-            )
-        );
-
-        // 新しい月を反対側へ
-        setSlideDirection(
-          direction === "left"
-            ? "right"
-            : "left"
-        );
-
-        // 次フレームで中央へ
-        window.setTimeout(
-          () => {
-            setSlideDirection(
-              null
-            );
-
-            window.setTimeout(
-              () => {
-                setIsSliding(
-                  false
-                );
-              },
-              300
-            );
-          },
-          20
-        );
-      },
-      300
-    );
-  };
+        window.setTimeout(() => {
+          setIsSliding(false);
+        }, 300);
+      });
+    });
+  }, 300);
+};
 
   // ========================================
   // カレンダー スワイプ開始
