@@ -575,105 +575,110 @@ export default function LiveCalendar({
   // 月変更
   // ========================================
 
-  const finishMonthChange = (
-    direction:
-      | "next"
-      | "previous"
-  ) => {
-    setCalendarDate(
-      (current) =>
-        new Date(
-          current.getFullYear(),
-          current.getMonth() +
-            (direction === "next"
-              ? 1
-              : -1),
-          1
-        )
-    );
+  // ========================================
+// 月変更完了
+// ========================================
 
+const finishMonthChange = (
+  direction: "next" | "previous"
+) => {
+  // 重要：
+  // 月を切り替える瞬間は
+  // transitionを無効にする
+
+  setIsAnimating(false);
+  setIsDragging(true);
+
+  setCalendarDate((current) => {
+    return new Date(
+      current.getFullYear(),
+      current.getMonth() +
+        (direction === "next"
+          ? 1
+          : -1),
+      1
+    );
+  });
+
+  // 月が切り替わったあと
+  // 3枚構成を中央位置へ瞬間移動
+  //
+  // transitionが無効なので
+  // ユーザーにはこの移動は見えない
+
+  requestAnimationFrame(() => {
+    setDragX(0);
+
+    requestAnimationFrame(() => {
+      setIsDragging(false);
+    });
+  });
+};
+
+// ========================================
+// 次月へ
+// ========================================
+
+const animateToNextMonth = () => {
+  if (
+    isAnimating ||
+    containerWidth === 0
+  ) {
+    return;
+  }
+
+  setIsDragging(false);
+  setIsAnimating(true);
+
+  // 現在の位置から
+  // 次月が中央に来る位置まで動かす
+  setDragX(-containerWidth);
+
+  window.setTimeout(() => {
+    finishMonthChange("next");
+  }, 300);
+};
+
+// ========================================
+// 前月へ
+// ========================================
+
+const animateToPreviousMonth = () => {
+  if (
+    isAnimating ||
+    containerWidth === 0
+  ) {
+    return;
+  }
+
+  setIsDragging(false);
+  setIsAnimating(true);
+
+  // 現在の位置から
+  // 前月が中央に来る位置まで動かす
+  setDragX(containerWidth);
+
+  window.setTimeout(() => {
+    finishMonthChange(
+      "previous"
+    );
+  }, 300);
+};
+
+// ========================================
+// スワイプキャンセル
+// ========================================
+
+const cancelSwipe = () => {
+  setIsDragging(false);
+  setIsAnimating(true);
+
+  setDragX(0);
+
+  window.setTimeout(() => {
     setIsAnimating(false);
-    setIsDragging(false);
-    setDragX(0);
-  };
-
-  // ========================================
-  // 次月へアニメーション
-  // ========================================
-
-  const animateToNextMonth =
-    () => {
-      if (
-        isAnimating ||
-        containerWidth === 0
-      ) {
-        return;
-      }
-
-      setIsAnimating(true);
-      setIsDragging(false);
-
-      setDragX(
-        -containerWidth
-      );
-
-      window.setTimeout(
-        () => {
-          finishMonthChange(
-            "next"
-          );
-        },
-        300
-      );
-    };
-
-  // ========================================
-  // 前月へアニメーション
-  // ========================================
-
-  const animateToPreviousMonth =
-    () => {
-      if (
-        isAnimating ||
-        containerWidth === 0
-      ) {
-        return;
-      }
-
-      setIsAnimating(true);
-      setIsDragging(false);
-
-      setDragX(
-        containerWidth
-      );
-
-      window.setTimeout(
-        () => {
-          finishMonthChange(
-            "previous"
-          );
-        },
-        300
-      );
-    };
-
-  // ========================================
-  // 元の月へ戻す
-  // ========================================
-
-  const cancelSwipe = () => {
-    setIsDragging(false);
-    setIsAnimating(true);
-
-    setDragX(0);
-
-    window.setTimeout(
-      () => {
-        setIsAnimating(false);
-      },
-      300
-    );
-  };
+  }, 300);
+};
 
   // ========================================
   // TOUCH START
@@ -1484,7 +1489,7 @@ export default function LiveCalendar({
 
             ${
               isDragging
-                ? ""
+                ? "transition-none"
                 : "transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
             }
           `}
