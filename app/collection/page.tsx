@@ -16,7 +16,31 @@ type Tab = "lives" | "heard" | "unheard";
 const isCoverSong = (song: string) => {
   return song.includes("カバー");
 };
+// ========================================
+// SONGS一覧に表示しない曲
+// ========================================
 
+const hiddenSongs = [
+  "ミュージックプランクトン(SAKANAMONカバー)",
+  "暮らし（Hwylカバー）",
+  "HEAT(FINLANDSカバー)",
+  "ホワイトアウト(reGretGirlカバー)",
+  "ホワイトアウト（reGretGirlカバー）",
+  "ミュージックプランクトン（SAKANAMONカバー）",
+  "秘密（ドラマストアカバー）",
+  "キャロラインの花束を(the quiet roomカバー)",
+  "ノックブーツ（Chevonカバー）",
+  "Rambler（雨音コンプレックス）",
+  "SUPIKA（雨音コンプレックス）",
+  "メトロポリタン（feat.宮崎一晴）",
+  "安酒にロマンス（仮）",
+  "虫けら'20",
+  "19",
+];
+
+const isHiddenSong = (song: string) => {
+  return hiddenSongs.includes(song);
+};
 export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
@@ -58,15 +82,19 @@ const [secretTapCount, setSecretTapCount] = useState(0);
   // ========================================
 
   const allSongs = [
-    ...new Set(
-      lives
-        .flatMap((live: Live) => [
-          ...live.setlist,
-          ...(live.encore ?? []),
-        ])
-        .filter((song) => !isCoverSong(song))
-    ),
-  ];
+  ...new Set(
+    lives
+      .flatMap((live: Live) => [
+        ...live.setlist,
+        ...(live.encore ?? []),
+      ])
+      .filter(
+        (song) =>
+          !isCoverSong(song) &&
+          !isHiddenSong(song)
+      )
+  ),
+];
 
   // ========================================
   // 参戦ライブで聴いた曲と回数
@@ -80,9 +108,13 @@ const [secretTapCount, setSecretTapCount] = useState(0);
     const songs = [
       ...new Set(
         [
-          ...live.setlist,
-          ...(live.encore ?? []),
-        ].filter((song) => !isCoverSong(song))
+  ...live.setlist,
+  ...(live.encore ?? []),
+].filter(
+  (song) =>
+    !isCoverSong(song) &&
+    !isHiddenSong(song)
+)
       ),
     ];
 
