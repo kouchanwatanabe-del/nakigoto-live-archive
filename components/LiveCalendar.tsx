@@ -51,15 +51,31 @@ export default function LiveCalendar({
   const SWIPE_THRESHOLD = 50;
 
   // ========================================
+  // スライドアニメーション
+  // ========================================
+
+  const [
+    slideDirection,
+    setSlideDirection,
+  ] = useState<
+    "left" | "right" | null
+  >(null);
+
+  const [
+    isSliding,
+    setIsSliding,
+  ] = useState(false);
+
+  // ========================================
   // 最初に表示する月
-  //
-  // 保存済みの年月があれば復元
-  // なければ最新ライブの月
   // ========================================
 
   const [calendarDate, setCalendarDate] =
     useState(() => {
-      if (typeof window !== "undefined") {
+      if (
+        typeof window !==
+        "undefined"
+      ) {
         const saved =
           sessionStorage.getItem(
             CALENDAR_DATE_STORAGE_KEY
@@ -191,10 +207,13 @@ export default function LiveCalendar({
 
     let updated: string[];
 
-    if (current.includes(liveId)) {
+    if (
+      current.includes(liveId)
+    ) {
       updated =
         current.filter(
-          (id) => id !== liveId
+          (id) =>
+            id !== liveId
         );
     } else {
       updated = [
@@ -223,9 +242,6 @@ export default function LiveCalendar({
 
   // ========================================
   // 表示年月を保存
-  //
-  // 詳細ページ → 戻る
-  // でも年月を維持
   // ========================================
 
   useEffect(() => {
@@ -244,52 +260,68 @@ export default function LiveCalendar({
   // 表示中の月のライブ
   // ========================================
 
-  const monthLives = useMemo(() => {
-    return filteredLives
-      .filter((live: Live) => {
-        const [year, month] =
-          live.date
-            .split(".")
-            .map(Number);
+  const monthLives =
+    useMemo(() => {
+      return filteredLives
+        .filter(
+          (live: Live) => {
+            const [
+              year,
+              month,
+            ] =
+              live.date
+                .split(".")
+                .map(Number);
 
-        return (
-          year === calendarYear &&
-          month === calendarMonth + 1
+            return (
+              year ===
+                calendarYear &&
+              month ===
+                calendarMonth +
+                  1
+            );
+          }
+        )
+        .sort((a, b) =>
+          a.date.localeCompare(
+            b.date
+          )
         );
-      })
-      .sort((a, b) =>
-        a.date.localeCompare(b.date)
-      );
-  }, [
-    filteredLives,
-    calendarYear,
-    calendarMonth,
-  ]);
+    }, [
+      filteredLives,
+      calendarYear,
+      calendarMonth,
+    ]);
 
   // ========================================
   // 日付ごとにライブをまとめる
   // ========================================
 
-  const livesByDate = useMemo(() => {
-    const result: Record<
-      string,
-      Live[]
-    > = {};
+  const livesByDate =
+    useMemo(() => {
+      const result: Record<
+        string,
+        Live[]
+      > = {};
 
-    monthLives.forEach(
-      (live: Live) => {
-        if (!result[live.date]) {
-          result[live.date] = [];
+      monthLives.forEach(
+        (live: Live) => {
+          if (
+            !result[live.date]
+          ) {
+            result[
+              live.date
+            ] = [];
+          }
+
+          result[
+            live.date
+          ].push(live);
         }
+      );
 
-        result[live.date].push(
-          live
-        );
-      }
-    );
-
-    return result;
-  }, [monthLives]);
+      return result;
+    }, [monthLives]);
 
   // ========================================
   // カレンダーの日付を作成
@@ -339,7 +371,8 @@ export default function LiveCalendar({
       // 最後の週を7列に揃える
 
       while (
-        days.length % 7 !== 0
+        days.length % 7 !==
+        0
       ) {
         days.push(null);
       }
@@ -361,7 +394,10 @@ export default function LiveCalendar({
       `${calendarYear}.` +
       `${String(
         calendarMonth + 1
-      ).padStart(2, "0")}.` +
+      ).padStart(
+        2,
+        "0"
+      )}.` +
       `${String(day).padStart(
         2,
         "0"
@@ -398,13 +434,84 @@ export default function LiveCalendar({
   };
 
   // ========================================
-  // カレンダー スワイプ
+  // スライド付き月変更
+  // ========================================
+
+  const changeMonthWithSlide = (
+    direction:
+      | "left"
+      | "right"
+  ) => {
+    if (isSliding) {
+      return;
+    }
+
+    setIsSliding(true);
+
+    // 現在の月を外へ
+    setSlideDirection(
+      direction
+    );
+
+    window.setTimeout(
+      () => {
+        // 月変更
+        setCalendarDate(
+          (current) =>
+            new Date(
+              current.getFullYear(),
+              current.getMonth() +
+                (direction ===
+                "left"
+                  ? 1
+                  : -1),
+              1
+            )
+        );
+
+        // 新しい月を反対側へ
+        setSlideDirection(
+          direction === "left"
+            ? "right"
+            : "left"
+        );
+
+        // 次フレームで中央へ
+        window.setTimeout(
+          () => {
+            setSlideDirection(
+              null
+            );
+
+            window.setTimeout(
+              () => {
+                setIsSliding(
+                  false
+                );
+              },
+              300
+            );
+          },
+          20
+        );
+      },
+      300
+    );
+  };
+
+  // ========================================
+  // カレンダー スワイプ開始
   // ========================================
 
   const handleTouchStart = (
     e: React.TouchEvent<HTMLDivElement>
   ) => {
-    const touch = e.touches[0];
+    if (isSliding) {
+      return;
+    }
+
+    const touch =
+      e.touches[0];
 
     touchStartX.current =
       touch.clientX;
@@ -413,12 +520,18 @@ export default function LiveCalendar({
       touch.clientY;
   };
 
+  // ========================================
+  // カレンダー スワイプ終了
+  // ========================================
+
   const handleTouchEnd = (
     e: React.TouchEvent<HTMLDivElement>
   ) => {
     if (
-      touchStartX.current === null ||
-      touchStartY.current === null
+      touchStartX.current ===
+        null ||
+      touchStartY.current ===
+        null
     ) {
       return;
     }
@@ -434,11 +547,13 @@ export default function LiveCalendar({
       touch.clientY -
       touchStartY.current;
 
-    touchStartX.current = null;
-    touchStartY.current = null;
+    touchStartX.current =
+      null;
 
-    // 縦方向の動きが大きいなら
-    // 通常のスクロールとして扱う
+    touchStartY.current =
+      null;
+
+    // 縦スクロールなら無視
 
     if (
       Math.abs(diffY) >
@@ -447,7 +562,7 @@ export default function LiveCalendar({
       return;
     }
 
-    // 小さい横移動では切り替えない
+    // 横移動が小さい場合は無視
 
     if (
       Math.abs(diffX) <
@@ -456,16 +571,23 @@ export default function LiveCalendar({
       return;
     }
 
-    // 左スワイプ → 翌月
+    // 左スワイプ
+    // → 次の月
 
     if (diffX < 0) {
-      nextMonth();
+      changeMonthWithSlide(
+        "left"
+      );
+
       return;
     }
 
-    // 右スワイプ → 前月
+    // 右スワイプ
+    // → 前の月
 
-    previousMonth();
+    changeMonthWithSlide(
+      "right"
+    );
   };
 
   // ========================================
@@ -475,13 +597,17 @@ export default function LiveCalendar({
   const toggleDayAttended = (
     dayLives: Live[]
   ) => {
-    if (dayLives.length === 0) {
+    if (
+      dayLives.length === 0
+    ) {
       return;
     }
 
-    // 1公演なら普通に切り替え
+    // 1公演
 
-    if (dayLives.length === 1) {
+    if (
+      dayLives.length === 1
+    ) {
       toggleAttended(
         dayLives[0].id
       );
@@ -492,10 +618,11 @@ export default function LiveCalendar({
     // 同日複数公演
 
     const allAttended =
-      dayLives.every((live) =>
-        attendedIds.includes(
-          live.id
-        )
+      dayLives.every(
+        (live) =>
+          attendedIds.includes(
+            live.id
+          )
       );
 
     let updated = [
@@ -556,26 +683,23 @@ export default function LiveCalendar({
       return;
     }
 
-    // 該当カードをハイライト
-
     setHighlightedLiveId(
       liveId
     );
-
-    // カードまでスクロール
 
     element.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
 
-    // 少し経ったらハイライト解除
-
-    window.setTimeout(() => {
-      setHighlightedLiveId(
-        null
-      );
-    }, 1400);
+    window.setTimeout(
+      () => {
+        setHighlightedLiveId(
+          null
+        );
+      },
+      1400
+    );
   };
 
   // ========================================
@@ -595,7 +719,12 @@ export default function LiveCalendar({
 
         <button
           type="button"
-          onClick={previousMonth}
+          onClick={() =>
+            changeMonthWithSlide(
+              "right"
+            )
+          }
+          disabled={isSliding}
           aria-label="前の月"
           className="
             flex
@@ -609,6 +738,7 @@ export default function LiveCalendar({
             text-[#14526B]
             transition
             active:bg-zinc-100
+            disabled:pointer-events-none
           "
         >
           ‹
@@ -624,11 +754,14 @@ export default function LiveCalendar({
 
           <div className="relative">
             <select
-              value={calendarYear}
+              value={
+                calendarYear
+              }
               onChange={(e) => {
                 const newYear =
                   Number(
-                    e.target.value
+                    e.target
+                      .value
                   );
 
                 setCalendarDate(
@@ -670,14 +803,20 @@ export default function LiveCalendar({
                   (a, b) =>
                     b - a
                 )
-                .map((year) => (
-                  <option
-                    key={year}
-                    value={year}
-                  >
-                    {year}年
-                  </option>
-                ))}
+                .map(
+                  (year) => (
+                    <option
+                      key={
+                        year
+                      }
+                      value={
+                        year
+                      }
+                    >
+                      {year}年
+                    </option>
+                  )
+                )}
             </select>
 
             <span
@@ -700,18 +839,21 @@ export default function LiveCalendar({
           <div className="relative">
             <select
               value={
-                calendarMonth + 1
+                calendarMonth +
+                1
               }
               onChange={(e) => {
                 const newMonth =
                   Number(
-                    e.target.value
+                    e.target
+                      .value
                   );
 
                 setCalendarDate(
                   new Date(
                     calendarYear,
-                    newMonth - 1,
+                    newMonth -
+                      1,
                     1
                   )
                 );
@@ -731,17 +873,25 @@ export default function LiveCalendar({
               "
             >
               {Array.from(
-                { length: 12 },
+                {
+                  length: 12,
+                },
                 (_, index) =>
                   index + 1
-              ).map((month) => (
-                <option
-                  key={month}
-                  value={month}
-                >
-                  {month}月
-                </option>
-              ))}
+              ).map(
+                (month) => (
+                  <option
+                    key={
+                      month
+                    }
+                    value={
+                      month
+                    }
+                  >
+                    {month}月
+                  </option>
+                )
+              )}
             </select>
 
             <span
@@ -764,7 +914,12 @@ export default function LiveCalendar({
 
         <button
           type="button"
-          onClick={nextMonth}
+          onClick={() =>
+            changeMonthWithSlide(
+              "left"
+            )
+          }
+          disabled={isSliding}
           aria-label="次の月"
           className="
             flex
@@ -778,6 +933,7 @@ export default function LiveCalendar({
             text-[#14526B]
             transition
             active:bg-zinc-100
+            disabled:pointer-events-none
           "
         >
           ›
@@ -785,341 +941,386 @@ export default function LiveCalendar({
       </div>
 
       {/* ================================= */}
-      {/* スワイプエリア */}
-      {/* 左スワイプ → 次の月 */}
-      {/* 右スワイプ → 前の月 */}
+      {/* カレンダー スライドエリア */}
       {/* ================================= */}
 
-      <div
-        onTouchStart={
-          handleTouchStart
-        }
-        onTouchEnd={
-          handleTouchEnd
-        }
-        className="
-          touch-pan-y
-          select-none
-        "
-      >
+      <div className="overflow-hidden">
 
         {/* ================================= */}
-        {/* 曜日 */}
+        {/* 実際に左右へ動く部分 */}
         {/* ================================= */}
 
         <div
-          className="
-            mt-2
-            grid
-            grid-cols-7
-            border-b
-            border-zinc-100
-          "
+          onTouchStart={
+            handleTouchStart
+          }
+          onTouchEnd={
+            handleTouchEnd
+          }
+          className={`
+            touch-pan-y
+            select-none
+            transition-transform
+            duration-300
+            ease-[cubic-bezier(0.22,1,0.36,1)]
+
+            ${
+              slideDirection ===
+              "left"
+                ? "-translate-x-full"
+                : slideDirection ===
+                    "right"
+                  ? "translate-x-full"
+                  : "translate-x-0"
+            }
+          `}
         >
-          {[
-            "日",
-            "月",
-            "火",
-            "水",
-            "木",
-            "金",
-            "土",
-          ].map((weekday) => (
-            <div
-              key={weekday}
-              className="
-                py-2
-                text-center
-                text-[10px]
-                font-bold
-                text-zinc-400
-              "
-            >
-              {weekday}
-            </div>
-          ))}
-        </div>
 
-        {/* ================================= */}
-        {/* カレンダー */}
-        {/* ================================= */}
+          {/* ================================= */}
+          {/* 曜日 */}
+          {/* ================================= */}
 
-        <div className="grid grid-cols-7">
-          {calendarDays.map(
-            (day, index) => {
+          <div
+            className="
+              mt-2
+              grid
+              grid-cols-7
+              border-b
+              border-zinc-100
+            "
+          >
+            {[
+              "日",
+              "月",
+              "火",
+              "水",
+              "木",
+              "金",
+              "土",
+            ].map(
+              (weekday) => (
+                <div
+                  key={
+                    weekday
+                  }
+                  className="
+                    py-2
+                    text-center
+                    text-[10px]
+                    font-bold
+                    text-zinc-400
+                  "
+                >
+                  {
+                    weekday
+                  }
+                </div>
+              )
+            )}
+          </div>
 
-              // =================================
-              // 空白
-              // =================================
+          {/* ================================= */}
+          {/* カレンダー */}
+          {/* ================================= */}
 
-              if (day === null) {
+          <div className="grid grid-cols-7">
+            {calendarDays.map(
+              (
+                day,
+                index
+              ) => {
+
+                // 空白
+
+                if (
+                  day === null
+                ) {
+                  return (
+                    <div
+                      key={`empty-${index}`}
+                      className="
+                        min-h-[96px]
+                        border-b
+                        border-zinc-100
+                        bg-zinc-50/30
+                      "
+                    />
+                  );
+                }
+
+                const dateKey =
+                  createDateKey(
+                    day
+                  );
+
+                const dayLives =
+                  livesByDate[
+                    dateKey
+                  ] ?? [];
+
+                const hasLive =
+                  dayLives.length >
+                  0;
+
+                // 都市
+
+                const cities = [
+                  ...new Set(
+                    dayLives
+                      .map(
+                        (
+                          live
+                        ) =>
+                          live.city
+                      )
+                      .filter(
+                        Boolean
+                      )
+                  ),
+                ];
+
+                // 参戦状態
+
+                const attendedCount =
+                  dayLives.filter(
+                    (live) =>
+                      attendedIds.includes(
+                        live.id
+                      )
+                  ).length;
+
+                const allAttended =
+                  hasLive &&
+                  attendedCount ===
+                    dayLives.length;
+
                 return (
                   <div
-                    key={`empty-${index}`}
-                    className="
+                    key={
+                      dateKey
+                    }
+                    onClick={() => {
+                      if (
+                        !hasLive
+                      ) {
+                        return;
+                      }
+
+                      scrollToLive(
+                        dayLives[0]
+                          .id
+                      );
+                    }}
+                    className={`
+                      relative
                       min-h-[96px]
                       border-b
                       border-zinc-100
-                      bg-zinc-50/30
-                    "
-                  />
-                );
-              }
-
-              const dateKey =
-                createDateKey(day);
-
-              const dayLives =
-                livesByDate[
-                  dateKey
-                ] ?? [];
-
-              const hasLive =
-                dayLives.length > 0;
-
-              // =================================
-              // 都市
-              // =================================
-
-              const cities = [
-                ...new Set(
-                  dayLives
-                    .map(
-                      (live) =>
-                        live.city
-                    )
-                    .filter(Boolean)
-                ),
-              ];
-
-              // =================================
-              // 参戦状態
-              // =================================
-
-              const attendedCount =
-                dayLives.filter(
-                  (live) =>
-                    attendedIds.includes(
-                      live.id
-                    )
-                ).length;
-
-              const allAttended =
-                hasLive &&
-                attendedCount ===
-                  dayLives.length;
-
-              return (
-                <div
-                  key={dateKey}
-                  onClick={() => {
-                    if (!hasLive) {
-                      return;
-                    }
-
-                    scrollToLive(
-                      dayLives[0].id
-                    );
-                  }}
-                  className={`
-                    relative
-                    min-h-[96px]
-                    border-b
-                    border-zinc-100
-                    px-1
-                    py-1.5
-
-                    transition
-
-                    ${
-                      hasLive
-                        ? `
-                          cursor-pointer
-                          bg-[#14526B]/15
-                          active:bg-[#14526B]/20
-                        `
-                        : "bg-white"
-                    }
-                  `}
-                >
-
-                  {/* 日付 */}
-
-                  <div
-                    className={`
-                      flex
-                      h-6
-                      w-6
-                      items-center
-                      justify-center
-                      rounded-full
-                      text-[11px]
-                      font-semibold
+                      px-1
+                      py-1.5
+                      transition
 
                       ${
                         hasLive
-                          ? "text-[#14526B]"
-                          : "text-zinc-500"
+                          ? `
+                            cursor-pointer
+                            bg-[#14526B]/15
+                            active:bg-[#14526B]/20
+                          `
+                          : "bg-white"
                       }
                     `}
                   >
-                    {day}
-                  </div>
 
-                  {/* ================================= */}
-                  {/* ライブあり */}
-                  {/* ================================= */}
+                    {/* 日付 */}
 
-                  {hasLive && (
-                    <>
+                    <div
+                      className={`
+                        flex
+                        h-6
+                        w-6
+                        items-center
+                        justify-center
+                        rounded-full
+                        text-[11px]
+                        font-semibold
 
-                      {/* ================================= */}
-                      {/* 都市 */}
-                      {/* ================================= */}
-
-                      <div className="mt-0.5 space-y-0.5 px-0.5">
-                        {cities
-                          .slice(0, 2)
-                          .map(
-                            (city) => {
-                              const targetLive =
-                                dayLives.find(
-                                  (live) =>
-                                    live.city ===
-                                    city
-                                );
-
-                              if (
-                                !targetLive
-                              ) {
-                                return null;
-                              }
-
-                              return (
-                                <button
-                                  key={city}
-                                  type="button"
-                                  onClick={(
-                                    e
-                                  ) => {
-                                    e.stopPropagation();
-
-                                    scrollToLive(
-                                      targetLive.id
-                                    );
-                                  }}
-                                  className="
-                                    block
-                                    w-full
-                                    truncate
-                                    text-left
-                                    text-[10px]
-                                    font-bold
-                                    leading-[1.25]
-                                    text-[#14526B]
-                                    transition
-                                    hover:opacity-70
-                                    active:scale-[0.97]
-                                    active:opacity-50
-                                  "
-                                >
-                                  {city}
-                                </button>
-                              );
-                            }
-                          )}
-                      </div>
-
-                      {/* 同日複数公演 */}
-
-                      {dayLives.length >
-                        1 && (
-                        <p
-                          className="
-                            mt-1
-                            px-0.5
-                            text-[8px]
-                            font-medium
-                            leading-none
-                            text-zinc-400
-                          "
-                        >
-                          {
-                            dayLives.length
-                          }{" "}
-                          LIVES
-                        </p>
-                      )}
-
-                      {/* ================================= */}
-                      {/* 参戦ボタン */}
-                      {/* ================================= */}
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-
-                          toggleDayAttended(
-                            dayLives
-                          );
-                        }}
-                        aria-label={
-                          allAttended
-                            ? `${dateKey}の参戦登録を解除`
-                            : `${dateKey}を参戦済みにする`
+                        ${
+                          hasLive
+                            ? "text-[#14526B]"
+                            : "text-zinc-500"
                         }
-                        className={`
-                          absolute
-                          bottom-1.5
-                          right-1.5
+                      `}
+                    >
+                      {day}
+                    </div>
 
-                          flex
-                          h-8
-                          w-8
-                          items-center
-                          justify-center
+                    {/* ================================= */}
+                    {/* ライブあり */}
+                    {/* ================================= */}
 
-                          rounded-full
-                          border
+                    {hasLive && (
+                      <>
 
-                          text-[15px]
-                          leading-none
+                        {/* 都市 */}
 
-                          shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+                        <div className="mt-0.5 space-y-0.5 px-0.5">
+                          {cities
+                            .slice(
+                              0,
+                              2
+                            )
+                            .map(
+                              (
+                                city
+                              ) => {
+                                const targetLive =
+                                  dayLives.find(
+                                    (
+                                      live
+                                    ) =>
+                                      live.city ===
+                                      city
+                                  );
 
-                          transition-all
-                          duration-200
+                                if (
+                                  !targetLive
+                                ) {
+                                  return null;
+                                }
 
-                          hover:scale-105
-                          active:scale-90
+                                return (
+                                  <button
+                                    key={
+                                      city
+                                    }
+                                    type="button"
+                                    onClick={(
+                                      e
+                                    ) => {
+                                      e.stopPropagation();
 
-                          ${
+                                      scrollToLive(
+                                        targetLive.id
+                                      );
+                                    }}
+                                    className="
+                                      block
+                                      w-full
+                                      truncate
+                                      text-left
+                                      text-[10px]
+                                      font-bold
+                                      leading-[1.25]
+                                      text-[#14526B]
+                                      transition
+                                      hover:opacity-70
+                                      active:scale-[0.97]
+                                      active:opacity-50
+                                    "
+                                  >
+                                    {
+                                      city
+                                    }
+                                  </button>
+                                );
+                              }
+                            )}
+                        </div>
+
+                        {/* 同日複数公演 */}
+
+                        {dayLives.length >
+                          1 && (
+                          <p
+                            className="
+                              mt-1
+                              px-0.5
+                              text-[8px]
+                              font-medium
+                              leading-none
+                              text-zinc-400
+                            "
+                          >
+                            {
+                              dayLives.length
+                            }{" "}
+                            LIVES
+                          </p>
+                        )}
+
+                        {/* ================================= */}
+                        {/* 参戦ボタン */}
+                        {/* ================================= */}
+
+                        <button
+                          type="button"
+                          onClick={(
+                            e
+                          ) => {
+                            e.stopPropagation();
+
+                            toggleDayAttended(
+                              dayLives
+                            );
+                          }}
+                          aria-label={
                             allAttended
-                              ? `
-                                border-[#14526B]
-                                bg-[#14526B]
-                                text-white
-                              `
-                              : `
-                                border-zinc-200
-                                bg-white
-                                text-[#14526B]
-                              `
+                              ? `${dateKey}の参戦登録を解除`
+                              : `${dateKey}を参戦済みにする`
                           }
-                        `}
-                      >
-                        {allAttended
-                          ? "♥"
-                          : "♡"}
-                      </button>
+                          className={`
+                            absolute
+                            bottom-1.5
+                            right-1.5
 
-                    </>
-                  )}
-                </div>
-              );
-            }
-          )}
+                            flex
+                            h-8
+                            w-8
+                            items-center
+                            justify-center
+
+                            rounded-full
+                            border
+
+                            text-[15px]
+                            leading-none
+
+                            shadow-[0_1px_3px_rgba(0,0,0,0.04)]
+
+                            transition-all
+                            duration-200
+
+                            hover:scale-105
+                            active:scale-90
+
+                            ${
+                              allAttended
+                                ? `
+                                  border-[#14526B]
+                                  bg-[#14526B]
+                                  text-white
+                                `
+                                : `
+                                  border-zinc-200
+                                  bg-white
+                                  text-[#14526B]
+                                `
+                            }
+                          `}
+                        >
+                          {allAttended
+                            ? "♥"
+                            : "♡"}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                );
+              }
+            )}
+          </div>
+
         </div>
       </div>
 
@@ -1145,12 +1346,16 @@ export default function LiveCalendar({
               text-zinc-400
             "
           >
-            {calendarMonth + 1}
+            {calendarMonth +
+              1}
             月のライブ
           </p>
 
           <p className="text-[10px] text-zinc-400">
-            {monthLives.length}件
+            {
+              monthLives.length
+            }
+            件
           </p>
         </div>
 
@@ -1158,7 +1363,8 @@ export default function LiveCalendar({
         {/* ライブあり */}
         {/* ================================= */}
 
-        {monthLives.length > 0 ? (
+        {monthLives.length >
+        0 ? (
           <div
             className="
               border-y
@@ -1166,7 +1372,9 @@ export default function LiveCalendar({
             "
           >
             {monthLives.map(
-              (live: Live) => {
+              (
+                live: Live
+              ) => {
                 const attended =
                   attendedIds.includes(
                     live.id
@@ -1174,7 +1382,9 @@ export default function LiveCalendar({
 
                 return (
                   <div
-                    key={live.id}
+                    key={
+                      live.id
+                    }
                     id={`calendar-live-${live.id}`}
                     className={`
                       relative
@@ -1212,7 +1422,9 @@ export default function LiveCalendar({
                           text-[#14526B]
                         "
                       >
-                        {live.date}
+                        {
+                          live.date
+                        }
                       </p>
 
                       <h3
@@ -1224,7 +1436,9 @@ export default function LiveCalendar({
                           text-[#14526B]
                         "
                       >
-                        {live.title}
+                        {
+                          live.title
+                        }
                       </h3>
 
                       <p
@@ -1241,14 +1455,18 @@ export default function LiveCalendar({
                             text-[#14526B]
                           "
                         >
-                          {live.city}
+                          {
+                            live.city
+                          }
                         </span>
 
                         <span className="mx-1.5 text-zinc-300">
                           /
                         </span>
 
-                        {live.venue}
+                        {
+                          live.venue
+                        }
                       </p>
                     </Link>
 
@@ -1319,11 +1537,6 @@ export default function LiveCalendar({
             )}
           </div>
         ) : (
-
-          // =================================
-          // ライブなし
-          // =================================
-
           <div className="py-10 text-center">
             <p className="text-[13px] text-zinc-400">
               この月のライブはありません
