@@ -1631,7 +1631,7 @@ const cancelSwipe = () => {
   </p>
 
   {/* セトリ有無 */}
-  <div className="mt-1">
+  <div className="mt-0.5">
     <span
       className={`
         inline-flex
