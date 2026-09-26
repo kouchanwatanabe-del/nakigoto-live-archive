@@ -1483,156 +1483,193 @@ const handleTouchCancel =
 <div className="flex items-center justify-center gap-1">
 
   {/* ================================= */}
-  {/* 年 */}
-  {/* ================================= */}
+{/* 年 */}
+{/* ================================= */}
 
-  <div className="relative">
-    <select
-      value={
-        calendarYear
+<div className="relative">
+  <select
+    value={calendarYear}
+    onChange={(e) => {
+      const newYear = Number(
+        e.target.value
+      );
+
+      let newMonth =
+        calendarMonth;
+
+      // 今年に移動したとき、
+      // 現在月より未来なら今月にする
+      if (
+        newYear === currentYear &&
+        newMonth > currentMonth
+      ) {
+        newMonth =
+          currentMonth;
       }
-      onChange={(e) => {
-        const newYear =
-          Number(
-            e.target.value
-          );
 
-        let newMonth =
-          calendarMonth;
-
-        // =================================
-        // 今年へ戻ったとき、
-        // 現在月より未来だった場合は
-        // 今月に補正
-        // =================================
-
-        if (
-          newYear ===
-            currentYear &&
-          newMonth >
-            currentMonth
-        ) {
-          newMonth =
-            currentMonth;
-        }
-
-        setDragX(0);
-
-        setCalendarDate(
-          new Date(
-            newYear,
-            newMonth,
-            1
-          )
-        );
-      }}
-      className="
-        cursor-pointer
-        appearance-none
-        bg-transparent
-        py-2
-        pl-2
-        pr-5
-        text-[17px]
-        font-bold
-        tracking-tight
-        text-[#14526B]
-        outline-none
-      "
-    >
-      {availableYears.map(
-        (year) => (
-          <option
-            key={year}
-            value={year}
-          >
-            {year}年
-          </option>
-        )
-      )}
-    </select>
-
-    <span
-      className="
-        pointer-events-none
-        absolute
-        right-0
-        top-1/2
-        -translate-y-1/2
-        text-[9px]
-        text-[#14526B]
-      "
-    >
-      ▼
-    </span>
-  </div>
-
-  {/* ================================= */}
-  {/* 月 */}
-  {/* ================================= */}
-
-  <div className="relative">
-    <select
-      value={
-        calendarMonth + 1
+      // 2018年に移動したとき、
+      // 10月より前なら10月にする
+      if (
+        newYear === earliestYear &&
+        newMonth < earliestMonth
+      ) {
+        newMonth =
+          earliestMonth;
       }
-      onChange={(e) => {
-        const newMonth =
-          Number(
-            e.target.value
-          );
 
-        setDragX(0);
+      // =================================
+      // カレンダーのスライド状態をリセット
+      // =================================
 
-        setCalendarDate(
-          new Date(
-            calendarYear,
-            newMonth - 1,
-            1
-          )
-        );
-      }}
-      className="
-        cursor-pointer
-        appearance-none
-        bg-transparent
-        py-2
-        pl-1
-        pr-5
-        text-[17px]
-        font-bold
-        tracking-tight
-        text-[#14526B]
-        outline-none
-      "
-    >
-      {availableMonthNumbers.map(
-        (month) => (
-          <option
-            key={month}
-            value={month}
-          >
-            {month}月
-          </option>
+      setIsDragging(true);
+      setIsAnimating(false);
+      setDragX(0);
+
+      // =================================
+      // 年を変更
+      // =================================
+
+      setCalendarDate(
+        new Date(
+          newYear,
+          newMonth,
+          1
         )
-      )}
-    </select>
+      );
 
-    <span
-      className="
-        pointer-events-none
-        absolute
-        right-0
-        top-1/2
-        -translate-y-1/2
-        text-[9px]
-        text-[#14526B]
-      "
-    >
-      ▼
-    </span>
-  </div>
+      // =================================
+      // 次の描画で通常状態に戻す
+      // =================================
 
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsDragging(false);
+        });
+      });
+    }}
+    className="
+      cursor-pointer
+      appearance-none
+      bg-transparent
+      py-2
+      pl-2
+      pr-5
+      text-[17px]
+      font-bold
+      tracking-tight
+      text-[#14526B]
+      outline-none
+    "
+  >
+    {availableYears.map(
+      (year) => (
+        <option
+          key={year}
+          value={year}
+        >
+          {year}年
+        </option>
+      )
+    )}
+  </select>
+
+  <span
+    className="
+      pointer-events-none
+      absolute
+      right-0
+      top-1/2
+      -translate-y-1/2
+      text-[9px]
+      text-[#14526B]
+    "
+  >
+    ▼
+  </span>
+</div>
+
+ {/* ================================= */}
+{/* 月 */}
+{/* ================================= */}
+
+<div className="relative">
+  <select
+    value={calendarMonth + 1}
+    onChange={(e) => {
+      const newMonth = Number(
+        e.target.value
+      );
+
+      // =================================
+      // カレンダーのスライド状態をリセット
+      // =================================
+
+      setIsDragging(true);
+      setIsAnimating(false);
+      setDragX(0);
+
+      // =================================
+      // 月を変更
+      // =================================
+
+      setCalendarDate(
+        new Date(
+          calendarYear,
+          newMonth - 1,
+          1
+        )
+      );
+
+      // =================================
+      // 次の描画で通常状態に戻す
+      // =================================
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          setIsDragging(false);
+        });
+      });
+    }}
+    className="
+      cursor-pointer
+      appearance-none
+      bg-transparent
+      py-2
+      pl-1
+      pr-5
+      text-[17px]
+      font-bold
+      tracking-tight
+      text-[#14526B]
+      outline-none
+    "
+  >
+    {availableMonthNumbers.map(
+      (month) => (
+        <option
+          key={month}
+          value={month}
+        >
+          {month}月
+        </option>
+      )
+    )}
+  </select>
+
+  <span
+    className="
+      pointer-events-none
+      absolute
+      right-0
+      top-1/2
+      -translate-y-1/2
+      text-[9px]
+      text-[#14526B]
+    "
+  >
+    ▼
+  </span>
+</div>
 </div>
        {/* 次月 */}
 
