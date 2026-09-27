@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { lives } from "../../../data/lives";
+import SongLiveList from "../../../components/SongLiveList";
 
 export default async function SongPage({
   params,
@@ -14,11 +15,12 @@ export default async function SongPage({
   // 弾き語りなど除外指定されたライブは含めない
   // ========================================
 
-  const playedLives = lives
-    .filter((live) => {
+  const playedLives = lives.filter(
+    (live) => {
       // SONGSの演奏履歴から除外
       if (
-        live.excludeFromSongHistory === true
+        live.excludeFromSongHistory ===
+        true
       ) {
         return false;
       }
@@ -28,11 +30,11 @@ export default async function SongPage({
         ...(live.encore ?? []),
       ];
 
-      return songs.includes(songName);
-    })
-    .sort((a, b) =>
-      b.date.localeCompare(a.date)
-    );
+      return songs.includes(
+        songName
+      );
+    }
+  );
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
@@ -54,7 +56,6 @@ export default async function SongPage({
         {/* ================================= */}
 
         <div className="mt-8">
-
           <p className="text-sm font-medium text-[#14526B]">
             SONG
           </p>
@@ -68,9 +69,9 @@ export default async function SongPage({
           {/* 演奏回数 */}
 
           <p className="mt-3 text-sm text-zinc-500">
-            {playedLives.length}公演で演奏
+            {playedLives.length}
+            公演で演奏
           </p>
-
         </div>
 
         {/* ================================= */}
@@ -78,67 +79,11 @@ export default async function SongPage({
         {/* ================================= */}
 
         <section className="mt-9">
-
-          <h2 className="text-lg font-bold text-[#14526B]">
-            演奏したライブ
-          </h2>
-
-          <div className="mt-4 -mx-4 border-y border-zinc-200 bg-white sm:-mx-6">
-
-            {playedLives.map(
-              (live, index) => (
-                <Link
-                  key={live.id}
-                  href={`/live/${live.id}`}
-                  className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
-                    index !==
-                    playedLives.length - 1
-                      ? "border-b border-zinc-200"
-                      : ""
-                  }`}
-                >
-                  <div className="min-w-0 flex-1">
-
-                    {/* 日付 */}
-
-                    <p className="text-[12px] font-semibold text-[#14526B]">
-                      {live.date}
-                    </p>
-
-                    {/* 公演名 */}
-
-                    <h3 className="mt-1 font-bold leading-[1.4] text-[#14526B]">
-                      {live.title}
-                    </h3>
-
-                    {/* 都市 / 会場 */}
-
-                    <p className="mt-1 text-sm text-zinc-500">
-
-                      <span className="font-medium text-[#14526B]">
-                        {live.city}
-                      </span>
-
-                      <span className="mx-1.5 text-zinc-300">
-                        ｜
-                      </span>
-
-                      {live.venue}
-
-                    </p>
-                  </div>
-
-                  {/* 矢印 */}
-
-                  <span className="shrink-0 text-zinc-300 transition-transform group-hover:translate-x-0.5">
-                    ›
-                  </span>
-
-                </Link>
-              )
-            )}
-
-          </div>
+          <SongLiveList
+            playedLives={
+              playedLives
+            }
+          />
         </section>
 
       </div>

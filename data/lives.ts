@@ -68,6 +68,17 @@ export const lives = [
   city: "京都",
   venue: "KYOTO MUSE",
   tour: "",
+  artists: [
+  "クレナズム",
+  "猫は液体",
+  "hananashi",
+  "yutori",
+  "片平里菜",
+  "Ivy to Fraudulent Game",
+  "Brown Basket",
+  "TETORA",
+  "Hakubi",
+],
   setlist: [
     "癖",
     "忘却炉",
@@ -7518,5 +7529,6 @@ excludeFromSongHistory: true,
   ],
   memo: "",
 },
+
 
 ];
