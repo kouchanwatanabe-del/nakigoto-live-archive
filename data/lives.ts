@@ -7501,5 +7501,22 @@ excludeFromSongHistory: true,
   ],
   memo: "",
 },
+{
+  id: "2026-09-27",
+  date: "2026.09.27",
+  title: "TOKYO CALLING 2026",
+  venue: "Veats Shibuya",
+  city: "東京",
+  setlist: [
+    "憧れとレモンサワー",
+    "アカネ",
+    "マリッジブルー",
+    "Summer麺",
+    "メトロポリタン",
+    "ハレモノ",
+    "Oyasumi Tokyo",
+  ],
+  memo: "",
+},
 
 ];
