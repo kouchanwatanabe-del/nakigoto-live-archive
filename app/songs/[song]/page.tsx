@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { lives } from "../../../data/lives";
 import SongLiveList from "../../../components/SongLiveList";
 import BackButton from "../../../components/BackButton";
@@ -18,7 +17,6 @@ export default async function SongPage({
 
   const playedLives = lives.filter(
     (live) => {
-      // SONGSの演奏履歴から除外
       if (
         live.excludeFromSongHistory ===
         true
@@ -39,42 +37,44 @@ export default async function SongPage({
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
-      <div className="mx-auto max-w-3xl px-6 py-10">
+      <div className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9">
 
         {/* ================================= */}
         {/* 戻る */}
         {/* ================================= */}
 
         <BackButton />
-        
+
         {/* ================================= */}
         {/* 曲情報 */}
         {/* ================================= */}
 
-        <div className="mt-8">
-          <p className="text-sm font-medium text-[#14526B]">
+        <div className="mt-5">
+
+          <p className="text-[12px] font-semibold tracking-[0.03em] text-[#14526B]">
             SONG
           </p>
 
           {/* 曲名 */}
 
-          <h1 className="mt-4 text-[19px] font-bold leading-[1.3] text-[#14526B] sm:text-[24px]">
+          <h1 className="mt-1.5 text-[19px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
             {songName}
           </h1>
 
           {/* 演奏回数 */}
 
-          <p className="mt-3 text-sm text-zinc-500">
+          <p className="mt-2 text-[12px] text-zinc-500 sm:text-[13px]">
             {playedLives.length}
             公演で演奏
           </p>
+
         </div>
 
         {/* ================================= */}
         {/* 演奏ライブ */}
         {/* ================================= */}
 
-        <section className="mt-9">
+        <section className="mt-7">
           <SongLiveList
             playedLives={
               playedLives
