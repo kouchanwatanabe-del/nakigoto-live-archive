@@ -15,16 +15,7 @@ import {
 
 export default function BottomNav() {
   const pathname = usePathname();
-// ========================================
-// アカネ専用テーマ
-// ========================================
 
-const isAkanePage =
-  pathname === `/songs/${encodeURIComponent("アカネ")}`;
-
-const themeColor = isAkanePage
-  ? "#C95F4E"
-  : "#14526B";
   // ========================================
   // 管理者モード
   // ========================================
@@ -384,6 +375,8 @@ const themeColor = isAkanePage
       top-0
       h-[46px]
       rounded-[19px]
+      bg-[#14526B]
+      shadow-[0_4px_14px_rgba(20,82,107,0.25)]
       transition-all
       duration-500
       ease-[cubic-bezier(0.22,1,0.36,1)]
@@ -398,14 +391,9 @@ const themeColor = isAkanePage
             : activeIndex === 2
               ? "46%"
               : "69%",
-      backgroundColor: themeColor,
-      boxShadow: isAkanePage
-        ? "0 4px 14px rgba(201,95,78,0.25)"
-        : "0 4px 14px rgba(20,82,107,0.25)",
     }}
   />
 )}
-/
               
           {/* ================================= */}
           {/* メインタブ */}
