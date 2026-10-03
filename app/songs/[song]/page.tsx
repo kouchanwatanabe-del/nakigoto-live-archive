@@ -14,10 +14,14 @@ export default async function SongPage({
   // 曲ごとのテーマカラー
   // ========================================
 
-  const themeColor =
-    songName === "アカネ"
-      ? "#C95F4E"
-      : "#14526B";
+  const isAkane =
+  songName === "アカネ";
+
+const themeColor = "#14526B";
+
+const backgroundColor = isAkane
+  ? "#BE4846"
+  : "#FFFFFF";
 
   // ========================================
   // この曲が演奏されたライブ
@@ -42,7 +46,10 @@ export default async function SongPage({
   );
 
   return (
-    <main className="min-h-screen bg-white pb-28 text-zinc-900">
+    <main
+  className="min-h-screen pb-28 text-zinc-900"
+  style={{ backgroundColor }}
+>
       <div className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9">
 
         {/* 戻る */}

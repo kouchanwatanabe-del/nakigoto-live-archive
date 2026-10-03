@@ -15,7 +15,16 @@ import {
 
 export default function BottomNav() {
   const pathname = usePathname();
+// ========================================
+// アカネ専用テーマ
+// ========================================
 
+const isAkanePage =
+  pathname === `/songs/${encodeURIComponent("アカネ")}`;
+
+const themeColor = isAkanePage
+  ? "#C95F4E"
+  : "#14526B";
   // ========================================
   // 管理者モード
   // ========================================
@@ -368,39 +377,36 @@ export default function BottomNav() {
           {/* ================================= */}
 
           {activeIndex !== -1 && (
-            <div
-              className="
-                pointer-events-none
-
-                absolute
-                top-0
-
-                h-[46px]
-rounded-[19px]
-
-                bg-[#14526B]
-
-                shadow-[0_4px_14px_rgba(20,82,107,0.25)]
-
-                transition-all
-                duration-500
-
-                ease-[cubic-bezier(0.22,1,0.36,1)]
-              "
-              style={{
-                width: "31%",
-                left:
-                  activeIndex === 0
-                    ? "0%"
-                    : activeIndex === 1
-                      ? "23%"
-                      : activeIndex === 2
-                        ? "46%"
-                        : "69%",
-              }}
-            />
-          )}
-
+  <div
+    className="
+      pointer-events-none
+      absolute
+      top-0
+      h-[46px]
+      rounded-[19px]
+      transition-all
+      duration-500
+      ease-[cubic-bezier(0.22,1,0.36,1)]
+    "
+    style={{
+      width: "31%",
+      left:
+        activeIndex === 0
+          ? "0%"
+          : activeIndex === 1
+            ? "23%"
+            : activeIndex === 2
+              ? "46%"
+              : "69%",
+      backgroundColor: themeColor,
+      boxShadow: isAkanePage
+        ? "0 4px 14px rgba(201,95,78,0.25)"
+        : "0 4px 14px rgba(20,82,107,0.25)",
+    }}
+  />
+)}
+/
+              
           {/* ================================= */}
           {/* メインタブ */}
           {/* ================================= */}

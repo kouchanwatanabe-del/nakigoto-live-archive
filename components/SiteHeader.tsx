@@ -1,9 +1,30 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { lives } from "../data/lives";
 
 export default function SiteHeader() {
+  const pathname = usePathname();
+
+  // ========================================
+  // アカネ専用テーマ
+  // ========================================
+
+  const isAkanePage =
+    pathname === `/songs/${encodeURIComponent("アカネ")}`;
+
+  const headerColor = isAkanePage
+    ? "#C95F4E"
+    : "#14526B";
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#14526B]">
+    <header
+      className="sticky top-0 z-50 w-full border-b border-white/10 transition-colors duration-300"
+      style={{
+        backgroundColor: headerColor,
+      }}
+    >
       <div className="mx-auto flex h-16 max-w-3xl items-center justify-between px-4 sm:px-6">
 
         {/* 左側 */}
