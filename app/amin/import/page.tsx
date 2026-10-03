@@ -2,28 +2,121 @@
 
 import { useMemo, useState } from "react";
 
+type ParsedSetlist = {
+  setlist: string[];
+  encore: string[];
+  rehearsal: string[];
+};
+
+type Section =
+  | "setlist"
+  | "encore"
+  | "rehearsal";
+
 export default function SetlistImportPage() {
   const [text, setText] = useState("");
-  const [parsed, setParsed] = useState<
-    string[]
-  >([]);
+  const [parsed, setParsed] =
+    useState<ParsedSetlist | null>(null);
+
+  const [copied, setCopied] =
+    useState(false);
 
   // ========================================
-  // 除外する行
+  // 行の整形
   // ========================================
 
-  const ignorePatterns = [
-    /^#/, // ハッシュタグ
-    /^https?:\/\//i, // URL
-    /^セットリスト$/i,
-    /^セトリ$/i,
-    /^set\s?list$/i,
-    /^本編$/i,
-    /^なきごと$/i,
-  ];
+  const cleanLine = (line: string) => {
+    return line
+      // 1. 曲名 / 01 曲名 / 1、曲名
+      .replace(
+        /^\s*\d+\s*[.．、:：\-)]?\s*/,
+        ""
+      )
+
+      // 箇条書き
+      .replace(
+        /^[・●○■□▶▷\-]\s*/,
+        ""
+      )
+
+      .trim();
+  };
 
   // ========================================
-  // セトリ解析
+  // 無視する行
+  // ========================================
+
+  const shouldIgnoreLine = (
+    line: string
+  ) => {
+    if (!line) return true;
+
+    // ハッシュタグだけの行
+    if (/^#/.test(line)) {
+      return true;
+    }
+
+    // URL
+    if (/^https?:\/\//i.test(line)) {
+      return true;
+    }
+
+    // 基本的な見出し
+    if (
+      /^(セットリスト|セトリ|set\s?list)$/i.test(
+        line
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // ========================================
+  // セクション判定
+  // ========================================
+
+  const getSection = (
+    line: string
+  ): Section | null => {
+    const normalized = line
+      .replace(/[【】[\]（）()]/g, "")
+      .replace(/\s/g, "")
+      .toLowerCase();
+
+    // リハーサル
+    if (
+      /^(リハ|リハーサル|rehearsal)$/.test(
+        normalized
+      )
+    ) {
+      return "rehearsal";
+    }
+
+    // アンコール
+    if (
+      /^(en|encore|アンコール|en\d+)$/.test(
+        normalized
+      )
+    ) {
+      return "encore";
+    }
+
+    // 本編
+    if (
+      /^(本編|main|本番)$/.test(
+        normalized
+      )
+    ) {
+      return "setlist";
+    }
+
+    return null;
+  };
+
+  // ========================================
+  // 解析
   // ========================================
 
   const parseSetlist = () => {
@@ -32,69 +125,143 @@ export default function SetlistImportPage() {
       .map((line) => line.trim())
       .filter(Boolean);
 
-    const songs = lines
-      .filter((line) => {
-        return !ignorePatterns.some(
-          (pattern) =>
-            pattern.test(line)
-        );
-      })
+    const result: ParsedSetlist = {
+      setlist: [],
+      encore: [],
+      rehearsal: [],
+    };
 
-      // 先頭の番号を削除
-      //
-      // 1. 愛才
-      // 01 愛才
-      // 1、愛才
-      // → 愛才
+    // セクション指定がない場合は
+    // 最初から本編として扱う
+    let currentSection: Section =
+      "setlist";
 
-      .map((line) =>
-        line.replace(
-          /^\d+\s*[.．、:：\-]?\s*/,
-          ""
-        )
-      )
+    for (const rawLine of lines) {
+      // ------------------------------------
+      // セクション見出し
+      // ------------------------------------
 
-      // Xの箇条書き記号などを削除
+      const section =
+        getSection(rawLine);
 
-      .map((line) =>
-        line.replace(
-          /^[・●○■□▶︎▶︎▷\-]\s*/,
-          ""
-        )
-      )
+      if (section) {
+        currentSection = section;
+        continue;
+      }
 
-      .map((line) =>
-        line.trim()
-      )
+      // ------------------------------------
+      // 無視する行
+      // ------------------------------------
 
-      .filter(Boolean);
+      if (
+        shouldIgnoreLine(rawLine)
+      ) {
+        continue;
+      }
 
-    setParsed(songs);
+      // ------------------------------------
+      // 曲名を整形
+      // ------------------------------------
+
+      const song =
+        cleanLine(rawLine);
+
+      if (!song) continue;
+
+      // ------------------------------------
+      // 各セクションへ追加
+      // ------------------------------------
+
+      result[currentSection].push(
+        song
+      );
+    }
+
+    setParsed(result);
+    setCopied(false);
   };
 
   // ========================================
-  // コード生成
+  // 合計曲数
+  // ========================================
+
+  const totalSongs = useMemo(() => {
+    if (!parsed) return 0;
+
+    return (
+      parsed.setlist.length +
+      parsed.encore.length
+    );
+  }, [parsed]);
+
+  // ========================================
+  // lives.ts 用コード
   // ========================================
 
   const generatedCode =
     useMemo(() => {
-      if (parsed.length === 0) {
-        return "";
+      if (!parsed) return "";
+
+      const lines: string[] = [];
+
+      // ------------------------------------
+      // SETLIST
+      // ------------------------------------
+
+      lines.push("setlist: [");
+
+      for (
+        const song of parsed.setlist
+      ) {
+        lines.push(
+          `  ${JSON.stringify(song)},`
+        );
       }
 
-      const songLines = parsed
-        .map(
-          (song) =>
-            `  "${song.replace(
-              /"/g,
-              '\\"'
-            )}",`
-        )
-        .join("\n");
+      lines.push("],");
 
-      return `setlist: [
-${songLines}
-],`;
+      // ------------------------------------
+      // ENCORE
+      // ------------------------------------
+
+      if (
+        parsed.encore.length > 0
+      ) {
+        lines.push(
+          "encore: ["
+        );
+
+        for (
+          const song of parsed.encore
+        ) {
+          lines.push(
+            `  ${JSON.stringify(song)},`
+          );
+        }
+
+        lines.push("],");
+      }
+
+      // ------------------------------------
+      // MEMO / リハーサル
+      // ------------------------------------
+
+      if (
+        parsed.rehearsal.length > 0
+      ) {
+        const rehearsalText =
+          `リハーサル：${parsed.rehearsal.join(
+            " / "
+          )}`;
+
+        lines.push(
+          `memo: ${JSON.stringify(
+            rehearsalText
+          )},`
+        );
+      }
+
+      return lines.join("\n");
     }, [parsed]);
 
   // ========================================
@@ -107,6 +274,12 @@ ${songLines}
     await navigator.clipboard.writeText(
       generatedCode
     );
+
+    setCopied(true);
+
+    window.setTimeout(() => {
+      setCopied(false);
+    }, 1500);
   };
 
   return (
@@ -114,7 +287,7 @@ ${songLines}
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
 
         {/* ================================= */}
-        {/* タイトル */}
+        {/* HEADER */}
         {/* ================================= */}
 
         <div>
@@ -127,13 +300,14 @@ ${songLines}
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Xのポスト本文を貼り付けて
-            セットリストを解析します。
+            Xのポスト本文から
+            本編・アンコール・リハーサルを
+            自動で振り分けます。
           </p>
         </div>
 
         {/* ================================= */}
-        {/* 入力 */}
+        {/* INPUT */}
         {/* ================================= */}
 
         <section className="mt-8">
@@ -147,26 +321,34 @@ ${songLines}
           <textarea
             id="post"
             value={text}
-            onChange={(e) =>
-              setText(e.target.value)
-            }
+            onChange={(e) => {
+              setText(
+                e.target.value
+              );
+              setParsed(null);
+            }}
             placeholder={`例：
 
 なきごと セトリ
 
-1. 愛才
-2. マリッジブルー
-3. 0.2
-4. メトロポリタン
-5. 短夜
+リハ
+退屈日和
+マリッジブルー
 
-en
+本編
+愛才
+0.2
+Summer麺
+メトロポリタン
+短夜
+
+アンコール
 ドリー
 
 #なきごと`}
             className="
               mt-3
-              min-h-[260px]
+              min-h-[300px]
               w-full
               resize-y
               rounded-2xl
@@ -187,7 +369,9 @@ en
 
           <button
             type="button"
-            onClick={parseSetlist}
+            onClick={
+              parseSetlist
+            }
             disabled={!text.trim()}
             className="
               mt-4
@@ -210,10 +394,10 @@ en
         </section>
 
         {/* ================================= */}
-        {/* 解析結果 */}
+        {/* RESULT */}
         {/* ================================= */}
 
-        {parsed.length > 0 && (
+        {parsed && (
           <section className="mt-10">
 
             <div className="flex items-end justify-between">
@@ -228,51 +412,172 @@ en
               </div>
 
               <p className="text-xs text-zinc-400">
-                {parsed.length}曲
+                {totalSongs}曲
               </p>
             </div>
 
-            {/* 曲一覧 */}
+            {/* ================================= */}
+            {/* SETLIST */}
+            {/* ================================= */}
 
-            <div className="mt-4 border-y border-zinc-200">
+            <div className="mt-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-[#14526B]">
+                  SET LIST
+                </h3>
 
-              {parsed.map(
-                (song, index) => (
-                  <div
-                    key={`${song}-${index}`}
-                    className={`
-                      flex
-                      items-center
-                      gap-4
-                      py-3
-                      ${
-                        index !==
-                        parsed.length - 1
-                          ? "border-b border-zinc-100"
-                          : ""
-                      }
-                    `}
-                  >
-                    <span className="w-7 shrink-0 text-right text-xs font-semibold text-zinc-300">
-                      {String(
-                        index + 1
-                      ).padStart(2, "0")}
-                    </span>
+                <span className="text-xs text-zinc-400">
+                  {
+                    parsed.setlist
+                      .length
+                  }
+                  曲
+                </span>
+              </div>
 
-                    <span className="font-medium text-[#14526B]">
-                      {song}
-                    </span>
-                  </div>
-                )
+              {parsed.setlist
+                .length > 0 ? (
+                <div className="mt-3 border-y border-zinc-200">
+
+                  {parsed.setlist.map(
+                    (
+                      song,
+                      index
+                    ) => (
+                      <div
+                        key={`${song}-${index}`}
+                        className={`
+                          flex
+                          items-center
+                          gap-4
+                          py-3
+                          ${
+                            index !==
+                            parsed
+                              .setlist
+                              .length -
+                              1
+                              ? "border-b border-zinc-100"
+                              : ""
+                          }
+                        `}
+                      >
+                        <span className="w-7 shrink-0 text-right text-xs font-semibold text-zinc-300">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
+
+                        <span className="font-medium text-[#14526B]">
+                          {song}
+                        </span>
+                      </div>
+                    )
+                  )}
+
+                </div>
+              ) : (
+                <p className="mt-3 text-sm text-zinc-400">
+                  本編の曲はありません。
+                </p>
               )}
-
             </div>
 
             {/* ================================= */}
-            {/* 生成コード */}
+            {/* ENCORE */}
             {/* ================================= */}
 
-            <div className="mt-8">
+            {parsed.encore.length >
+              0 && (
+              <div className="mt-8">
+
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-bold text-[#14526B]">
+                    ENCORE
+                  </h3>
+
+                  <span className="text-xs text-zinc-400">
+                    {
+                      parsed.encore
+                        .length
+                    }
+                    曲
+                  </span>
+                </div>
+
+                <div className="mt-3 border-y border-zinc-200">
+
+                  {parsed.encore.map(
+                    (
+                      song,
+                      index
+                    ) => (
+                      <div
+                        key={`${song}-${index}`}
+                        className={`
+                          flex
+                          items-center
+                          gap-4
+                          py-3
+                          ${
+                            index !==
+                            parsed
+                              .encore
+                              .length -
+                              1
+                              ? "border-b border-zinc-100"
+                              : ""
+                          }
+                        `}
+                      >
+                        <span className="w-7 shrink-0 text-right text-xs font-semibold text-zinc-300">
+                          E
+                          {index + 1}
+                        </span>
+
+                        <span className="font-medium text-[#14526B]">
+                          {song}
+                        </span>
+                      </div>
+                    )
+                  )}
+
+                </div>
+              </div>
+            )}
+
+            {/* ================================= */}
+            {/* REHEARSAL */}
+            {/* ================================= */}
+
+            {parsed.rehearsal
+              .length > 0 && (
+              <div className="mt-8">
+
+                <h3 className="text-sm font-bold text-[#14526B]">
+                  REHEARSAL
+                </h3>
+
+                <div className="mt-3 rounded-xl bg-zinc-50 px-4 py-3">
+                  <p className="text-sm leading-6 text-zinc-600">
+                    {parsed.rehearsal.join(
+                      " / "
+                    )}
+                  </p>
+                </div>
+
+              </div>
+            )}
+
+            {/* ================================= */}
+            {/* GENERATED CODE */}
+            {/* ================================= */}
+
+            <div className="mt-10">
+
               <p className="text-sm font-bold text-[#14526B]">
                 lives.ts 用コード
               </p>
@@ -300,8 +605,11 @@ en
                   hover:text-white
                 "
               >
-                コードをコピー
+                {copied
+                  ? "コピーしました ✓"
+                  : "コードをコピー"}
               </button>
+
             </div>
 
           </section>
