@@ -1,646 +1,771 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { lives } from "../../data/lives";
-import SetlistImporter from "../../components/SetlistImporter";
+import { useMemo, useState } from "react";
+import { lives } from "../data/lives";
 
-type Live = (typeof lives)[number];
-
-type Tab = "lives" | "heard" | "unheard";
-
-// ========================================
-// カバー曲かどうか判定
-// 「カバー」を含む曲はCOLLECTIONの楽曲集計から除外
-// ========================================
-
-const isCoverSong = (song: string) => {
-  return song.includes("カバー");
+type ParsedSetlist = {
+  setlist: string[];
+  encore: string[];
+  rehearsal: string[];
 };
-// ========================================
-// SONGS一覧に表示しない曲
-// ========================================
 
-const hiddenSongs = [
-  "ミュージックプランクトン(SAKANAMONカバー)",
-  "暮らし（Hwylカバー）",
-  "HEAT(FINLANDSカバー)",
-  "ホワイトアウト(reGretGirlカバー)",
-  "ホワイトアウト（reGretGirlカバー）",
-  "ミュージックプランクトン（SAKANAMONカバー）",
-  "秘密（ドラマストアカバー）",
-  "キャロラインの花束を(the quiet roomカバー)",
-  "ノックブーツ（Chevonカバー）",
-  "Rambler（雨音コンプレックス）",
-  "SUPIKA（雨音コンプレックス）",
-  "メトロポリタン（feat.宮崎一晴）",
-  "安酒にロマンス（仮）",
-  "虫けら'20",
-  "19",
-  "秘密",
-  "社会のゴミカザマタカフミ（3markets[]カバー）",
-];
+type Section =
+  | "setlist"
+  | "encore"
+  | "rehearsal";
 
-const isHiddenSong = (song: string) => {
-  return hiddenSongs.includes(song);
+type SongStatus = {
+  song: string;
+  registered: boolean;
+  suggestion?: string;
 };
-export default function CollectionPage() {
-  const [attendedIds, setAttendedIds] = useState<string[]>([]);
-  const [loaded, setLoaded] = useState(false);
-const [secretTapCount, setSecretTapCount] = useState(0);
-const [adminMode, setAdminMode] = useState(false);
 
-  // 最初に表示するタブ
-  const [activeTab, setActiveTab] = useState<Tab>("lives");
+export default function SetlistImporter() {
+  const [open, setOpen] = useState(false);
+  const [text, setText] = useState("");
+  const [parsed, setParsed] =
+    useState<ParsedSetlist | null>(null);
+  const [copied, setCopied] =
+    useState(false);
 
-  useEffect(() => {
-    const saved = localStorage.getItem("attendedLives");
+  // ========================================
+  // 登録済み楽曲
+  // lives.tsから自動取得
+  // ========================================
 
-    if (saved) {
-      try {
-        const ids: string[] = JSON.parse(saved);
-        setAttendedIds(ids);
-      } catch {
-        setAttendedIds([]);
-      }
-    }
-const savedAdminMode =
-  localStorage.getItem("adminMode") === "true";
-
-setAdminMode(savedAdminMode);
-    setLoaded(true);
+  const registeredSongs = useMemo(() => {
+    return [
+      ...new Set(
+        lives.flatMap((live) => [
+          ...live.setlist,
+          ...(live.encore ?? []),
+        ])
+      ),
+    ];
   }, []);
 
   // ========================================
-  // 参戦したライブ
+  // 比較用の文字列に変換
   // ========================================
 
-  const attendedLives = lives
-    .filter((live: Live) =>
-      attendedIds.includes(live.id)
-    )
-    .sort((a, b) =>
-      b.date.localeCompare(a.date)
-    );
+  const normalizeSong = (
+    value: string
+  ) => {
+    return value
+      .toLowerCase()
+      .replace(/\s/g, "")
+      .replace(/[・･]/g, "")
+      .replace(/[（）()「」『』【】]/g, "")
+      .trim();
+  };
 
   // ========================================
-  // サイトに登録されている全楽曲
-  // カバー曲は除外
+  // 似ている曲を探す
   // ========================================
 
-  const allSongs = [
-  ...new Set(
-    lives
-      .flatMap((live: Live) => [
-        ...live.setlist,
-        ...(live.encore ?? []),
-      ])
-      .filter(
-        (song) =>
-          !isCoverSong(song) &&
-          !isHiddenSong(song)
+  const findSuggestion = (
+    song: string
+  ) => {
+    const normalized =
+      normalizeSong(song);
+
+    if (!normalized) {
+      return undefined;
+    }
+
+    // 部分一致
+    const partial =
+      registeredSongs.find(
+        (registered) => {
+          const target =
+            normalizeSong(
+              registered
+            );
+
+          return (
+            target.includes(
+              normalized
+            ) ||
+            normalized.includes(
+              target
+            )
+          );
+        }
+      );
+
+    return partial;
+  };
+
+  // ========================================
+  // 登録状況
+  // ========================================
+
+  const getSongStatus = (
+    song: string
+  ): SongStatus => {
+    const normalized =
+      normalizeSong(song);
+
+    const exact =
+      registeredSongs.find(
+        (registered) =>
+          normalizeSong(
+            registered
+          ) === normalized
+      );
+
+    if (exact) {
+      return {
+        song,
+        registered: true,
+      };
+    }
+
+    return {
+      song,
+      registered: false,
+      suggestion:
+        findSuggestion(song),
+    };
+  };
+
+  // ========================================
+  // 曲名の整形
+  // ========================================
+
+  const cleanLine = (
+    line: string
+  ) => {
+    return line
+      .replace(
+        /^\s*\d+\s*[.．、:：\-)]?\s*/,
+        ""
       )
-  ),
-];
+      .replace(
+        /^[・●○■□▶▷\-]\s*/,
+        ""
+      )
+      .trim();
+  };
 
   // ========================================
-  // 参戦ライブで聴いた曲と回数
+  // セクション判定
   // ========================================
 
-  const heardSongCounts: Record<string, number> = {};
+  const getSection = (
+    line: string
+  ): Section | null => {
+    const normalized = line
+      .replace(
+        /[【】[\]（）()]/g,
+        ""
+      )
+      .replace(/\s/g, "")
+      .toLowerCase();
 
-  attendedLives.forEach((live) => {
-    // 同じ公演で同じ曲が複数回あっても1回としてカウント
-    // カバー曲は除外
-    const songs = [
-      ...new Set(
-        [
-  ...live.setlist,
-  ...(live.encore ?? []),
-].filter(
-  (song) =>
-    !isCoverSong(song) &&
-    !isHiddenSong(song)
-)
-      ),
-    ];
+    if (
+      /^(リハ|リハーサル|rehearsal)$/.test(
+        normalized
+      )
+    ) {
+      return "rehearsal";
+    }
 
-    songs.forEach((song) => {
-      heardSongCounts[song] =
-        (heardSongCounts[song] ?? 0) + 1;
-    });
-  });
+    if (
+      /^(en|encore|アンコール|en\d+)$/.test(
+        normalized
+      )
+    ) {
+      return "encore";
+    }
+
+    if (
+      /^(本編|main|本番)$/.test(
+        normalized
+      )
+    ) {
+      return "setlist";
+    }
+
+    return null;
+  };
 
   // ========================================
-  // 聴いた曲
+  // 無視する行
   // ========================================
 
-  const heardSongs = Object.entries(heardSongCounts)
-    .sort((a, b) => {
-      if (b[1] !== a[1]) {
-        return b[1] - a[1];
+  const shouldIgnoreLine = (
+    line: string
+  ) => {
+    if (!line) return true;
+
+    if (/^#/.test(line)) {
+      return true;
+    }
+
+    if (
+      /^https?:\/\//i.test(line)
+    ) {
+      return true;
+    }
+
+    if (
+      /^(セットリスト|セトリ|set\s?list)$/i.test(
+        line
+      )
+    ) {
+      return true;
+    }
+
+    return false;
+  };
+
+  // ========================================
+  // 解析
+  // ========================================
+
+  const parseSetlist = () => {
+    const lines = text
+      .split(/\r?\n/)
+      .map((line) =>
+        line.trim()
+      )
+      .filter(Boolean);
+
+    const result: ParsedSetlist = {
+      setlist: [],
+      encore: [],
+      rehearsal: [],
+    };
+
+    let currentSection: Section =
+      "setlist";
+
+    for (const rawLine of lines) {
+      const section =
+        getSection(rawLine);
+
+      if (section) {
+        currentSection =
+          section;
+        continue;
       }
 
-      return a[0].localeCompare(b[0], "ja");
-    });
-
-  // ========================================
-  // まだ聴けていない曲
-  // ========================================
-
-  const unheardSongs = allSongs
-    .filter((song) => !heardSongCounts[song])
-    .sort((a, b) =>
-      a.localeCompare(b, "ja")
-    );
-
-  // ========================================
-  // コンプリート率
-  // ========================================
-
-  const completion =
-    allSongs.length > 0
-      ? Math.round(
-          (heardSongs.length / allSongs.length) * 100
+      if (
+        shouldIgnoreLine(
+          rawLine
         )
-      : 0;
-const handleSecretAdminTap = () => {
-  const nextCount = secretTapCount + 1;
+      ) {
+        continue;
+      }
 
-  if (nextCount >= 5) {
-    const current =
-      localStorage.getItem("adminMode") === "true";
+      const song =
+        cleanLine(rawLine);
 
-    const next = !current;
+      if (!song) continue;
 
-    localStorage.setItem(
-      "adminMode",
-      String(next)
-    );
-setAdminMode(next);
-    window.dispatchEvent(
-      new Event("adminModeChanged")
-    );
+      result[
+        currentSection
+      ].push(song);
+    }
 
-    setSecretTapCount(0);
+    setParsed(result);
+    setCopied(false);
+  };
 
-    return;
-  }
+  // ========================================
+  // 未登録候補
+  // ========================================
 
-  setSecretTapCount(nextCount);
-};
-  return (
-    <main className="min-h-screen bg-white pb-28 text-zinc-900">
+  const unknownSongs =
+    useMemo(() => {
+      if (!parsed) return [];
 
-      {/* ================================= */}
-      {/* HOME・LIVE・SONGSと共通の幅・余白 */}
-      {/* ================================= */}
+      const songs = [
+        ...parsed.setlist,
+        ...parsed.encore,
+        ...parsed.rehearsal,
+      ];
 
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      return songs
+        .map(getSongStatus)
+        .filter(
+          (status) =>
+            !status.registered
+        );
+    }, [parsed]);
 
-        {/* ================================= */}
-        {/* ページヘッダー */}
-        {/* ================================= */}
+  // ========================================
+  // lives.ts用コード
+  // ========================================
 
-        <div>
+  const generatedCode =
+    useMemo(() => {
+      if (!parsed) return "";
 
-          <h1
-  onClick={handleSecretAdminTap}
-  className="
-    select-none
-    text-3xl
-    font-bold
-    text-[#14526B]
-  "
->
-  MY PAGE
-</h1>
+      const lines: string[] = [];
 
-          <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-            あなたの参戦記録
-          </p>
+      lines.push(
+        "setlist: ["
+      );
 
-        </div>
+      parsed.setlist.forEach(
+        (song) => {
+          lines.push(
+            `  ${JSON.stringify(
+              song
+            )},`
+          );
+        }
+      );
 
-        {/* ================================= */}
-        {/* MY STATS */}
-        {/* ================================= */}
-{adminMode && (
-  <SetlistImporter />
-)}
-        <Link
-          href="/stats"
-          className="mt-8 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
-        >
+      lines.push("],");
 
-          <div>
+      if (
+        parsed.encore.length >
+        0
+      ) {
+        lines.push(
+          "encore: ["
+        );
 
-            <p className="text-[14px] font-bold text-[#14526B]">
-              MY STATS
-            </p>
+        parsed.encore.forEach(
+          (song) => {
+            lines.push(
+              `  ${JSON.stringify(
+                song
+              )},`
+            );
+          }
+        );
 
-            <p className="mt-0.5 text-[11px] text-zinc-500">
-              あなたのライブ統計を見る
-            </p>
+        lines.push("],");
+      }
 
-          </div>
+      if (
+        parsed.rehearsal
+          .length > 0
+      ) {
+        const rehearsal =
+          `リハーサル：${parsed.rehearsal.join(
+            " / "
+          )}`;
 
-          <span className="text-[#14526B]">
-            →
+        lines.push(
+          `memo: ${JSON.stringify(
+            rehearsal
+          )},`
+        );
+      }
+
+      return lines.join("\n");
+    }, [parsed]);
+
+  // ========================================
+  // コピー
+  // ========================================
+
+  const copyCode =
+    async () => {
+      if (!generatedCode) {
+        return;
+      }
+
+      await navigator.clipboard.writeText(
+        generatedCode
+      );
+
+      setCopied(true);
+
+      window.setTimeout(
+        () => {
+          setCopied(false);
+        },
+        1500
+      );
+    };
+
+  // ========================================
+  // 曲表示
+  // ========================================
+
+  const renderSong = (
+    song: string,
+    label: string
+  ) => {
+    const status =
+      getSongStatus(song);
+
+    return (
+      <div
+        key={`${label}-${song}`}
+        className="border-b border-zinc-100 py-2.5 last:border-b-0"
+      >
+        <div className="flex items-start gap-3">
+
+          <span className="w-7 shrink-0 pt-0.5 text-right text-[11px] font-semibold text-zinc-300">
+            {label}
           </span>
 
-        </Link>
+          <div className="min-w-0 flex-1">
 
-        {/* ================================= */}
-        {/* 読み込み中 */}
-        {/* ================================= */}
+            <div className="flex items-start justify-between gap-3">
 
-        {!loaded && (
-          <div className="mt-8 text-[13px] text-zinc-400">
-            読み込み中...
-          </div>
-        )}
+              <span className="text-sm font-medium text-[#14526B]">
+                {song}
+              </span>
 
-        {loaded && (
-          <>
-
-            {/* ================================= */}
-            {/* サマリー */}
-            {/* ================================= */}
-
-            <section className="mt-8 grid grid-cols-2 gap-3">
-
-              {/* 参戦ライブ */}
-              <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-
-                <p className="text-[11px] text-zinc-400">
-                  参戦ライブ
-                </p>
-
-                <div className="mt-2 flex items-end gap-1.5">
-
-                  <span className="text-[32px] font-black leading-none text-[#14526B]">
-                    {attendedLives.length}
-                  </span>
-
-                  <span className="text-[12px] text-zinc-500">
-                    公演
-                  </span>
-
-                </div>
-
-              </div>
-
-              {/* 聴いた曲 */}
-              <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-
-                <p className="text-[11px] text-zinc-400">
-                  聴いた曲
-                </p>
-
-                <div className="mt-2 flex items-end gap-1.5">
-
-                  <span className="text-[32px] font-black leading-none text-[#14526B]">
-                    {heardSongs.length}
-                  </span>
-
-                  <span className="text-[12px] text-zinc-500">
-                    / {allSongs.length} 曲
-                  </span>
-
-                </div>
-
-              </div>
-
-            </section>
-
-            {/* ================================= */}
-            {/* コンプリート率 */}
-            {/* ================================= */}
-
-            <section className="mt-5">
-
-              <div className="flex items-center justify-between">
-
-                <p className="text-[12px] font-medium text-zinc-500">
-                  楽曲コンプリート率
-                </p>
-
-                <p className="text-[12px] font-bold text-[#14526B]">
-                  {completion}%
-                </p>
-
-              </div>
-
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-zinc-100">
-
-                <div
-                  className="h-full rounded-full bg-[#14526B] transition-all duration-500"
-                  style={{
-                    width: `${completion}%`,
-                  }}
-                />
-
-              </div>
-
-            </section>
-
-            {/* ================================= */}
-            {/* タブ */}
-            {/* ================================= */}
-
-            <div className="mt-8 grid grid-cols-3 rounded-xl bg-zinc-100 p-1">
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("lives")}
-                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
-                  activeTab === "lives"
-                    ? "bg-[#14526B] text-white shadow-sm"
-                    : "text-zinc-500"
-                }`}
-              >
-                参戦ライブ
-
-                <span className="ml-1 opacity-70">
-                  {attendedLives.length}
+              {status.registered ? (
+                <span className="shrink-0 text-[10px] font-bold text-[#14526B]">
+                  ✓
                 </span>
-
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("heard")}
-                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
-                  activeTab === "heard"
-                    ? "bg-[#14526B] text-white shadow-sm"
-                    : "text-zinc-500"
-                }`}
-              >
-                聴いた曲
-
-                <span className="ml-1 opacity-70">
-                  {heardSongs.length}
+              ) : (
+                <span className="shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700">
+                  未登録
                 </span>
-
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("unheard")}
-                className={`rounded-lg px-2 py-2.5 text-[12px] font-bold transition ${
-                  activeTab === "unheard"
-                    ? "bg-[#14526B] text-white shadow-sm"
-                    : "text-zinc-500"
-                }`}
-              >
-                未聴曲
-
-                <span className="ml-1 opacity-70">
-                  {unheardSongs.length}
-                </span>
-
-              </button>
+              )}
 
             </div>
 
-            {/* ========================= */}
-            {/* 参戦ライブ タブ */}
-            {/* ========================= */}
-
-            {activeTab === "lives" && (
-              <section className="mt-6">
-
-                <div className="mb-3 flex items-center justify-between">
-
-                  <h2 className="text-[20px] font-bold text-[#14526B]">
-                    参戦したライブ
-                  </h2>
-
-                  <span className="text-[12px] text-zinc-400">
-                    {attendedLives.length}公演
+            {!status.registered &&
+              status.suggestion && (
+                <p className="mt-1 text-[11px] leading-5 text-zinc-400">
+                  候補：
+                  <span className="font-medium text-[#14526B]">
+                    {
+                      status.suggestion
+                    }
                   </span>
+                </p>
+              )}
 
-                </div>
+          </div>
 
-                {attendedLives.length > 0 ? (
-
-                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
-
-                    {attendedLives.map((live: Live, index) => (
-                      <Link
-                        key={live.id}
-                        href={`/live/${live.id}`}
-                        className={`group flex items-center gap-3 px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
-                          index !== attendedLives.length - 1
-                            ? "border-b border-zinc-200"
-                            : ""
-                        }`}
-                      >
-
-                        <div className="min-w-0 flex-1">
-
-                          {/* 日付 */}
-                          <p className="text-[12px] font-medium text-[#14526B]">
-                            {live.date}
-                          </p>
-
-                          {/* 公演名 */}
-                          <h3 className="mt-1 text-[16px] font-bold leading-snug text-[#14526B]">
-                            {live.title}
-                          </h3>
-
-                          {/* 都市・会場 */}
-                          <p className="mt-1 text-[12px] leading-5 text-zinc-500">
-
-                            <span className="font-medium text-[#14526B]">
-                              {live.city}
-                            </span>
-
-                            <span className="mx-2 text-zinc-300">
-                              ｜
-                            </span>
-
-                            {live.venue}
-
-                          </p>
-
-                        </div>
-
-                        <span className="shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
-                          ›
-                        </span>
-
-                      </Link>
-                    ))}
-
-                  </div>
-
-                ) : (
-
-                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
-
-                    <p className="text-[14px] font-medium text-zinc-600">
-                      まだ参戦記録がありません
-                    </p>
-
-                    <Link
-                      href="/lives"
-                      className="mt-3 inline-block text-[13px] font-medium text-[#14526B] hover:underline"
-                    >
-                      ライブを探す →
-                    </Link>
-
-                  </div>
-
-                )}
-
-              </section>
-            )}
-
-            {/* ========================= */}
-            {/* 聴いた曲 タブ */}
-            {/* ========================= */}
-
-            {activeTab === "heard" && (
-              <section className="mt-6">
-
-                <div className="mb-3 flex items-center justify-between">
-
-                  <h2 className="text-[20px] font-bold text-[#14526B]">
-                    聴いた曲
-                  </h2>
-
-                  <span className="text-[12px] text-zinc-400">
-                    {heardSongs.length}曲
-                  </span>
-
-                </div>
-
-                {heardSongs.length > 0 ? (
-
-                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
-
-                    {heardSongs.map(([song, count], index) => (
-                      <Link
-                        key={song}
-                        href={`/songs/${encodeURIComponent(song)}`}
-                        className={`group flex items-center px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
-                          index !== heardSongs.length - 1
-                            ? "border-b border-zinc-200"
-                            : ""
-                        }`}
-                      >
-
-                        {/* 順位 */}
-                        <span className="w-9 shrink-0 text-[11px] font-bold tabular-nums text-zinc-300">
-                          {String(index + 1).padStart(2, "0")}
-                        </span>
-
-                        {/* 曲名 */}
-                        <span className="min-w-0 flex-1 text-[14px] font-semibold leading-[1.4] text-[#14526B]">
-                          {song}
-                        </span>
-
-                        {/* 聴いた回数 */}
-                        <span className="ml-3 shrink-0 text-[12px] font-medium text-[#14526B]">
-                          {count}回
-                        </span>
-
-                        <span className="ml-3 shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
-                          ›
-                        </span>
-
-                      </Link>
-                    ))}
-
-                  </div>
-
-                ) : (
-
-                  <div className="rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-8 text-center">
-
-                    <p className="text-[14px] text-zinc-500">
-                      まだ聴いた曲がありません
-                    </p>
-
-                  </div>
-
-                )}
-
-              </section>
-            )}
-
-            {/* ========================= */}
-            {/* 未聴曲 タブ */}
-            {/* ========================= */}
-
-            {activeTab === "unheard" && (
-              <section className="mt-6">
-
-                <div className="mb-3 flex items-center justify-between">
-
-                  <h2 className="text-[20px] font-bold text-[#14526B]">
-                    まだ聴けていない曲
-                  </h2>
-
-                  <span className="text-[12px] text-zinc-400">
-                    {unheardSongs.length}曲
-                  </span>
-
-                </div>
-
-                {unheardSongs.length > 0 ? (
-
-                  <div className="-mx-4 overflow-hidden border-y border-zinc-200 bg-white sm:-mx-6">
-
-                    {unheardSongs.map((song, index) => (
-                      <Link
-                        key={song}
-                        href={`/songs/${encodeURIComponent(song)}`}
-                        className={`group flex items-center px-4 py-3 transition-colors hover:bg-zinc-50 sm:px-6 ${
-                          index !== unheardSongs.length - 1
-                            ? "border-b border-zinc-200"
-                            : ""
-                        }`}
-                      >
-
-                        <span className="min-w-0 flex-1 text-[14px] font-medium leading-[1.4] text-[#14526B]">
-                          {song}
-                        </span>
-
-                        <span className="ml-3 shrink-0 text-[16px] text-zinc-300 transition-transform group-hover:translate-x-0.5">
-                          ›
-                        </span>
-
-                      </Link>
-                    ))}
-
-                  </div>
-
-                ) : (
-
-                  <div className="rounded-xl bg-[#14526B]/10 px-5 py-8 text-center">
-
-                    <p className="text-[18px] font-bold text-[#14526B]">
-                      全曲コンプリート！
-                    </p>
-
-                    <p className="mt-1 text-[12px] text-zinc-500">
-                      登録されているすべての曲を聴いています
-                    </p>
-
-                  </div>
-
-                )}
-
-              </section>
-            )}
-
-          </>
-        )}
-
+        </div>
       </div>
-    </main>
+    );
+  };
+
+  return (
+    <section className="mt-5">
+
+      {/* ================================= */}
+      {/* 開閉 */}
+      {/* ================================= */}
+
+      <button
+        type="button"
+        onClick={() =>
+          setOpen(
+            (current) =>
+              !current
+          )
+        }
+        className="
+          flex
+          w-full
+          items-center
+          justify-between
+          rounded-xl
+          border
+          border-[#14526B]/20
+          bg-[#14526B]/5
+          px-4
+          py-3.5
+          text-left
+          transition
+          hover:bg-[#14526B]/10
+        "
+      >
+        <div>
+          <p className="text-[14px] font-bold text-[#14526B]">
+            SETLIST IMPORT
+          </p>
+
+          <p className="mt-0.5 text-[11px] text-zinc-500">
+            Xのポストからセトリを変換
+          </p>
+        </div>
+
+        <span className="text-[#14526B]">
+          {open ? "−" : "+"}
+        </span>
+      </button>
+
+      {/* ================================= */}
+      {/* IMPORT */}
+      {/* ================================= */}
+
+      {open && (
+        <div className="mt-4 rounded-2xl border border-zinc-200 bg-white p-4">
+
+          <p className="text-xs font-bold tracking-[0.15em] text-zinc-400">
+            ADMIN TOOL
+          </p>
+
+          <h2 className="mt-1 text-lg font-bold text-[#14526B]">
+            SETLIST IMPORT
+          </h2>
+
+          <p className="mt-1 text-xs leading-5 text-zinc-500">
+            Xのポスト本文を貼り付けてください。
+          </p>
+
+          <textarea
+            value={text}
+            onChange={(e) => {
+              setText(
+                e.target.value
+              );
+              setParsed(null);
+            }}
+            placeholder={`例：
+
+リハ
+退屈日和
+マリッジブルー
+
+本編
+愛才
+0.2
+メトロポリタン
+
+en
+ドリー
+
+#なきごと`}
+            className="
+              mt-4
+              min-h-[240px]
+              w-full
+              resize-y
+              rounded-xl
+              border
+              border-zinc-200
+              bg-zinc-50
+              px-4
+              py-3
+              text-sm
+              leading-6
+              outline-none
+              transition
+              placeholder:text-zinc-300
+              focus:border-[#14526B]
+              focus:bg-white
+            "
+          />
+
+          <button
+            type="button"
+            onClick={
+              parseSetlist
+            }
+            disabled={
+              !text.trim()
+            }
+            className="
+              mt-3
+              w-full
+              rounded-xl
+              bg-[#14526B]
+              px-4
+              py-3
+              text-sm
+              font-bold
+              text-white
+              transition
+              hover:opacity-90
+              disabled:opacity-30
+            "
+          >
+            解析する
+          </button>
+
+          {/* ================================= */}
+          {/* RESULT */}
+          {/* ================================= */}
+
+          {parsed && (
+            <div className="mt-7">
+
+              <div className="flex items-end justify-between">
+                <div>
+                  <p className="text-[10px] font-bold tracking-[0.15em] text-zinc-400">
+                    RESULT
+                  </p>
+
+                  <h3 className="mt-1 text-base font-bold text-[#14526B]">
+                    解析結果
+                  </h3>
+                </div>
+
+                {unknownSongs.length >
+                  0 && (
+                  <span className="text-[11px] font-medium text-amber-700">
+                    未登録{" "}
+                    {
+                      unknownSongs.length
+                    }
+                    件
+                  </span>
+                )}
+              </div>
+
+              {/* SETLIST */}
+
+              <div className="mt-6">
+
+                <div className="flex justify-between">
+                  <h3 className="text-sm font-bold text-[#14526B]">
+                    SET LIST
+                  </h3>
+
+                  <span className="text-xs text-zinc-400">
+                    {
+                      parsed.setlist
+                        .length
+                    }
+                    曲
+                  </span>
+                </div>
+
+                <div className="mt-2 border-y border-zinc-200">
+
+                  {parsed.setlist.map(
+                    (song, index) =>
+                      renderSong(
+                        song,
+                        String(
+                          index + 1
+                        ).padStart(
+                          2,
+                          "0"
+                        )
+                      )
+                  )}
+
+                </div>
+              </div>
+
+              {/* ENCORE */}
+
+              {parsed.encore.length >
+                0 && (
+                <div className="mt-6">
+
+                  <h3 className="text-sm font-bold text-[#14526B]">
+                    ENCORE
+                  </h3>
+
+                  <div className="mt-2 border-y border-zinc-200">
+
+                    {parsed.encore.map(
+                      (
+                        song,
+                        index
+                      ) =>
+                        renderSong(
+                          song,
+                          `E${
+                            index + 1
+                          }`
+                        )
+                    )}
+
+                  </div>
+                </div>
+              )}
+
+              {/* REHEARSAL */}
+
+              {parsed.rehearsal
+                .length > 0 && (
+                <div className="mt-6">
+
+                  <h3 className="text-sm font-bold text-[#14526B]">
+                    REHEARSAL
+                  </h3>
+
+                  <div className="mt-2 border-y border-zinc-200">
+
+                    {parsed.rehearsal.map(
+                      (
+                        song,
+                        index
+                      ) =>
+                        renderSong(
+                          song,
+                          `R${
+                            index + 1
+                          }`
+                        )
+                    )}
+
+                  </div>
+                </div>
+              )}
+
+              {/* 注意 */}
+
+              {unknownSongs.length >
+                0 && (
+                <div className="mt-6 rounded-xl bg-amber-50 px-4 py-3">
+
+                  <p className="text-xs font-bold text-amber-800">
+                    未登録の項目があります
+                  </p>
+
+                  <p className="mt-1 text-[11px] leading-5 text-amber-700">
+                    新曲・表記揺れ・ポストの文章などの可能性があります。
+                    コードへ反映する前に確認してください。
+                  </p>
+
+                </div>
+              )}
+
+              {/* CODE */}
+
+              <div className="mt-7">
+
+                <h3 className="text-sm font-bold text-[#14526B]">
+                  lives.ts 用コード
+                </h3>
+
+                <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-950 p-4 text-xs leading-6 text-zinc-100">
+                  {generatedCode}
+                </pre>
+
+                <button
+                  type="button"
+                  onClick={
+                    copyCode
+                  }
+                  className="
+                    mt-3
+                    w-full
+                    rounded-xl
+                    border
+                    border-[#14526B]
+                    px-4
+                    py-2.5
+                    text-sm
+                    font-bold
+                    text-[#14526B]
+                  "
+                >
+                  {copied
+                    ? "コピーしました ✓"
+                    : "コードをコピー"}
+                </button>
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+      )}
+
+    </section>
   );
 }

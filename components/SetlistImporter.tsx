@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type ParsedSetlist = {
   setlist: string[];
@@ -16,10 +16,37 @@ type Section =
 export default function SetlistImporter() {
   const [open, setOpen] = useState(false);
   const [text, setText] = useState("");
+
   const [parsed, setParsed] =
     useState<ParsedSetlist | null>(null);
-  const [copied, setCopied] =
+
+  // ライブ情報
+  const [date, setDate] = useState("");
+  const [title, setTitle] = useState("");
+  const [city, setCity] = useState("");
+  const [venue, setVenue] = useState("");
+  const [tour, setTour] = useState("");
+  const [artists, setArtists] = useState("");
+  const [memo, setMemo] = useState("");
+
+  const [
+    excludeFromSongHistory,
+    setExcludeFromSongHistory,
+  ] = useState(false);
+
+  // 管理者認証
+  const [adminSecret, setAdminSecret] =
+    useState("");
+
+  // 保存状態
+  const [saving, setSaving] =
     useState(false);
+
+  const [successMessage, setSuccessMessage] =
+    useState("");
+
+  const [errorMessage, setErrorMessage] =
+    useState("");
 
   // ========================================
   // 曲名の整形
@@ -106,7 +133,7 @@ export default function SetlistImporter() {
   };
 
   // ========================================
-  // 解析
+  // セトリ解析
   // ========================================
 
   const parseSetlist = () => {
@@ -144,94 +171,175 @@ export default function SetlistImporter() {
 
       if (!song) continue;
 
-      result[currentSection].push(
-        song
-      );
+      result[currentSection].push(song);
     }
 
     setParsed(result);
-    setCopied(false);
+    setSuccessMessage("");
+    setErrorMessage("");
   };
 
   // ========================================
-  // コード生成
+  // ライブをSupabaseへ追加
   // ========================================
 
-  const generatedCode =
-    useMemo(() => {
-      if (!parsed) return "";
+  const addLive = async () => {
+    if (!parsed) return;
 
-      const lines: string[] = [];
+    setSuccessMessage("");
+    setErrorMessage("");
 
-      lines.push("setlist: [");
+    if (
+      !date ||
+      !title.trim() ||
+      !city.trim() ||
+      !venue.trim()
+    ) {
+      setErrorMessage(
+        "日付・公演名・都道府県・会場を入力してください。"
+      );
+      return;
+    }
 
-      parsed.setlist.forEach(
-        (song) => {
-          lines.push(
-            `  ${JSON.stringify(song)},`
-          );
+    if (parsed.setlist.length === 0) {
+      setErrorMessage(
+        "セットリストがありません。"
+      );
+      return;
+    }
+
+    if (!adminSecret) {
+      setErrorMessage(
+        "管理者パスワードを入力してください。"
+      );
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      // 例：2026-10-03
+      // 同日に複数公演がある場合にも対応できるよう
+      // タイトルから短い識別子を付ける
+      const slug = title
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(
+          /[^a-z0-9ぁ-んァ-ヶ一-龠ー-]/g,
+          ""
+        )
+        .slice(0, 30);
+
+      const id = slug
+        ? `${date}-${slug}`
+        : date;
+
+      // リハーサルはmemoへ追加
+      const rehearsalMemo =
+        parsed.rehearsal.length > 0
+          ? `リハーサル：${parsed.rehearsal.join(
+              " / "
+            )}`
+          : "";
+
+      const finalMemo = [
+        rehearsalMemo,
+        memo.trim(),
+      ]
+        .filter(Boolean)
+        .join("\n");
+
+      // 対バンは「/」または改行区切り
+      const artistList = artists
+        .split(/\r?\n|\/|／/)
+        .map((artist) => artist.trim())
+        .filter(Boolean);
+
+      const response = await fetch(
+        "/api/lives",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            "x-admin-secret":
+              adminSecret,
+          },
+
+          body: JSON.stringify({
+            id,
+            date,
+            title: title.trim(),
+            city: city.trim(),
+            venue: venue.trim(),
+            tour: tour.trim(),
+            artists: artistList,
+            setlist: parsed.setlist,
+            encore: parsed.encore,
+            memo: finalMemo,
+            excludeFromSongHistory,
+          }),
         }
       );
 
-      lines.push("],");
+      const result = await response.json();
 
-      if (
-        parsed.encore.length > 0
-      ) {
-        lines.push("encore: [");
-
-        parsed.encore.forEach(
-          (song) => {
-            lines.push(
-              `  ${JSON.stringify(song)},`
-            );
-          }
+      if (!response.ok) {
+        setErrorMessage(
+          result.details ||
+            result.error ||
+            "ライブの追加に失敗しました。"
         );
-
-        lines.push("],");
+        return;
       }
 
-      if (
-        parsed.rehearsal.length > 0
-      ) {
-        const rehearsal =
-          `リハーサル：${parsed.rehearsal.join(
-            " / "
-          )}`;
+      setSuccessMessage(
+        "ライブを追加しました ✓"
+      );
 
-        lines.push(
-          `memo: ${JSON.stringify(
-            rehearsal
-          )},`
-        );
-      }
+      // 入力内容をリセット
+      setText("");
+      setParsed(null);
 
-      return lines.join("\n");
-    }, [parsed]);
+      setDate("");
+      setTitle("");
+      setCity("");
+      setVenue("");
+      setTour("");
+      setArtists("");
+      setMemo("");
 
-  // ========================================
-  // コピー
-  // ========================================
+      setExcludeFromSongHistory(false);
 
-  const copyCode = async () => {
-    if (!generatedCode) return;
+      // adminSecretは残す
+      // 同日に複数登録するとき入力し直さなくてよい
 
-    await navigator.clipboard.writeText(
-      generatedCode
-    );
+    } catch (error) {
+      console.error(error);
 
-    setCopied(true);
-
-    window.setTimeout(() => {
-      setCopied(false);
-    }, 1500);
+      setErrorMessage(
+        "通信エラーが発生しました。"
+      );
+    } finally {
+      setSaving(false);
+    }
   };
+
+  // ========================================
+  // 共通input
+  // ========================================
+
+  const inputClass =
+    "mt-1.5 w-full rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-300 focus:border-[#14526B]";
 
   return (
     <section className="mt-5">
 
       {/* ================================= */}
-      {/* 開閉ボタン */}
+      {/* 開閉 */}
       {/* ================================= */}
 
       <button
@@ -261,7 +369,7 @@ export default function SetlistImporter() {
           </p>
 
           <p className="mt-0.5 text-[11px] text-zinc-500">
-            Xのポストからセトリを変換
+            Xのポストからライブを追加
           </p>
         </div>
 
@@ -269,10 +377,6 @@ export default function SetlistImporter() {
           {open ? "−" : "+"}
         </span>
       </button>
-
-      {/* ================================= */}
-      {/* IMPORT画面 */}
-      {/* ================================= */}
 
       {open && (
         <div className="mt-4 rounded-2xl border border-zinc-200 bg-white p-4">
@@ -286,16 +390,20 @@ export default function SetlistImporter() {
           </h2>
 
           <p className="mt-1 text-xs leading-5 text-zinc-500">
-            Xのポスト本文を貼り付けてください。
+            Xのポスト本文を貼り付けて解析します。
           </p>
 
-          {/* 入力 */}
+          {/* ================================= */}
+          {/* X本文 */}
+          {/* ================================= */}
 
           <textarea
             value={text}
             onChange={(e) => {
               setText(e.target.value);
               setParsed(null);
+              setSuccessMessage("");
+              setErrorMessage("");
             }}
             placeholder={`例：
 
@@ -314,7 +422,7 @@ en
 #なきごと`}
             className="
               mt-4
-              min-h-[240px]
+              min-h-[220px]
               w-full
               resize-y
               rounded-xl
@@ -356,51 +464,204 @@ en
           </button>
 
           {/* ================================= */}
-          {/* 結果 */}
+          {/* 解析後 */}
           {/* ================================= */}
 
           {parsed && (
-            <div className="mt-7">
+            <div className="mt-8">
 
-              {/* SETLIST */}
+              {/* ================================= */}
+              {/* ライブ情報 */}
+              {/* ================================= */}
 
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-[#14526B]">
-                  SET LIST
+              <div>
+                <p className="text-[10px] font-bold tracking-[0.15em] text-zinc-400">
+                  LIVE INFO
+                </p>
+
+                <h3 className="mt-1 text-lg font-bold text-[#14526B]">
+                  ライブ情報
                 </h3>
 
-                <span className="text-xs text-zinc-400">
-                  {parsed.setlist.length}曲
-                </span>
-              </div>
+                <div className="mt-4 space-y-4">
 
-              <div className="mt-2 border-y border-zinc-200">
+                  <label className="block">
+                    <span className="text-xs font-bold text-zinc-600">
+                      日付 *
+                    </span>
 
-                {parsed.setlist.map(
-                  (song, index) => (
-                    <div
-                      key={`${song}-${index}`}
-                      className="flex gap-3 border-b border-zinc-100 py-2.5 last:border-b-0"
-                    >
-                      <span className="w-6 shrink-0 text-right text-xs text-zinc-300">
-                        {String(
-                          index + 1
-                        ).padStart(
-                          2,
-                          "0"
-                        )}
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) =>
+                        setDate(
+                          e.target.value
+                        )
+                      }
+                      className={
+                        inputClass
+                      }
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-xs font-bold text-zinc-600">
+                      公演名 *
+                    </span>
+
+                    <input
+                      type="text"
+                      value={title}
+                      onChange={(e) =>
+                        setTitle(
+                          e.target.value
+                        )
+                      }
+                      placeholder="TOKYO CALLING 2026"
+                      className={
+                        inputClass
+                      }
+                    />
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-3">
+
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600">
+                        都道府県 *
                       </span>
 
-                      <span className="text-sm font-medium text-[#14526B]">
-                        {song}
+                      <input
+                        type="text"
+                        value={city}
+                        onChange={(e) =>
+                          setCity(
+                            e.target.value
+                          )
+                        }
+                        placeholder="東京"
+                        className={
+                          inputClass
+                        }
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="text-xs font-bold text-zinc-600">
+                        会場 *
                       </span>
-                    </div>
-                  )
-                )}
+
+                      <input
+                        type="text"
+                        value={venue}
+                        onChange={(e) =>
+                          setVenue(
+                            e.target.value
+                          )
+                        }
+                        placeholder="Veats Shibuya"
+                        className={
+                          inputClass
+                        }
+                      />
+                    </label>
+
+                  </div>
+
+                  <label className="block">
+                    <span className="text-xs font-bold text-zinc-600">
+                      ツアー
+                    </span>
+
+                    <input
+                      type="text"
+                      value={tour}
+                      onChange={(e) =>
+                        setTour(
+                          e.target.value
+                        )
+                      }
+                      placeholder="任意"
+                      className={
+                        inputClass
+                      }
+                    />
+                  </label>
+
+                  <label className="block">
+                    <span className="text-xs font-bold text-zinc-600">
+                      対バン
+                    </span>
+
+                    <textarea
+                      value={artists}
+                      onChange={(e) =>
+                        setArtists(
+                          e.target.value
+                        )
+                      }
+                      placeholder={`LOCAL CONNECT / Hakubi / BRADIO`}
+                      className={`${inputClass} min-h-[80px] resize-y`}
+                    />
+
+                    <span className="mt-1 block text-[10px] text-zinc-400">
+                      「/」または改行で区切れます
+                    </span>
+                  </label>
+
+                </div>
+              </div>
+
+              {/* ================================= */}
+              {/* SET LIST */}
+              {/* ================================= */}
+
+              <div className="mt-8">
+
+                <div className="flex items-center justify-between">
+
+                  <h3 className="text-sm font-bold text-[#14526B]">
+                    SET LIST
+                  </h3>
+
+                  <span className="text-xs text-zinc-400">
+                    {parsed.setlist.length}
+                    曲
+                  </span>
+
+                </div>
+
+                <div className="mt-2 border-y border-zinc-200">
+
+                  {parsed.setlist.map(
+                    (song, index) => (
+                      <div
+                        key={`${song}-${index}`}
+                        className="flex gap-3 border-b border-zinc-100 py-2.5 last:border-b-0"
+                      >
+                        <span className="w-6 shrink-0 text-right text-xs text-zinc-300">
+                          {String(
+                            index + 1
+                          ).padStart(
+                            2,
+                            "0"
+                          )}
+                        </span>
+
+                        <span className="text-sm font-medium text-[#14526B]">
+                          {song}
+                        </span>
+                      </div>
+                    )
+                  )}
+
+                </div>
 
               </div>
 
+              {/* ================================= */}
               {/* ENCORE */}
+              {/* ================================= */}
 
               {parsed.encore.length >
                 0 && (
@@ -413,13 +674,17 @@ en
                   <div className="mt-2 border-y border-zinc-200">
 
                     {parsed.encore.map(
-                      (song, index) => (
+                      (
+                        song,
+                        index
+                      ) => (
                         <div
                           key={`${song}-${index}`}
                           className="flex gap-3 border-b border-zinc-100 py-2.5 last:border-b-0"
                         >
                           <span className="w-6 shrink-0 text-right text-xs text-zinc-300">
-                            E{index + 1}
+                            E
+                            {index + 1}
                           </span>
 
                           <span className="text-sm font-medium text-[#14526B]">
@@ -430,10 +695,13 @@ en
                     )}
 
                   </div>
+
                 </div>
               )}
 
+              {/* ================================= */}
               {/* REHEARSAL */}
+              {/* ================================= */}
 
               {parsed.rehearsal
                 .length > 0 && (
@@ -452,40 +720,139 @@ en
                 </div>
               )}
 
-              {/* コード */}
+              {/* ================================= */}
+              {/* その他 */}
+              {/* ================================= */}
+
+              <div className="mt-8 border-t border-zinc-200 pt-6">
+
+                <label className="block">
+
+                  <span className="text-xs font-bold text-zinc-600">
+                    メモ
+                  </span>
+
+                  <textarea
+                    value={memo}
+                    onChange={(e) =>
+                      setMemo(
+                        e.target.value
+                      )
+                    }
+                    placeholder="任意"
+                    className={`${inputClass} min-h-[90px] resize-y`}
+                  />
+
+                </label>
+
+                <label className="mt-4 flex cursor-pointer items-start gap-3 rounded-xl bg-zinc-50 p-3">
+
+                  <input
+                    type="checkbox"
+                    checked={
+                      excludeFromSongHistory
+                    }
+                    onChange={(e) =>
+                      setExcludeFromSongHistory(
+                        e.target.checked
+                      )
+                    }
+                    className="mt-0.5 h-4 w-4 accent-[#14526B]"
+                  />
+
+                  <div>
+                    <p className="text-xs font-bold text-zinc-700">
+                      曲履歴から除外
+                    </p>
+
+                    <p className="mt-0.5 text-[10px] leading-4 text-zinc-400">
+                      弾き語りなど、SONGSの演奏履歴に含めないライブ
+                    </p>
+                  </div>
+
+                </label>
+
+              </div>
+
+              {/* ================================= */}
+              {/* ADMIN認証 */}
+              {/* ================================= */}
 
               <div className="mt-7">
 
-                <h3 className="text-sm font-bold text-[#14526B]">
-                  lives.ts 用コード
-                </h3>
+                <label className="block">
 
-                <pre className="mt-2 overflow-x-auto rounded-xl bg-zinc-950 p-4 text-xs leading-6 text-zinc-100">
-                  {generatedCode}
-                </pre>
+                  <span className="text-xs font-bold text-zinc-600">
+                    管理者パスワード
+                  </span>
 
-                <button
-                  type="button"
-                  onClick={copyCode}
-                  className="
-                    mt-3
-                    w-full
-                    rounded-xl
-                    border
-                    border-[#14526B]
-                    px-4
-                    py-2.5
-                    text-sm
-                    font-bold
-                    text-[#14526B]
-                  "
-                >
-                  {copied
-                    ? "コピーしました ✓"
-                    : "コードをコピー"}
-                </button>
+                  <input
+                    type="password"
+                    value={adminSecret}
+                    onChange={(e) =>
+                      setAdminSecret(
+                        e.target.value
+                      )
+                    }
+                    autoComplete="off"
+                    placeholder="ADMIN_SECRET"
+                    className={
+                      inputClass
+                    }
+                  />
+
+                </label>
 
               </div>
+
+              {/* ================================= */}
+              {/* メッセージ */}
+              {/* ================================= */}
+
+              {errorMessage && (
+                <div className="mt-4 rounded-xl bg-red-50 px-4 py-3 text-xs font-medium leading-5 text-red-700">
+                  {errorMessage}
+                </div>
+              )}
+
+              {successMessage && (
+                <div className="mt-4 rounded-xl bg-[#14526B]/10 px-4 py-3 text-xs font-bold text-[#14526B]">
+                  {successMessage}
+                </div>
+              )}
+
+              {/* ================================= */}
+              {/* 保存 */}
+              {/* ================================= */}
+
+              <button
+                type="button"
+                onClick={addLive}
+                disabled={saving}
+                className="
+                  mt-5
+                  w-full
+                  rounded-xl
+                  bg-[#14526B]
+                  px-4
+                  py-3.5
+                  text-sm
+                  font-bold
+                  text-white
+                  transition
+                  hover:opacity-90
+                  disabled:cursor-not-allowed
+                  disabled:opacity-50
+                "
+              >
+                {saving
+                  ? "追加しています..."
+                  : "ライブ一覧に追加"}
+              </button>
+
+              <p className="mt-2 text-center text-[10px] leading-4 text-zinc-400">
+                内容を確認してから追加してください
+              </p>
 
             </div>
           )}
