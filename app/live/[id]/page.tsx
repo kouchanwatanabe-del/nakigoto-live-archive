@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { lives } from "../../../data/lives";
 import AttendedButton from "../../../components/AttendedButton";
+import BackButton from "../../../components/BackButton";
 
 type LiveId = (typeof lives)[number]["id"];
 
@@ -31,13 +32,7 @@ export default async function LivePage({
         {/* 戻る */}
         {/* ================================= */}
 
-        <Link
-          href="/lives"
-          className="inline-flex items-center gap-1 text-[15px] font-medium text-[#14526B] transition-opacity hover:opacity-60"
-        >
-          <span>←</span>
-          <span>LIVE</span>
-        </Link>
+        <BackButton />
 
         {/* ================================= */}
         {/* ライブ情報 */}

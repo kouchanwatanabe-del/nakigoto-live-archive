@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { lives } from "../../../data/lives";
 import SongLiveList from "../../../components/SongLiveList";
+import BackButton from "../../../components/BackButton";
 
 export default async function SongPage({
   params,
@@ -44,13 +45,8 @@ export default async function SongPage({
         {/* 戻る */}
         {/* ================================= */}
 
-        <Link
-          href="/songs"
-          className="text-sm font-medium text-[#14526B] hover:underline"
-        >
-          ← 楽曲一覧
-        </Link>
-
+        <BackButton />
+        
         {/* ================================= */}
         {/* 曲情報 */}
         {/* ================================= */}
