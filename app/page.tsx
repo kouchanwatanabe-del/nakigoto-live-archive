@@ -157,7 +157,7 @@ export default function Home() {
 </div>
 
                   <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
-                    →
+                    ＞
                   </span>
 
                 </div>
@@ -217,7 +217,7 @@ export default function Home() {
 
                 {/* 矢印 */}
                 <span className="ml-3 text-[13px] text-zinc-300">
-                  →
+                  ＞
                 </span>
 
               </Link>
