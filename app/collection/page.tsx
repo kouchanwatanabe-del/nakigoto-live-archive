@@ -37,6 +37,7 @@ const hiddenSongs = [
   "虫けら'20",
   "19",
   "秘密",
+  "社会のゴミカザマタカフミ（3markets[]カバー）",
 ];
 
 const isHiddenSong = (song: string) => {
