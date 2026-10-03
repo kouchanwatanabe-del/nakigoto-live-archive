@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { lives } from "../../data/lives";
+import SetlistImporter from "../../components/SetlistImporter";
 
 type Live = (typeof lives)[number];
 
@@ -47,6 +48,7 @@ export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
 const [secretTapCount, setSecretTapCount] = useState(0);
+const [adminMode, setAdminMode] = useState(false);
 
   // 最初に表示するタブ
   const [activeTab, setActiveTab] = useState<Tab>("lives");
@@ -62,7 +64,10 @@ const [secretTapCount, setSecretTapCount] = useState(0);
         setAttendedIds([]);
       }
     }
+const savedAdminMode =
+  localStorage.getItem("adminMode") === "true";
 
+setAdminMode(savedAdminMode);
     setLoaded(true);
   }, []);
 
@@ -172,7 +177,7 @@ const handleSecretAdminTap = () => {
       "adminMode",
       String(next)
     );
-
+setAdminMode(next);
     window.dispatchEvent(
       new Event("adminModeChanged")
     );
@@ -220,7 +225,9 @@ const handleSecretAdminTap = () => {
         {/* ================================= */}
         {/* MY STATS */}
         {/* ================================= */}
-
+{adminMode && (
+  <SetlistImporter />
+)}
         <Link
           href="/stats"
           className="mt-8 flex items-center justify-between rounded-xl border border-[#14526B]/20 bg-[#14526B]/5 px-4 py-3.5 transition hover:bg-[#14526B]/10"
