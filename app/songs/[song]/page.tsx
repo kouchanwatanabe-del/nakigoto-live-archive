@@ -11,8 +11,16 @@ export default async function SongPage({
   const songName = decodeURIComponent(song);
 
   // ========================================
+  // 曲ごとのテーマカラー
+  // ========================================
+
+  const themeColor =
+    songName === "アカネ"
+      ? "#C95F4E"
+      : "#14526B";
+
+  // ========================================
   // この曲が演奏されたライブ
-  // 弾き語りなど除外指定されたライブは含めない
   // ========================================
 
   const playedLives = lives.filter(
@@ -29,9 +37,7 @@ export default async function SongPage({
         ...(live.encore ?? []),
       ];
 
-      return songs.includes(
-        songName
-      );
+      return songs.includes(songName);
     }
   );
 
@@ -39,29 +45,27 @@ export default async function SongPage({
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
       <div className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6 sm:py-9">
 
-        {/* ================================= */}
         {/* 戻る */}
-        {/* ================================= */}
 
-        <BackButton />
+        <BackButton color={themeColor} />
 
-        {/* ================================= */}
         {/* 曲情報 */}
-        {/* ================================= */}
 
         <div className="mt-5">
 
-          <p className="text-[12px] font-semibold tracking-[0.03em] text-[#14526B]">
+          <p
+            className="text-[12px] font-semibold tracking-[0.03em]"
+            style={{ color: themeColor }}
+          >
             SONG
           </p>
 
-          {/* 曲名 */}
-
-          <h1 className="mt-1.5 text-[19px] font-bold leading-[1.35] text-[#14526B] sm:text-[24px]">
+          <h1
+            className="mt-1.5 text-[19px] font-bold leading-[1.35] sm:text-[24px]"
+            style={{ color: themeColor }}
+          >
             {songName}
           </h1>
-
-          {/* 演奏回数 */}
 
           <p className="mt-2 text-[12px] text-zinc-500 sm:text-[13px]">
             {playedLives.length}
@@ -70,15 +74,12 @@ export default async function SongPage({
 
         </div>
 
-        {/* ================================= */}
         {/* 演奏ライブ */}
-        {/* ================================= */}
 
         <section className="mt-7">
           <SongLiveList
-            playedLives={
-              playedLives
-            }
+            playedLives={playedLives}
+            color={themeColor}
           />
         </section>
 
