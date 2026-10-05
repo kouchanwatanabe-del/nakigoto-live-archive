@@ -33,7 +33,7 @@ export const lives = [
     "忘却炉",
     "メトロポリタン",
   ],
-   memo: "テスト",
+   memo: "",
 },
 
   {
