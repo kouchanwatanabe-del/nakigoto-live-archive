@@ -213,7 +213,7 @@ export default function BottomNav() {
     <nav
       className="
         fixed
-        bottom-2
+        bottom-5
         left-1/2
         z-50
 
