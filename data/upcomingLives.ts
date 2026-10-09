@@ -31,6 +31,23 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   memo: "",
 },
-
+{
+  id: "2026-10-17-example",
+  date: "2026.10.17",
+  title: "murffin discs 20th Anniversary “murffin Carnival!!” 前夜祭",
+  city: "東京",
+  venue: "shibuya eggman",
+  tour: "",
+  memo: "osageとのコラボステージ",
+},
+{
+  id: "2026-10-17-example",
+  date: "2026.10.17",
+  title: "murffin discs 20th Anniversary “murffin Carnival!!”",
+  city: "東京",
+  venue: "国立代々木競技場 第一体育館",
+  tour: "",
+  memo: "SCRAMBLE STAGE",
+},
 ];
 

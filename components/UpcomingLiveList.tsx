@@ -21,6 +21,14 @@ export default function UpcomingLiveList({ keyword = "" }: { keyword?: string })
           <h2 className="mt-1 text-[15px] font-bold text-[#14526B]">{live.title}</h2>
           <p className="mt-1 text-xs text-zinc-500"><span className="font-semibold text-[#14526B]">{live.city}</span> ｜ {live.venue}</p>
           {live.tour && <p className="mt-1 text-[11px] text-zinc-500">{live.tour}</p>}
+          {live.artists && live.artists.length > 0 && (
+          <p className="mt-1.5 text-[11px] text-zinc-500">
+          <span className="font-semibold text-[#14526B]">
+           w /
+           </span>{" "}
+          {live.artists.join(" / ")}
+           </p>
+          )}
         </Link>
       ))}
     </div>
