@@ -1,107 +1,84 @@
 "use client";
-
 import {
   useEffect,
   useMemo,
   useState,
 } from "react";
-
 import { lives } from "../../data/lives";
 import LiveList from "../../components/LiveList";
 import LiveCalendar from "../../components/LiveCalendar";
-
+import UpcomingLiveList from "../../components/UpcomingLiveList";
+import { upcomingLives } from "../../data/upcomingLives";
 type Live = (typeof lives)[number];
-
 type SetlistFilter =
   | "すべて"
   | "あり"
   | "なし";
-
 type ViewMode =
   | "list"
   | "calendar";
-
 const FILTER_STORAGE_KEY =
   "liveSearchFilters";
-
 const SCROLL_STORAGE_KEY =
   "liveSearchScrollPosition";
-
 const RESTORE_STORAGE_KEY =
   "liveShouldRestoreScroll";
-
 const VIEW_STORAGE_KEY =
   "liveViewMode";
-
 export default function LivesPage() {
   // ========================================
   // LIST用 検索・フィルター
   // ========================================
-
   const [keyword, setKeyword] =
     useState("");
-
   const [year, setYear] =
     useState("すべて");
-
   const [month, setMonth] =
     useState("すべて");
-
   const [
     setlistFilter,
     setSetlistFilter,
   ] = useState<SetlistFilter>(
     "すべて"
   );
-
   const [
     attendedOnly,
     setAttendedOnly,
   ] = useState(false);
-
   const [
     attendedIds,
     setAttendedIds,
   ] = useState<string[]>([]);
-
   // ========================================
   // LIST / CALENDAR
   // ========================================
-
   const [
     viewMode,
     setViewMode,
   ] = useState<ViewMode>("list");
-
   const [
     filtersLoaded,
     setFiltersLoaded,
   ] = useState(false);
-
   const [
     scrollRestored,
     setScrollRestored,
   ] = useState(false);
-
   // ========================================
   // 参戦記録
   // ========================================
-
   const loadAttendedLives = () => {
     const saved =
       localStorage.getItem(
         "attendedLives"
       );
-
     if (!saved) {
       setAttendedIds([]);
       return;
     }
-
     try {
       const parsed =
         JSON.parse(saved);
-
       if (
         Array.isArray(parsed)
       ) {
@@ -115,42 +92,33 @@ export default function LivesPage() {
       setAttendedIds([]);
     }
   };
-
   // ========================================
   // 初回読み込み
   // ========================================
-
   useEffect(() => {
     loadAttendedLives();
-
     // LIST / CALENDAR復元
-
     const savedView =
       sessionStorage.getItem(
         VIEW_STORAGE_KEY
       );
-
     if (
       savedView === "list" ||
       savedView === "calendar"
     ) {
       setViewMode(savedView);
     }
-
     // LIST検索条件復元
-
     const savedFilters =
       sessionStorage.getItem(
         FILTER_STORAGE_KEY
       );
-
     if (savedFilters) {
       try {
         const parsed =
           JSON.parse(
             savedFilters
           );
-
         if (
           typeof parsed.keyword ===
           "string"
@@ -159,7 +127,6 @@ export default function LivesPage() {
             parsed.keyword
           );
         }
-
         if (
           typeof parsed.year ===
           "string"
@@ -168,7 +135,6 @@ export default function LivesPage() {
             parsed.year
           );
         }
-
         if (
           typeof parsed.month ===
           "string"
@@ -177,7 +143,6 @@ export default function LivesPage() {
             parsed.month
           );
         }
-
         if (
           parsed.setlistFilter ===
             "すべて" ||
@@ -190,7 +155,6 @@ export default function LivesPage() {
             parsed.setlistFilter
           );
         }
-
         if (
           typeof parsed.attendedOnly ===
           "boolean"
@@ -205,25 +169,20 @@ export default function LivesPage() {
         );
       }
     }
-
     setFiltersLoaded(true);
   }, []);
-
   // ========================================
   // ページに戻ったとき
   // 参戦記録更新
   // ========================================
-
   useEffect(() => {
     const handleFocus = () => {
       loadAttendedLives();
     };
-
     window.addEventListener(
       "focus",
       handleFocus
     );
-
     return () => {
       window.removeEventListener(
         "focus",
@@ -231,16 +190,13 @@ export default function LivesPage() {
       );
     };
   }, []);
-
   // ========================================
   // LIST / CALENDAR状態保存
   // ========================================
-
   useEffect(() => {
     if (!filtersLoaded) {
       return;
     }
-
     sessionStorage.setItem(
       VIEW_STORAGE_KEY,
       viewMode
@@ -249,16 +205,13 @@ export default function LivesPage() {
     viewMode,
     filtersLoaded,
   ]);
-
   // ========================================
   // LIST検索条件保存
   // ========================================
-
   useEffect(() => {
     if (!filtersLoaded) {
       return;
     }
-
     const filters = {
       keyword,
       year,
@@ -266,7 +219,6 @@ export default function LivesPage() {
       setlistFilter,
       attendedOnly,
     };
-
     sessionStorage.setItem(
       FILTER_STORAGE_KEY,
       JSON.stringify(filters)
@@ -279,11 +231,9 @@ export default function LivesPage() {
     attendedOnly,
     filtersLoaded,
   ]);
-
   // ========================================
   // 開催年
   // ========================================
-
   const years =
     useMemo(() => {
       const yearList =
@@ -294,7 +244,6 @@ export default function LivesPage() {
               4
             )
         );
-
       return [
         ...new Set(yearList),
       ].sort(
@@ -302,11 +251,9 @@ export default function LivesPage() {
           b.localeCompare(a)
       );
     }, []);
-
   // ========================================
   // 月
   // ========================================
-
   const months =
     useMemo(() => {
       if (
@@ -314,7 +261,6 @@ export default function LivesPage() {
       ) {
         return [];
       }
-
       const monthList =
         lives
           .filter(
@@ -330,7 +276,6 @@ export default function LivesPage() {
                 7
               )
           );
-
       return [
         ...new Set(monthList),
       ].sort(
@@ -339,32 +284,26 @@ export default function LivesPage() {
           Number(b)
       );
     }, [year]);
-
   // ========================================
   // LIST用検索
   // ========================================
-
   const filteredLives =
     useMemo(() => {
       const q =
         keyword
           .trim()
           .toLowerCase();
-
       return lives
         .filter(
           (live: Live) => {
             // 年
-
             const yearMatch =
               year ===
                 "すべて" ||
               live.date.startsWith(
                 year
               );
-
             // 月
-
             const monthMatch =
               year ===
                 "すべて" ||
@@ -373,13 +312,10 @@ export default function LivesPage() {
               live.date.startsWith(
                 `${year}.${month}`
               );
-
             // セトリ
-
             const hasSetlist =
               live.setlist.length >
               0;
-
             const setlistMatch =
               setlistFilter ===
                 "すべて" ||
@@ -389,46 +325,34 @@ export default function LivesPage() {
               (setlistFilter ===
                 "なし" &&
                 !hasSetlist);
-
             // 参戦済み
-
             const attendedMatch =
               !attendedOnly ||
               attendedIds.includes(
                 live.id
               );
-
             // 公演名
-
             const titleMatch =
               live.title
                 .toLowerCase()
                 .includes(q);
-
             // 都市
-
             const cityMatch =
               live.city
                 .toLowerCase()
                 .includes(q);
-
             // 会場
-
             const venueMatch =
               live.venue
                 .toLowerCase()
                 .includes(q);
-
             // ツアー
-
             const tourMatch =
               live.tour
                 ?.toLowerCase()
                 .includes(q) ??
               false;
-
             // 曲名
-
             const songMatch =
               live.setlist.some(
                 (song: string) =>
@@ -436,9 +360,7 @@ export default function LivesPage() {
                     .toLowerCase()
                     .includes(q)
               );
-
             // アンコール
-
             const encoreMatch =
               "encore" in live &&
               Array.isArray(
@@ -450,9 +372,7 @@ export default function LivesPage() {
                     .toLowerCase()
                     .includes(q)
               );
-
             // 対バン
-
             const artistMatch =
               "artists" in live &&
               Array.isArray(
@@ -466,7 +386,6 @@ export default function LivesPage() {
                     .toLowerCase()
                     .includes(q)
               );
-
             const keywordMatch =
               q === "" ||
               titleMatch ||
@@ -476,7 +395,6 @@ export default function LivesPage() {
               songMatch ||
               encoreMatch ||
               artistMatch;
-
             return (
               yearMatch &&
               monthMatch &&
@@ -500,55 +418,42 @@ export default function LivesPage() {
       attendedOnly,
       attendedIds,
     ]);
-
   // ========================================
   // スクロール復元
   // ========================================
-
   useEffect(() => {
     if (!filtersLoaded) {
       return;
     }
-
     if (scrollRestored) {
       return;
     }
-
     const shouldRestore =
       sessionStorage.getItem(
         RESTORE_STORAGE_KEY
       );
-
     if (
       shouldRestore !== "true"
     ) {
       sessionStorage.removeItem(
         SCROLL_STORAGE_KEY
       );
-
       setScrollRestored(true);
-
       return;
     }
-
     const savedScroll =
       sessionStorage.getItem(
         SCROLL_STORAGE_KEY
       );
-
     sessionStorage.removeItem(
       RESTORE_STORAGE_KEY
     );
-
     if (!savedScroll) {
       setScrollRestored(true);
-
       return;
     }
-
     const scrollPosition =
       Number(savedScroll);
-
     if (
       Number.isNaN(
         scrollPosition
@@ -557,12 +462,9 @@ export default function LivesPage() {
       sessionStorage.removeItem(
         SCROLL_STORAGE_KEY
       );
-
       setScrollRestored(true);
-
       return;
     }
-
     const frame =
       requestAnimationFrame(
         () => {
@@ -572,7 +474,6 @@ export default function LivesPage() {
             behavior:
               "instant",
           });
-
           requestAnimationFrame(
             () => {
               setScrollRestored(
@@ -582,7 +483,6 @@ export default function LivesPage() {
           );
         }
       );
-
     return () => {
       cancelAnimationFrame(
         frame
@@ -593,46 +493,34 @@ export default function LivesPage() {
     scrollRestored,
     filteredLives.length,
   ]);
-
   // ========================================
   // LIST検索条件リセット
   // ========================================
-
   const resetFilters = () => {
     setKeyword("");
-
     setYear("すべて");
-
     setMonth("すべて");
-
     setSetlistFilter(
       "すべて"
     );
-
     setAttendedOnly(false);
-
     sessionStorage.removeItem(
       FILTER_STORAGE_KEY
     );
-
     sessionStorage.removeItem(
       SCROLL_STORAGE_KEY
     );
-
     sessionStorage.removeItem(
       RESTORE_STORAGE_KEY
     );
-
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
-
   // ========================================
   // JSX
   // ========================================
-
   return (
     <main
       className={`min-h-screen bg-white pb-36 text-zinc-900 ${
@@ -656,7 +544,6 @@ export default function LivesPage() {
         {/* ================================= */}
         {/* HEADER */}
         {/* ================================= */}
-
         <div>
           <h1
             className="
@@ -667,7 +554,6 @@ export default function LivesPage() {
           >
             LIVE
           </h1>
-
           <p
             className="
               mt-2
@@ -680,11 +566,9 @@ export default function LivesPage() {
             ライブ・セットリスト一覧
           </p>
         </div>
-
         {/* ================================= */}
         {/* LIST / CALENDAR */}
         {/* ================================= */}
-
         <div
           className="
             mt-6
@@ -694,12 +578,10 @@ export default function LivesPage() {
           "
         >
           {/* LIST */}
-
           <button
   type="button"
   onClick={() => {
     loadAttendedLives();
-
     setViewMode(
       "list"
     );
@@ -712,7 +594,6 @@ export default function LivesPage() {
     font-bold
     tracking-[0.08em]
     transition
-
     ${
       viewMode === "list"
         ? "text-[#14526B]"
@@ -721,7 +602,6 @@ export default function LivesPage() {
   `}
 >
   LIST
-
   {viewMode === "list" && (
     <span
       className="
@@ -735,14 +615,11 @@ export default function LivesPage() {
     />
   )}
 </button>
-
           {/* CALENDAR */}
-
           <button
             type="button"
             onClick={() => {
               loadAttendedLives();
-
               setViewMode(
                 "calendar"
               );
@@ -755,7 +632,6 @@ export default function LivesPage() {
               font-bold
               tracking-[0.08em]
               transition
-
               ${
                 viewMode ===
                 "calendar"
@@ -765,7 +641,6 @@ export default function LivesPage() {
             `}
           >
             CALENDAR
-
             {viewMode ===
               "calendar" && (
               <span
@@ -781,19 +656,15 @@ export default function LivesPage() {
             )}
           </button>
         </div>
-
         {/* ================================= */}
         {/* LISTのときだけ検索条件を表示 */}
         {/* ================================= */}
-
         {viewMode === "list" && (
           <>
             <section className="mt-6">
-
               {/* ================================= */}
               {/* 検索 */}
               {/* ================================= */}
-
               <div className="relative z-10">
                 <input
                   type="search"
@@ -829,7 +700,6 @@ export default function LivesPage() {
                     focus:ring-[#14526B]/10
                   "
                 />
-
                 {keyword && (
                   <button
                     type="button"
@@ -858,11 +728,9 @@ export default function LivesPage() {
                   </button>
                 )}
               </div>
-
               {/* ================================= */}
               {/* 年 */}
               {/* ================================= */}
-
               <div
                 className="
                   mt-3
@@ -878,7 +746,6 @@ export default function LivesPage() {
                     setYear(
                       "すべて"
                     );
-
                     setMonth(
                       "すべて"
                     );
@@ -892,7 +759,6 @@ export default function LivesPage() {
                     text-[12px]
                     font-medium
                     transition
-
                     ${
                       year ===
                       "すべて"
@@ -903,7 +769,13 @@ export default function LivesPage() {
                 >
                   すべて
                 </button>
-
+                <button
+                  type="button"
+                  onClick={() => { setYear("今後の予定"); setMonth("すべて"); setSetlistFilter("すべて"); setAttendedOnly(false); }}
+                  className={`shrink-0 rounded-full border px-4 py-2 text-[12px] font-medium transition ${year === "今後の予定" ? "border-[#14526B] bg-[#14526B] text-white" : "border-zinc-200 bg-white text-zinc-600"}`}
+                >
+                  今後の予定
+                </button>
                 {years.map(
                   (y: string) => (
                     <button
@@ -911,7 +783,6 @@ export default function LivesPage() {
                       key={y}
                       onClick={() => {
                         setYear(y);
-
                         setMonth(
                           "すべて"
                         );
@@ -925,7 +796,6 @@ export default function LivesPage() {
                         text-[12px]
                         font-medium
                         transition
-
                         ${
                           year === y
                             ? "border-[#14526B] bg-[#14526B] text-white"
@@ -938,11 +808,9 @@ export default function LivesPage() {
                   )
                 )}
               </div>
-
               {/* ================================= */}
               {/* 月 */}
               {/* ================================= */}
-
               {year !==
                 "すべて" && (
                 <div
@@ -970,7 +838,6 @@ export default function LivesPage() {
                       text-[11px]
                       font-medium
                       transition
-
                       ${
                         month ===
                         "すべて"
@@ -981,7 +848,6 @@ export default function LivesPage() {
                   >
                     すべて
                   </button>
-
                   {months.map(
                     (m: string) => (
                       <button
@@ -999,7 +865,6 @@ export default function LivesPage() {
                           text-[11px]
                           font-medium
                           transition
-
                           ${
                             month === m
                               ? "border-[#14526B] bg-[#14526B] text-white"
@@ -1013,12 +878,10 @@ export default function LivesPage() {
                   )}
                 </div>
               )}
-
               {/* ================================= */}
               {/* セトリ / 参戦 */}
               {/* ================================= */}
-
-              <div
+              {year !== "今後の予定" && <div
                 className="
                   mt-2
                   flex
@@ -1045,7 +908,6 @@ export default function LivesPage() {
                     text-[12px]
                     font-semibold
                     transition
-
                     ${
                       setlistFilter ===
                       "あり"
@@ -1056,7 +918,6 @@ export default function LivesPage() {
                 >
                   セトリあり
                 </button>
-
                 <button
                   type="button"
                   onClick={() =>
@@ -1075,7 +936,6 @@ export default function LivesPage() {
                     text-[12px]
                     font-semibold
                     transition
-
                     ${
                       setlistFilter ===
                       "なし"
@@ -1086,12 +946,10 @@ export default function LivesPage() {
                 >
                   セトリなし
                 </button>
-
                 <button
                   type="button"
                   onClick={() => {
                     loadAttendedLives();
-
                     setAttendedOnly(
                       !attendedOnly
                     );
@@ -1107,7 +965,6 @@ export default function LivesPage() {
                     text-[12px]
                     font-semibold
                     transition
-
                     ${
                       attendedOnly
                         ? "border-[#14526B] bg-[#14526B] text-white"
@@ -1125,16 +982,13 @@ export default function LivesPage() {
                       ? "♥"
                       : "♡"}
                   </span>
-
                   参戦済み
                 </button>
-              </div>
+              </div>}
             </section>
-
             {/* ================================= */}
             {/* LIST 件数 / リセット */}
             {/* ================================= */}
-
             <div
               className="
                 mt-5
@@ -1151,10 +1005,9 @@ export default function LivesPage() {
                   text-zinc-500
                 "
               >
-                {filteredLives.length}
+                {year === "今後の予定" ? upcomingLives.filter((live) => live.date >= new Date().toLocaleDateString("sv-SE").replaceAll("-", ".") && [live.title, live.city, live.venue, live.tour, live.memo, ...(live.artists ?? [])].some((value) => value.toLowerCase().includes(keyword.trim().toLowerCase()))).length : filteredLives.length}
                 件
               </p>
-
               {(keyword ||
                 year !==
                   "すべて" ||
@@ -1180,13 +1033,11 @@ export default function LivesPage() {
             </div>
           </>
         )}
-
         {/* ================================= */}
         {/* LIST */}
         {/* ================================= */}
-
         {viewMode === "list" && (
-          <LiveList
+          year === "今後の予定" ? <UpcomingLiveList keyword={keyword} /> : <LiveList
             filteredLives={
               filteredLives
             }
@@ -1198,19 +1049,16 @@ export default function LivesPage() {
             }
           />
         )}
-
         {/* ================================= */}
         {/* CALENDAR */}
         {/* LISTの検索条件を一切使わない */}
         {/* ================================= */}
-
         {viewMode ===
           "calendar" && (
           <div className="mt-5">
             <LiveCalendar
-              filteredLives={
-                lives
-              }
+              filteredLives={lives}
+              upcomingLives={upcomingLives}
             />
           </div>
         )}

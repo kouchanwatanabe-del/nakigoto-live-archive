@@ -1,23 +1,17 @@
 "use client";
-
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
 import { lives } from "../data/lives";
 import AttendedIconButton from "./AttendedIconButton";
-
 type Live = (typeof lives)[number];
-
 type Props = {
   filteredLives: Live[];
   attendedOnly?: boolean;
   onResetFilters?: () => void;
 };
-
 // ========================================
 // LIVE LIST
 // ========================================
-
 export default function LiveList({
   filteredLives,
   attendedOnly = false,
@@ -25,26 +19,21 @@ export default function LiveList({
 }: Props) {
   const [attendedIds, setAttendedIds] =
     useState<string[]>([]);
-
   // ========================================
   // 参戦記録を読み込む
   // ========================================
-
   const loadAttendedLives = () => {
     const saved =
       localStorage.getItem(
         "attendedLives"
       );
-
     if (!saved) {
       setAttendedIds([]);
       return;
     }
-
     try {
       const parsed =
         JSON.parse(saved);
-
       if (Array.isArray(parsed)) {
         setAttendedIds(parsed);
       } else {
@@ -54,32 +43,26 @@ export default function LiveList({
       setAttendedIds([]);
     }
   };
-
   useEffect(() => {
     loadAttendedLives();
   }, []);
-
   // ========================================
   // 詳細ページへ行く前に
   // スクロール位置を保存
   // ========================================
-
   const saveScrollPosition = () => {
     sessionStorage.setItem(
       "liveSearchScrollPosition",
       String(window.scrollY)
     );
-
     sessionStorage.setItem(
       "liveShouldRestoreScroll",
       "true"
     );
   };
-
   // ========================================
   // 結果なし
   // ========================================
-
   if (filteredLives.length === 0) {
     return (
       <div
@@ -101,11 +84,9 @@ export default function LiveList({
             ? "条件に一致する参戦ライブがありません"
             : "ライブが見つかりませんでした"}
         </p>
-
         <p className="mt-2 text-sm text-zinc-500">
           検索条件を変更してみてください
         </p>
-
         {onResetFilters && (
           <button
             type="button"
@@ -127,11 +108,9 @@ export default function LiveList({
       </div>
     );
   }
-
   // ========================================
   // ライブ一覧
   // ========================================
-
   return (
     <div
       className="
@@ -153,14 +132,12 @@ export default function LiveList({
             attendedIds.includes(
               live.id
             );
-
           return (
             <div
               key={live.id}
               className={`
                 relative
                 bg-white
-
                 ${
                   index !==
                   filteredLives.length - 1
@@ -172,7 +149,6 @@ export default function LiveList({
               {/* ================================= */}
               {/* ライブ詳細リンク */}
               {/* ================================= */}
-
               <Link
                 href={`/live/${live.id}`}
                 onClick={
@@ -193,7 +169,6 @@ export default function LiveList({
                 {/* ================================= */}
                 {/* 日付 */}
                 {/* ================================= */}
-
                 <div className="flex items-center gap-2">
                   <svg
                     viewBox="0 0 24 24"
@@ -206,7 +181,6 @@ export default function LiveList({
                       h-4
                       w-4
                       shrink-0
-
                       ${
                         attended
                           ? "text-[#14526B]"
@@ -226,12 +200,10 @@ export default function LiveList({
                           height="16"
                           rx="2"
                         />
-
                         <path d="M16 3v4M8 3v4M3 10h18" />
                       </>
                     )}
                   </svg>
-
                   <p
                     className="
                       text-[12px]
@@ -243,11 +215,9 @@ export default function LiveList({
                     {live.date}
                   </p>
                 </div>
-
                 {/* ================================= */}
                 {/* 公演名 */}
                 {/* ================================= */}
-
                 <h2
                   className="
                     mt-1
@@ -261,11 +231,9 @@ export default function LiveList({
                 >
                   {live.title}
                 </h2>
-
                 {/* ================================= */}
                 {/* 都市 / 会場 */}
                 {/* ================================= */}
-
                 <div
                   className="
                     mt-1
@@ -293,14 +261,12 @@ export default function LiveList({
                     aria-hidden="true"
                   >
                     <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
-
                     <circle
                       cx="12"
                       cy="10"
                       r="2.5"
                     />
                   </svg>
-
                   <p
                     className="
                       min-w-0
@@ -316,21 +282,17 @@ export default function LiveList({
                     >
                       {live.city}
                     </span>
-
                     <span className="mx-2 text-zinc-300">
                       ｜
                     </span>
-
                     <span>
                       {live.venue}
                     </span>
                   </p>
                 </div>
-
                 {/* ================================= */}
                 {/* ツアー / セトリ */}
                 {/* ================================= */}
-
                 <div
                   className="
                     mt-1.5
@@ -357,7 +319,6 @@ export default function LiveList({
                       {live.tour}
                     </span>
                   )}
-
                   {live.setlist.length >
                   0 ? (
                     <span
@@ -392,11 +353,9 @@ export default function LiveList({
                   )}
                 </div>
               </Link>
-
               {/* ================================= */}
               {/* 参戦ボタン */}
               {/* ================================= */}
-
               <div
   className="
     absolute

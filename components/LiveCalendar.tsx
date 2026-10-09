@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import {
   useEffect,
@@ -7,15 +6,13 @@ import {
   useRef,
   useState,
 } from "react";
-
 import { lives } from "../data/lives";
-
+import type { UpcomingLive } from "../data/upcomingLives";
 type Live = (typeof lives)[number];
-
 type Props = {
   filteredLives?: Live[];
+  upcomingLives?: UpcomingLive[];
 };
-
 type CalendarPage = {
   date: Date;
   year: number;
@@ -23,33 +20,33 @@ type CalendarPage = {
   days: (number | null)[];
   livesByDate: Record<string, Live[]>;
 };
-
 // ========================================
 // STORAGE
 // ========================================
-
 const CALENDAR_DATE_STORAGE_KEY =
   "liveCalendarDate";
-
 // ========================================
 // LIVE CALENDAR
 // ========================================
-
 export default function LiveCalendar({
   filteredLives = lives,
+  upcomingLives = [],
 }: Props) {
+  const allCalendarLives = useMemo(() => [
+    ...filteredLives,
+    ...upcomingLives.filter((item) => item.date >= `${new Date().getFullYear()}.${String(new Date().getMonth()+1).padStart(2,"0")}.${String(new Date().getDate()).padStart(2,"0")}`).map((item) => ({ ...item, setlist: [] as string[], encore: [] as string[] }))
+  ] as Live[], [filteredLives, upcomingLives]);
+  const upcomingIds = new Set(upcomingLives.map((item) => item.id));
+  const todayKey = (() => { const date = new Date(); return `${date.getFullYear()}.${String(date.getMonth()+1).padStart(2,"0")}.${String(date.getDate()).padStart(2,"0")}`; })();
   const [attendedIds, setAttendedIds] =
     useState<string[]>([]);
-
   const [
     highlightedLiveId,
     setHighlightedLiveId,
   ] = useState<string | null>(null);
-
   // ========================================
   // 最初に表示する月
   // ========================================
-
   const [calendarDate, setCalendarDate] =
     useState(() => {
       if (typeof window !== "undefined") {
@@ -57,11 +54,9 @@ export default function LiveCalendar({
           sessionStorage.getItem(
             CALENDAR_DATE_STORAGE_KEY
           );
-
         if (saved) {
           const [year, month] =
             saved.split(".").map(Number);
-
           if (
             !Number.isNaN(year) &&
             !Number.isNaN(month) &&
@@ -76,74 +71,56 @@ export default function LiveCalendar({
           }
         }
       }
-
       const latest =
         [...lives].sort((a, b) =>
           b.date.localeCompare(a.date)
         )[0];
-
       if (!latest) {
         return new Date();
       }
-
       const [year, month] =
         latest.date
           .split(".")
           .map(Number);
-
       return new Date(
         year,
         month - 1,
         1
       );
     });
-
   // ========================================
   // スワイプ
   // ========================================
-
   const touchStartX =
     useRef<number | null>(null);
-
   const touchStartY =
     useRef<number | null>(null);
-
   const [dragX, setDragX] =
     useState(0);
-
   const [isDragging, setIsDragging] =
     useState(false);
-
   const [isAnimating, setIsAnimating] =
     useState(false);
-
   const [containerWidth, setContainerWidth] =
     useState(0);
-
   const calendarContainerRef =
     useRef<HTMLDivElement | null>(null);
-
   const SWIPE_THRESHOLD = 55;
-
   // ========================================
   // 参戦記録読み込み
   // ========================================
-
   const loadAttendedLives = () => {
     const saved =
       localStorage.getItem(
         "attendedLives"
       );
-
     if (!saved) {
       setAttendedIds([]);
       return;
     }
-
     try {
       const parsed =
         JSON.parse(saved);
-
       if (Array.isArray(parsed)) {
         setAttendedIds(parsed);
       } else {
@@ -153,21 +130,17 @@ export default function LiveCalendar({
       setAttendedIds([]);
     }
   };
-
   useEffect(() => {
     loadAttendedLives();
   }, []);
-
   useEffect(() => {
     const handleFocus = () => {
       loadAttendedLives();
     };
-
     window.addEventListener(
       "focus",
       handleFocus
     );
-
     return () => {
       window.removeEventListener(
         "focus",
@@ -175,11 +148,9 @@ export default function LiveCalendar({
       );
     };
   }, []);
-
   // ========================================
   // カレンダー横幅
   // ========================================
-
   useEffect(() => {
     const updateWidth = () => {
       if (
@@ -191,14 +162,11 @@ export default function LiveCalendar({
         );
       }
     };
-
     updateWidth();
-
     window.addEventListener(
       "resize",
       updateWidth
     );
-
     return () => {
       window.removeEventListener(
         "resize",
@@ -206,11 +174,9 @@ export default function LiveCalendar({
       );
     };
   }, []);
-
   // ========================================
   // 参戦 ON / OFF
   // ========================================
-
   const toggleAttended = (
     liveId: string
   ) => {
@@ -218,14 +184,11 @@ export default function LiveCalendar({
       localStorage.getItem(
         "attendedLives"
       );
-
     let current: string[] = [];
-
     if (saved) {
       try {
         const parsed =
           JSON.parse(saved);
-
         if (Array.isArray(parsed)) {
           current = parsed;
         }
@@ -233,9 +196,7 @@ export default function LiveCalendar({
         current = [];
       }
     }
-
     let updated: string[];
-
     if (
       current.includes(liveId)
     ) {
@@ -250,61 +211,50 @@ export default function LiveCalendar({
         liveId,
       ];
     }
-
     localStorage.setItem(
       "attendedLives",
       JSON.stringify(updated)
     );
-
     setAttendedIds(updated);
   };
-
   // ========================================
 // 現在年月
 // ========================================
-
 const calendarYear =
   calendarDate.getFullYear();
-
 const calendarMonth =
   calendarDate.getMonth();
-
 // ========================================
 // 実際の現在年月
 // 未来の月は表示しない
 // ========================================
-
 const now = new Date();
-
 const currentYear =
   now.getFullYear();
-
 const currentMonth =
   now.getMonth();
-
 // 現在表示している月が今月か
-
-const isLatestMonth =
-  calendarYear === currentYear &&
-  calendarMonth === currentMonth;
+const lastUpcoming = [...upcomingLives].sort((a,b) => b.date.localeCompare(a.date))[0];
+const latestAllowedDate = lastUpcoming && lastUpcoming.date > todayKey
+  ? new Date(Number(lastUpcoming.date.slice(0,4)), Number(lastUpcoming.date.slice(5,7))-1, 1)
+  : new Date(currentYear, currentMonth, 1);
+const latestYear = latestAllowedDate.getFullYear();
+const latestMonth = latestAllowedDate.getMonth();
+const isLatestMonth = calendarYear === latestYear && calendarMonth === latestMonth;
   // ========================================
 // 最古の表示年月
 // 2018年10月より前は表示しない
 // ========================================
-
 const earliestYear = 2018;
 const earliestMonth = 9;
 // getMonth() は0始まり
 // 9 = 10月
-
 const isEarliestMonth =
   calendarYear === earliestYear &&
   calendarMonth === earliestMonth;
-
 // ========================================
 // 選択できる年
 // ========================================
-
 const availableYears =
   useMemo(() => {
     return [
@@ -321,25 +271,22 @@ const availableYears =
     ]
       .filter(
         (year) =>
-          year <= currentYear
+          year <= latestYear
       )
       .sort(
         (a, b) =>
           b - a
       );
-  }, [currentYear]);
-
+  }, [latestYear, allCalendarLives]);
 // ========================================
 // 選択できる月
 // ========================================
-
 const availableMonthNumbers =
   useMemo(() => {
     // ========================================
     // 2018年
     // → 10〜12月だけ
     // ========================================
-
     if (
       calendarYear ===
       earliestYear
@@ -350,31 +297,27 @@ const availableMonthNumbers =
         12,
       ];
     }
-
     // ========================================
     // 現在年
     // → 今月まで
     // ========================================
-
     if (
       calendarYear ===
-      currentYear
+      latestYear
     ) {
       return Array.from(
         {
           length:
-            currentMonth + 1,
+            latestMonth + 1,
         },
         (_, index) =>
           index + 1
       );
     }
-
     // ========================================
     // それ以外
     // → 1〜12月
     // ========================================
-
     return Array.from(
       {
         length: 12,
@@ -384,13 +327,12 @@ const availableMonthNumbers =
     );
   }, [
     calendarYear,
-    currentYear,
-    currentMonth,
+    latestYear,
+    latestMonth,
   ]);
   // ========================================
   // 年月保存
   // ========================================
-
   useEffect(() => {
     sessionStorage.setItem(
       CALENDAR_DATE_STORAGE_KEY,
@@ -402,20 +344,17 @@ const availableMonthNumbers =
     calendarYear,
     calendarMonth,
   ]);
-
   // ========================================
   // 表示中の月のライブ
   // ========================================
-
   const monthLives =
     useMemo(() => {
-      return filteredLives
+      return allCalendarLives
         .filter((live: Live) => {
           const [year, month] =
             live.date
               .split(".")
               .map(Number);
-
           return (
             year === calendarYear &&
             month ===
@@ -428,43 +367,36 @@ const availableMonthNumbers =
           )
         );
     }, [
-      filteredLives,
+      allCalendarLives,
       calendarYear,
       calendarMonth,
     ]);
-
   // ========================================
   // 指定月のカレンダー情報を作る
   // ========================================
-
   const createCalendarPage = (
     date: Date
   ): CalendarPage => {
     const year =
       date.getFullYear();
-
     const month =
       date.getMonth();
-
     const firstDay =
       new Date(
         year,
         month,
         1
       ).getDay();
-
     const daysInMonth =
       new Date(
         year,
         month + 1,
         0
       ).getDate();
-
     const days: (
       | number
       | null
     )[] = [];
-
     for (
       let i = 0;
       i < firstDay;
@@ -472,7 +404,6 @@ const availableMonthNumbers =
     ) {
       days.push(null);
     }
-
     for (
       let day = 1;
       day <= daysInMonth;
@@ -480,15 +411,13 @@ const availableMonthNumbers =
     ) {
       days.push(day);
     }
-
     while (
   days.length % 7 !== 0
 ) {
   days.push(null);
 }
-
     const monthLivesForPage =
-      filteredLives.filter(
+      allCalendarLives.filter(
         (live: Live) => {
           const [
             liveYear,
@@ -497,19 +426,16 @@ const availableMonthNumbers =
             live.date
               .split(".")
               .map(Number);
-
           return (
             liveYear === year &&
             liveMonth === month + 1
           );
         }
       );
-
     const livesByDate: Record<
       string,
       Live[]
     > = {};
-
     monthLivesForPage.forEach(
       (live) => {
         if (
@@ -521,13 +447,11 @@ const availableMonthNumbers =
             live.date
           ] = [];
         }
-
         livesByDate[
           live.date
         ].push(live);
       }
     );
-
     return {
       date,
       year,
@@ -536,11 +460,9 @@ const availableMonthNumbers =
       livesByDate,
     };
   };
-
   // ========================================
 // 前月・現在月・次月
 // ========================================
-
 const calendarPages =
   useMemo(() => {
     const previous =
@@ -549,14 +471,12 @@ const calendarPages =
         calendarMonth - 1,
         1
       );
-
     const current =
       new Date(
         calendarYear,
         calendarMonth,
         1
       );
-
     // 今月の場合は未来月を生成しない
     // 3枚構成を維持するため右側にも現在月を入れる
     const next =
@@ -571,7 +491,6 @@ const calendarPages =
             calendarMonth + 1,
             1
           );
-
     return [
       createCalendarPage(previous),
       createCalendarPage(current),
@@ -580,13 +499,12 @@ const calendarPages =
   }, [
     calendarYear,
     calendarMonth,
-    filteredLives,
+    allCalendarLives,
     isLatestMonth,
   ]);
   // ========================================
   // 日単位で参戦 ON / OFF
   // ========================================
-
   const toggleDayAttended = (
     dayLives: Live[]
   ) => {
@@ -595,17 +513,14 @@ const calendarPages =
     ) {
       return;
     }
-
     if (
       dayLives.length === 1
     ) {
       toggleAttended(
         dayLives[0].id
       );
-
       return;
     }
-
     const allAttended =
       dayLives.every(
         (live) =>
@@ -613,11 +528,9 @@ const calendarPages =
             live.id
           )
       );
-
     let updated = [
       ...attendedIds,
     ];
-
     if (allAttended) {
       const ids =
         new Set(
@@ -626,7 +539,6 @@ const calendarPages =
               live.id
           )
         );
-
       updated =
         updated.filter(
           (id) =>
@@ -647,19 +559,15 @@ const calendarPages =
         }
       );
     }
-
     localStorage.setItem(
       "attendedLives",
       JSON.stringify(updated)
     );
-
     setAttendedIds(updated);
   };
-
   // ========================================
   // 日付 → 下のライブへスクロール
   // ========================================
-
   const scrollToLive = (
     liveId: string
   ) => {
@@ -667,20 +575,16 @@ const calendarPages =
       document.getElementById(
         `calendar-live-${liveId}`
       );
-
     if (!element) {
       return;
     }
-
     setHighlightedLiveId(
       liveId
     );
-
     element.scrollIntoView({
       behavior: "smooth",
       block: "center",
     });
-
     window.setTimeout(
       () => {
         setHighlightedLiveId(
@@ -690,15 +594,12 @@ const calendarPages =
       1400
     );
   };
-
   // ========================================
 // 月変更
 // ========================================
-
 // ========================================
 // プルダウンから年月を変更
 // ========================================
-
 const jumpToMonth = (
   year: number,
   month: number
@@ -707,11 +608,9 @@ const jumpToMonth = (
   setIsAnimating(false);
   setIsDragging(false);
   setDragX(0);
-
   // タッチ状態もリセット
   touchStartX.current = null;
   touchStartY.current = null;
-
   // 選択した年月へ直接移動
   setCalendarDate(
     new Date(
@@ -724,29 +623,22 @@ const jumpToMonth = (
 // ========================================
 // 月変更完了
 // ========================================
-
 const finishMonthChange = (
   direction: "next" | "previous"
 ) => {
   setIsDragging(true);
   setIsAnimating(false);
-
   // 3枚カレンダーを
   // 中央位置へ瞬間的に戻す
-
   setDragX(0);
-
   setCalendarDate((current) => {
     const year =
       current.getFullYear();
-
     const month =
       current.getMonth();
-
     // ========================================
     // 次月
     // ========================================
-
     if (
       direction === "next"
     ) {
@@ -756,51 +648,35 @@ const finishMonthChange = (
           month + 1,
           1
         );
-
       // 念のため未来月をブロック
-
       if (
-        nextDate.getFullYear() >
-          currentYear ||
-        (
-          nextDate.getFullYear() ===
-            currentYear &&
-          nextDate.getMonth() >
-            currentMonth
-        )
+        nextDate > latestAllowedDate
       ) {
         return current;
       }
-
       return nextDate;
     }
-
     // ========================================
     // 前月
     // ========================================
-
     return new Date(
       year,
       month - 1,
       1
     );
   });
-
   // ========================================
   // 次回用アニメーションを復活
   // ========================================
-
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
       setIsDragging(false);
     });
   });
 };
-
 // ========================================
 // 次月へ
 // ========================================
-
 const animateToNextMonth = () => {
   if (
     isAnimating ||
@@ -809,27 +685,21 @@ const animateToNextMonth = () => {
   ) {
     return;
   }
-
   setIsDragging(false);
   setIsAnimating(true);
-
   // 次月を中央へ
-
   setDragX(
     -containerWidth
   );
-
   window.setTimeout(() => {
     finishMonthChange(
       "next"
     );
   }, 300);
 };
-
 // ========================================
 // 前月へ
 // ========================================
-
 const animateToPreviousMonth = () => {
   if (
     isAnimating ||
@@ -838,16 +708,12 @@ const animateToPreviousMonth = () => {
   ) {
     return;
   }
-
   setIsDragging(false);
   setIsAnimating(true);
-
   // 前月を中央へ
-
   setDragX(
     containerWidth
   );
-
   window.setTimeout(() => {
     finishMonthChange(
       "previous"
@@ -857,45 +723,34 @@ const animateToPreviousMonth = () => {
 // ========================================
 // スワイプキャンセル
 // ========================================
-
 const cancelSwipe = () => {
   setIsDragging(false);
   setIsAnimating(true);
-
   setDragX(0);
-
   window.setTimeout(() => {
     setIsAnimating(false);
   }, 300);
 };
-
 // ========================================
 // TOUCH START
 // ========================================
-
 const handleTouchStart = (
   e: React.TouchEvent<HTMLDivElement>
 ) => {
   if (isAnimating) {
     return;
   }
-
   const touch =
     e.touches[0];
-
   touchStartX.current =
     touch.clientX;
-
   touchStartY.current =
     touch.clientY;
-
   setIsDragging(true);
 };
-
 // ========================================
 // TOUCH MOVE
 // ========================================
-
 const handleTouchMove = (
   e: React.TouchEvent<HTMLDivElement>
 ) => {
@@ -906,33 +761,26 @@ const handleTouchMove = (
   ) {
     return;
   }
-
   const touch = e.touches[0];
-
   const diffX =
     touch.clientX -
     touchStartX.current;
-
   const diffY =
     touch.clientY -
     touchStartY.current;
-
   // ========================================
   // 縦スクロールを優先
   // ========================================
-
   if (
     Math.abs(diffY) >
     Math.abs(diffX)
   ) {
     return;
   }
-
   // ========================================
   // 今月から未来方向へは
   // 動かさない
   // ========================================
-
   if (
     isLatestMonth &&
     diffX < 0
@@ -940,12 +788,10 @@ const handleTouchMove = (
     setDragX(0);
     return;
   }
-
   // ========================================
   // 2018年10月から過去方向へは
   // 動かさない
   // ========================================
-
   if (
     isEarliestMonth &&
     diffX > 0
@@ -953,18 +799,14 @@ const handleTouchMove = (
     setDragX(0);
     return;
   }
-
   // ========================================
   // 指に追従
   // ========================================
-
   setDragX(diffX);
 };
-
 // ========================================
 // TOUCH END
 // ========================================
-
 const handleTouchEnd = (
   e: React.TouchEvent<HTMLDivElement>
 ) => {
@@ -976,28 +818,21 @@ const handleTouchEnd = (
   ) {
     return;
   }
-
   const touch =
     e.changedTouches[0];
-
   const diffX =
     touch.clientX -
     touchStartX.current;
-
   const diffY =
     touch.clientY -
     touchStartY.current;
-
   touchStartX.current =
     null;
-
   touchStartY.current =
     null;
-
   // ========================================
   // 縦方向
   // ========================================
-
   if (
     Math.abs(diffY) >
     Math.abs(diffX)
@@ -1005,12 +840,10 @@ const handleTouchEnd = (
     cancelSwipe();
     return;
   }
-
   // ========================================
   // 左スワイプ
   // → 次月
   // ========================================
-
   if (
     diffX <
     -SWIPE_THRESHOLD
@@ -1019,16 +852,13 @@ const handleTouchEnd = (
       cancelSwipe();
       return;
     }
-
     animateToNextMonth();
     return;
   }
-
   // ========================================
   // 右スワイプ
   // → 前月
   // ========================================
-
   if (
   diffX >
   SWIPE_THRESHOLD
@@ -1037,35 +867,28 @@ const handleTouchEnd = (
     cancelSwipe();
     return;
   }
-
   animateToPreviousMonth();
   return;
 }
   // ========================================
   // 移動量不足
   // ========================================
-
   cancelSwipe();
 };
-
 // ========================================
 // TOUCH CANCEL
 // ========================================
-
 const handleTouchCancel =
   () => {
     touchStartX.current =
       null;
-
     touchStartY.current =
       null;
-
     cancelSwipe();
   };
   // ========================================
   // カレンダー1枚
   // ========================================
-
   const renderCalendarPage = (
     page: CalendarPage
   ) => {
@@ -1088,7 +911,6 @@ const handleTouchCancel =
         )}`
       );
     };
-
     return (
       <div
         key={`${page.year}-${page.month}`}
@@ -1100,7 +922,6 @@ const handleTouchCancel =
         {/* ================================= */}
         {/* 曜日 */}
         {/* ================================= */}
-
         <div
           className="
             mt-2
@@ -1137,11 +958,9 @@ const handleTouchCancel =
             )
           )}
         </div>
-
         {/* ================================= */}
         {/* 日付 */}
         {/* ================================= */}
-
         <div className="grid grid-cols-7">
           {page.days.map(
             (
@@ -1163,22 +982,18 @@ const handleTouchCancel =
                   />
                 );
               }
-
               const dateKey =
                 createDateKey(
                   day
                 );
-
               const dayLives =
                 page
                   .livesByDate[
                   dateKey
                 ] ?? [];
-
               const hasLive =
                 dayLives.length >
                 0;
-
               const cities = [
                 ...new Set(
                   dayLives
@@ -1193,7 +1008,6 @@ const handleTouchCancel =
                     )
                 ),
               ];
-
               const attendedCount =
                 dayLives.filter(
                   (live) =>
@@ -1201,12 +1015,10 @@ const handleTouchCancel =
                       live.id
                     )
                 ).length;
-
               const allAttended =
                 hasLive &&
                 attendedCount ===
                   dayLives.length;
-
               return (
                 <div
                   key={
@@ -1223,13 +1035,11 @@ const handleTouchCancel =
                     ) {
                       return;
                     }
-
                     if (
                       !hasLive
                     ) {
                       return;
                     }
-
                     scrollToLive(
                       dayLives[0]
                         .id
@@ -1243,7 +1053,6 @@ const handleTouchCancel =
                     px-1
                     py-1.5
                     transition
-
                     ${
                       hasLive
                         ? `
@@ -1256,7 +1065,6 @@ const handleTouchCancel =
                   `}
                 >
                   {/* 日付 */}
-
                   <div
                     className={`
                       flex
@@ -1267,7 +1075,6 @@ const handleTouchCancel =
                       rounded-full
                       text-[11px]
                       font-semibold
-
                       ${
                         hasLive
                           ? "text-[#14526B]"
@@ -1277,11 +1084,9 @@ const handleTouchCancel =
                   >
                     {day}
                   </div>
-
                   {hasLive && (
                     <>
                       {/* 都市 */}
-
                       <div className="mt-0.5 space-y-0.5 px-0.5">
                         {cities
                           .slice(
@@ -1300,13 +1105,11 @@ const handleTouchCancel =
                                     live.city ===
                                     city
                                 );
-
                               if (
                                 !targetLive
                               ) {
                                 return null;
                               }
-
                               return (
                                 <button
                                   key={
@@ -1317,7 +1120,6 @@ const handleTouchCancel =
                                     e
                                   ) => {
                                     e.stopPropagation();
-
                                     if (
                                       page.year !==
                                         calendarYear ||
@@ -1326,7 +1128,6 @@ const handleTouchCancel =
                                     ) {
                                       return;
                                     }
-
                                     scrollToLive(
                                       targetLive.id
                                     );
@@ -1352,9 +1153,7 @@ const handleTouchCancel =
                             }
                           )}
                       </div>
-
                       {/* 同日複数公演 */}
-
                       {dayLives.length >
                         1 && (
                         <p
@@ -1373,18 +1172,15 @@ const handleTouchCancel =
                           LIVES
                         </p>
                       )}
-
                       {/* 参戦 */}
-
-                      <button
+                      {dayLives.some((live) => !upcomingIds.has(live.id)) && <button
                         type="button"
                         onClick={(
                           e
                         ) => {
                           e.stopPropagation();
-
                           toggleDayAttended(
-                            dayLives
+                            dayLives.filter((live) => !upcomingIds.has(live.id))
                           );
                         }}
                         aria-label={
@@ -1396,27 +1192,20 @@ const handleTouchCancel =
                           absolute
                           bottom-1.5
                           right-1.5
-
                           flex
                           h-8
                           w-8
                           items-center
                           justify-center
-
                           rounded-full
                           border
-
                           text-[15px]
                           leading-none
-
                           shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-
                           transition-all
                           duration-200
-
                           hover:scale-105
                           active:scale-90
-
                           ${
                             allAttended
                               ? `
@@ -1435,7 +1224,7 @@ const handleTouchCancel =
                         {allAttended
                           ? "♥"
                           : "♡"}
-                      </button>
+                      </button>}
                     </>
                   )}
                 </div>
@@ -1446,22 +1235,16 @@ const handleTouchCancel =
       </div>
     );
   };
-
   // ========================================
   // JSX
   // ========================================
-
   return (
     <section className="mt-4">
-
       {/* ================================= */}
       {/* 月切り替え */}
       {/* ================================= */}
-
       <div className="flex items-center justify-between px-1">
-
         {/* 前月 */}
-
         <button
           type="button"
           onClick={
@@ -1490,37 +1273,30 @@ const handleTouchCancel =
         >
           ‹
         </button>
-
         {/* ================================= */}
 {/* 年 / 月 */}
 {/* ================================= */}
-
 <div className="flex items-center justify-center gap-1">
-
   {/* ================================= */}
 {/* 年 */}
 {/* ================================= */}
-
 <div className="relative">
   <select
     value={calendarYear}
     onChange={(e) => {
   const newYear =
     Number(e.target.value);
-
   let newMonth =
     calendarMonth;
-
   // 今年に移動したとき
   // 未来月なら今月にする
   if (
-    newYear === currentYear &&
-    newMonth > currentMonth
+    newYear === latestYear &&
+    newMonth > latestMonth
   ) {
     newMonth =
-      currentMonth;
+      latestMonth;
   }
-
   // 2018年に移動したとき
   // 1〜9月なら10月にする
   if (
@@ -1530,7 +1306,6 @@ const handleTouchCancel =
     newMonth =
       earliestMonth;
   }
-
   jumpToMonth(
     newYear,
     newMonth
@@ -1561,7 +1336,6 @@ const handleTouchCancel =
       )
     )}
   </select>
-
   <span
     className="
       pointer-events-none
@@ -1576,18 +1350,15 @@ const handleTouchCancel =
     ▼
   </span>
 </div>
-
  {/* ================================= */}
 {/* 月 */}
 {/* ================================= */}
-
 <div className="relative">
   <select
     value={calendarMonth + 1}
     onChange={(e) => {
   const newMonth =
     Number(e.target.value);
-
   jumpToMonth(
     calendarYear,
     newMonth - 1
@@ -1618,7 +1389,6 @@ const handleTouchCancel =
       )
     )}
   </select>
-
   <span
     className="
       pointer-events-none
@@ -1635,7 +1405,6 @@ const handleTouchCancel =
 </div>
 </div>
        {/* 次月 */}
-
 <button
   type="button"
   onClick={
@@ -1658,7 +1427,6 @@ const handleTouchCancel =
     text-[#14526B]
     transition
     active:bg-zinc-100
-
     disabled:pointer-events-none
     disabled:opacity-20
   "
@@ -1669,7 +1437,6 @@ const handleTouchCancel =
       {/* ================================= */}
       {/* 3枚カレンダー */}
       {/* ================================= */}
-
       <div
       key={`${calendarYear}-${calendarMonth}`}
         ref={
@@ -1697,7 +1464,6 @@ const handleTouchCancel =
           className={`
             flex
             w-[300%]
-
             ${
               isDragging
                 ? "transition-none"
@@ -1722,13 +1488,10 @@ const handleTouchCancel =
           )}
         </div>
       </div>
-
       {/* ================================= */}
       {/* この月のライブ */}
       {/* ================================= */}
-
       <div className="mt-7">
-
         <div
           className="
             mb-2
@@ -1749,7 +1512,6 @@ const handleTouchCancel =
               1}
             月のライブ
           </p>
-
           <p className="text-[10px] text-zinc-400">
             {
               monthLives.length
@@ -1757,7 +1519,6 @@ const handleTouchCancel =
             件
           </p>
         </div>
-
         {monthLives.length >
         0 ? (
           <div
@@ -1772,10 +1533,8 @@ const handleTouchCancel =
       attendedIds.includes(
         live.id
       );
-
     const hasSetlist =
       live.setlist.length > 0;
-
                 return (
                   <div
                     key={
@@ -1788,10 +1547,8 @@ const handleTouchCancel =
                       border-b
                       border-zinc-100
                       last:border-b-0
-
                       transition-all
                       duration-500
-
                       ${
                         highlightedLiveId ===
                         live.id
@@ -1801,9 +1558,8 @@ const handleTouchCancel =
                     `}
                   >
                     {/* ライブ詳細 */}
-
 <Link
-  href={`/live/${live.id}`}
+  href={upcomingIds.has(live.id) ? `/upcoming/${encodeURIComponent(live.id)}` : `/live/${live.id}`}
   className="
     block
     py-2.5
@@ -1813,7 +1569,6 @@ const handleTouchCancel =
   <p className="text-[10px] font-bold text-[#14526B]">
     {live.date}
   </p>
-
   <h3
     className="
       mt-0.5
@@ -1825,7 +1580,6 @@ const handleTouchCancel =
   >
     {live.title}
   </h3>
-
   {/* 都市・会場 */}
   <p
     className="
@@ -1838,14 +1592,11 @@ const handleTouchCancel =
     <span className="font-semibold text-[#14526B]">
       {live.city}
     </span>
-
     <span className="mx-1.5 text-zinc-300">
       /
     </span>
-
     {live.venue}
   </p>
-
   {/* セトリ有無 */}
   <div className="mt-0.5">
     <span
@@ -1859,7 +1610,6 @@ const handleTouchCancel =
         font-bold
         leading-none
         tracking-[0.04em]
-
         ${
           hasSetlist
             ? "bg-[#14526B]/10 text-[#14526B]"
@@ -1867,16 +1617,12 @@ const handleTouchCancel =
         }
       `}
     >
-      {hasSetlist
-        ? "セトリあり"
-        : "セトリなし"}
+      {upcomingIds.has(live.id) ? "UPCOMING" : hasSetlist ? "セトリあり" : "セトリなし"}
     </span>
   </div>
 </Link>
-
                     {/* 参戦 */}
-
-                    <button
+                    {!upcomingIds.has(live.id) && <button
                       type="button"
                       onClick={() =>
                         toggleAttended(
@@ -1892,28 +1638,21 @@ const handleTouchCancel =
                         absolute
                         right-1
                         top-1/2
-
                         flex
                         h-9
                         w-9
                         -translate-y-1/2
                         items-center
                         justify-center
-
                         rounded-full
                         border
-
                         text-[18px]
                         leading-none
-
                         shadow-[0_1px_3px_rgba(0,0,0,0.04)]
-
                         transition-all
                         duration-200
-
                         hover:scale-105
                         active:scale-90
-
                         ${
                           attended
                             ? `
@@ -1932,7 +1671,7 @@ const handleTouchCancel =
                       {attended
                         ? "♥"
                         : "♡"}
-                    </button>
+                    </button>}
                   </div>
                 );
               }
