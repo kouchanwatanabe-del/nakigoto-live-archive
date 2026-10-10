@@ -22,10 +22,7 @@ export default function SiteHeader() {
             UNOFFICIAL LIVE LOG
           </span>
 
-          {/* 説明 */}
-          <span className="hidden truncate text-[11px] text-white/65 md:block">
-            過去ライブ・セットリスト記録
-          </span>
+        
 
         </div>
 
