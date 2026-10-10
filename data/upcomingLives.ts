@@ -140,7 +140,7 @@ export const upcomingLives: UpcomingLive[] = [
   date: "2027.02.27",
   title: "【岡山】RGB ONEMAN TOUR2027",
   city: "岡山",
-  venue: "CRAZYMAMA 2ndroom",
+  venue: "CRAZYMAMA 2nd room",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒700-0901 岡山県岡山市北区本町１０−１６ ５階",
    memo: "",

@@ -6,6 +6,31 @@ import { lives } from "../data/lives";
 import { upcomingLives } from "../data/upcomingLives";
 
 type Live = (typeof lives)[number];
+// MY PAGEと同じ楽曲除外ルール
+const hiddenSongs = [
+  "ミュージックプランクトン(SAKANAMONカバー)",
+  "暮らし（Hwylカバー）",
+  "HEAT(FINLANDSカバー)",
+  "ホワイトアウト(reGretGirlカバー)",
+  "ホワイトアウト（reGretGirlカバー）",
+  "ミュージックプランクトン（SAKANAMONカバー）",
+  "秘密（ドラマストアカバー）",
+  "キャロラインの花束を(the quiet roomカバー)",
+  "ノックブーツ（Chevonカバー）",
+  "Rambler（雨音コンプレックス）",
+  "SUPIKA（雨音コンプレックス）",
+  "メトロポリタン（feat.宮崎一晴）",
+  "安酒にロマンス（仮）",
+  "虫けら'20",
+  "19",
+  "秘密",
+  "社会のゴミカザマタカフミ（3markets[]カバー）",
+  "透明な硝子のイノセンス（小林私書き下ろし）",
+  "迷子の心臓（水上えみり書き下ろし）",
+];
+
+const isCountedSong = (song: string) =>
+  !song.includes("カバー") && !hiddenSongs.includes(song);
 
 // 日付が新しい順に並べて、最新3件だけ取得
 const latestLives = [...lives]
@@ -85,14 +110,13 @@ export default function Home() {
 
   // 参戦ライブで聴いた曲
   const heardSongs = useMemo(() => {
-    const songs = attendedLives.flatMap((live) => [
-      ...live.setlist,
-      ...(live.encore ?? []),
-    ]);
+  const songs = attendedLives.flatMap((live) => [
+    ...live.setlist,
+    ...(live.encore ?? []),
+  ]);
 
-    // 重複している曲を1曲として数える
-    return [...new Set(songs)];
-  }, [attendedLives]);
+  return [...new Set(songs.filter(isCountedSong))];
+}, [attendedLives]);
 
   return (
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
