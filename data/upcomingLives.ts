@@ -27,8 +27,7 @@ export const upcomingLives: UpcomingLive[] = [
   //   "バンドB",
   //   ],
   //    address: "東京都〇〇区〇〇 1-2-3",
-  //    mapUrl: "https://www.google.com/maps/search/?api=1&query=...",
-  //   memo: "",
+  //      //   memo: "",
   // },
   {
   id: "2026-10-12-example",
@@ -38,8 +37,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "Live House ANIMA",
   tour: "",
   address: "〒542-0086 大阪府大阪市中央区西心斎橋２丁目１０−２１ B1F",
-  mapUrl: "https://maps.app.goo.gl/UzHtCLb3oWGqNnFc6",
-  memo: "",
+    memo: "",
 },
 {
   id: "2026-10-17-example",
@@ -49,8 +47,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "shibuya eggman",
   tour: "",
   address: "〒150-0041 東京都渋谷区神南１丁目６−８ B1",
-  mapUrl: "https://maps.app.goo.gl/813Kgy67Dwh5NWwr9",
-  memo: "osageとのコラボステージ",
+    memo: "osageとのコラボステージ",
 },
 {
   id: "2026-10-18-example",
@@ -60,8 +57,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "国立代々木競技場 第一体育館",
   tour: "",
   address: "〒150-0041 東京都渋谷区神南２丁目１−１",
-  mapUrl: "https://maps.app.goo.gl/Khkc2DuxE34axJqM6",
-  memo: "SCRAMBLE STAGE",
+    memo: "SCRAMBLE STAGE",
 },
 {
   id: "2026-10-24-example",
@@ -72,8 +68,7 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["バチカン市国に愛されたい", "ミーマイナー"],
   address: "〒730-0021 広島県広島市中区胡町４−２４ クリタビル B1",
-  mapUrl: "https://maps.app.goo.gl/vM1zex1VW38rxKD26",
-  memo: "",
+    memo: "",
 },
 {
   id: "2026-10-25-example",
@@ -84,8 +79,7 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["バチカン市国に愛されたい", "ミーマイナー"],
   address: "〒810-0004 福岡県福岡市中央区渡辺通４丁目１１−４",
-  mapUrl: "https://maps.app.goo.gl/cSSH9ZCDxpuWZwvV6",
-  memo: "",
+   memo: "",
 },
 {
   id: "2026-11-05-example",
@@ -96,8 +90,7 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["ミーマイナー", "あたらよ"],
   address: "〒150-0042 東京都渋谷区宇田川町３２−１３ 4・5F",
-  mapUrl: "https://maps.app.goo.gl/QpkyNRD81sJt4hTG7",
-  memo: "",
+    memo: "",
 },
 {
   id: "2026-12-10-example",
@@ -108,8 +101,7 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["Bray me"],
   address: "〒530-0027 大阪府大阪市北区堂山町１−５ B1F",
-  mapUrl: "https://maps.app.goo.gl/FM1FY14sQoM9Autu7",
-  memo: "",
+   memo: "",
 },
 {
   id: "2026-12-19-example",
@@ -120,8 +112,7 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["homme","カナタ"],
   address: "〒692-0064 島根県安来市古川町５３４",
-  mapUrl: "https://maps.app.goo.gl/X9Kr4BndLFVGoLck8",
-  memo: "",
+   memo: "",
 },
 
 {
@@ -132,8 +123,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "Yogibo HOLY MOUNTAIN",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒556-0011 大阪府大阪市浪速区難波中２丁目１１−１",
-  mapUrl: "https://maps.app.goo.gl/AafbXk5L1Fsn282M6",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-02-13-hiroshima",
@@ -143,8 +133,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "広島ALMIGHTY",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒730-0021 広島県広島市中区胡町２−２０ B1F",
-  mapUrl: "https://maps.app.goo.gl/nx7fwsQSNUYuvP5W7",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-02-27-okayama",
@@ -154,8 +143,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "CRAZYMAMA 2ndroom",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒700-0901 岡山県岡山市北区本町１０−１６ ５階",
-  mapUrl: "https://maps.app.goo.gl/88ijLvEY2KGAna368",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-02-28-aichi",
@@ -165,7 +153,6 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "ell.FITS ALL",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒460-0011 愛知県名古屋市中区大須２丁目１０−４３ ３階",
-  mapUrl: "https://maps.app.goo.gl/2nDqgBgzXFpVS3Yh7",
   memo: "",
 },
 {
@@ -176,7 +163,6 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "高松TOONICE",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒760-0050 香川県高松市亀井町８−８",
-  mapUrl: "https://maps.app.goo.gl/erQaWvcx7FvLh3gj6",
   memo: "",
 },
 {
@@ -187,8 +173,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "福岡OP’s",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒810-0001 福岡県福岡市中央区天神３丁目４−１９ B1F",
-  mapUrl: "https://maps.app.goo.gl/pSxB2AhJg3hhc3ie7",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-03-22-niigata",
@@ -198,8 +183,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "新潟GOLDEN PIGS BLACK",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒951-8065 新潟県新潟市中央区東堀通６番町１０５１−１ 6F",
-  mapUrl: "https://maps.app.goo.gl/5QRxkqVcrDUA55QR6",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-04-03-hokkaido",
@@ -209,8 +193,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "SPIRITUAL LOUNGE",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒001-0016 北海道札幌市北区北１６条西５丁目２−１",
-  mapUrl: "https://maps.app.goo.gl/dPBUW1hwf6zQFmRD9",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-04-04-miyagi",
@@ -220,8 +203,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "enn2nd",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒980-0021 宮城県仙台市青葉区中央２丁目７−１１ B1F",
-  mapUrl: "https://maps.app.goo.gl/DFs2iBqp37kfm4rR6",
-  memo: "",
+   memo: "",
 },
 {
   id: "2027-04-11-tokyo",
@@ -231,8 +213,7 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "恵比寿LIQUIDROOM",
   tour: "RGB ONEMAN TOUR2027",
   address: "〒150-0011 東京都渋谷区東３丁目１６−６",
-  mapUrl: "https://maps.app.goo.gl/KsKv9sJaCxpcqH127",
-  memo: "",
+   memo: "",
 },
 
 

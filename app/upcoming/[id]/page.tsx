@@ -14,6 +14,12 @@ export default async function UpcomingPage({
   );
 
   if (!live) notFound();
+  // 住所からGoogle MapsのURLを自動生成
+const googleMapsUrl = live.address
+  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+      `${live.venue} ${live.address}`
+    )}`
+  : null;
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
