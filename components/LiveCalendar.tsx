@@ -255,29 +255,22 @@ const isEarliestMonth =
 // ========================================
 // 選択できる年
 // ========================================
-const availableYears =
-  useMemo(() => {
-    return [
-      ...new Set(
-        lives.map((live) =>
-          Number(
-            live.date.slice(
-              0,
-              4
-            )
-          )
-        )
-      ),
-    ]
-      .filter(
-        (year) =>
-          year <= latestYear
-      )
-      .sort(
-        (a, b) =>
-          b - a
-      );
-  }, [latestYear, allCalendarLives]);
+const availableYears = useMemo(() => {
+  const years = allCalendarLives.map((live) =>
+    Number(live.date.slice(0, 4))
+  );
+
+  // 今後の予定に含まれる年も選択できるようにする
+  years.push(latestYear);
+
+  return [...new Set(years)]
+    .filter(
+      (year) =>
+        year >= earliestYear &&
+        year <= latestYear
+    )
+    .sort((a, b) => b - a);
+}, [allCalendarLives, latestYear]);
 // ========================================
 // 選択できる月
 // ========================================
