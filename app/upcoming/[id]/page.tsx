@@ -116,8 +116,8 @@ export default async function UpcomingPage({
               >
                 Google Mapsで見る
                 <svg
-  width="17"
-  height="17"
+  width="16"
+  height="16"
   viewBox="0 0 24 24"
   fill="none"
   stroke="currentColor"
@@ -126,9 +126,9 @@ export default async function UpcomingPage({
   strokeLinejoin="round"
   aria-hidden="true"
 >
-  <circle cx="12" cy="12" r="9" />
-  <path d="M8 16 16 8" />
-  <path d="M9 8h7v7" />
+  <path d="M15 3h6v6" />
+  <path d="M10 14 21 3" />
+  <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
 </svg>
               </a>
             )}
