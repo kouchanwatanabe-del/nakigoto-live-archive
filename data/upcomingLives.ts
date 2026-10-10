@@ -9,6 +9,8 @@ export type UpcomingLive = {
   tour: string;
   memo: string;
   artists?: string[];
+  address?: string;
+  mapUrl?: string;
 };
 
 export const upcomingLives: UpcomingLive[] = [
@@ -24,6 +26,8 @@ export const upcomingLives: UpcomingLive[] = [
   //   "バンドA",
   //   "バンドB",
   //   ],
+  //    address: "東京都〇〇区〇〇 1-2-3",
+  //    mapUrl: "https://www.google.com/maps/search/?api=1&query=...",
   //   memo: "",
   // },
   {
@@ -33,6 +37,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "大阪",
   venue: "Live House ANIMA",
   tour: "",
+  address: "〒542-0086 大阪府大阪市中央区西心斎橋２丁目１０−２１ B1F",
+  mapUrl: "https://maps.app.goo.gl/UzHtCLb3oWGqNnFc6",
   memo: "",
 },
 {
