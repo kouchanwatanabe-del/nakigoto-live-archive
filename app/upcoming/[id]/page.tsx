@@ -1,4 +1,4 @@
-import Link from "next/link";
+import BackButton from "../../../components/BackButton";
 import { notFound } from "next/navigation";
 import { upcomingLives } from "../../../data/upcomingLives";
 
@@ -21,13 +21,7 @@ export default async function UpcomingPage({
       <div className="mx-auto w-full max-w-3xl px-4 py-5 sm:px-6">
 
         {/* 戻る */}
-        <Link
-          href="/lives"
-          className="text-3xl text-[#14526B]"
-          aria-label="LIVEに戻る"
-        >
-          ‹
-        </Link>
+        <BackButton />
 
         {/* UPCOMING LIVE */}
         <p className="mt-3 text-xs font-bold tracking-wider text-[#14526B]">
