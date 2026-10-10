@@ -14,12 +14,7 @@ export default async function UpcomingPage({
   );
 
   if (!live) notFound();
-  // 住所からGoogle MapsのURLを自動生成
-const googleMapsUrl = live.address
-  ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      `${live.venue} ${live.address}`
-    )}`
-  : null;
+  
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
@@ -100,47 +95,45 @@ const googleMapsUrl = live.address
         )}
 
         {/* ACCESS */}
-        {(live.address || live.mapUrl) && (
-          <section className="mt-5 border-t border-zinc-200 pt-4">
+{live.address && (
+  <section className="mt-5 border-t border-zinc-200 pt-4">
+    <h2 className="text-xs font-bold text-[#14526B]">
+      ACCESS
+    </h2>
 
-            <h2 className="text-xs font-bold text-[#14526B]">
-              ACCESS
-            </h2>
+    <p className="mt-2 text-xs leading-6 text-zinc-600">
+      {live.address}
+    </p>
 
-            {live.address && (
-              <p className="mt-2 text-xs leading-6 text-zinc-600">
-                {live.address}
-              </p>
-            )}
+    <a
+      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${live.venue} ${live.address}`
+      )}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#14526B] hover:opacity-60"
+    >
+      Google Mapsで見る
 
-            {live.mapUrl && (
-              <a
-                href={live.mapUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#14526B] hover:opacity-60"
-              >
-                Google Mapsで見る
-                <svg
-  width="16"
-  height="16"
-  viewBox="0 0 24 24"
-  fill="none"
-  stroke="currentColor"
-  strokeWidth="1.8"
-  strokeLinecap="round"
-  strokeLinejoin="round"
-  aria-hidden="true"
->
-  <path d="M15 3h6v6" />
-  <path d="M10 14 21 3" />
-  <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
-</svg>
-              </a>
-            )}
-
-          </section>
-        )}
+      {/* 外部リンクアイコン */}
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.8"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M15 3h6v6" />
+        <path d="M10 14 21 3" />
+        <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
+      </svg>
+    </a>
+  </section>
+)}
 
         {/* セットリスト案内 */}
         <p className="mt-5 border-t border-zinc-200 pt-4 text-xs text-zinc-400">
