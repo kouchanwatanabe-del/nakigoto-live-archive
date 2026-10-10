@@ -17,7 +17,7 @@ export default async function UpcomingPage({
 
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
-      <div className="mx-auto w-full max-w-3xl px-4 py-7 sm:px-6">
+      <div className="mx-auto w-full max-w-3xl px-4 py-5 sm:px-6">
 
         {/* 戻る */}
         <Link
@@ -28,56 +28,81 @@ export default async function UpcomingPage({
           ‹
         </Link>
 
-        {/* 公演情報 */}
-        <p className="mt-5 text-xs font-bold tracking-wider text-[#14526B]">
+        {/* UPCOMING LIVE */}
+        <p className="mt-3 text-xs font-bold tracking-wider text-[#14526B]">
           UPCOMING LIVE
         </p>
 
-        <p className="mt-3 text-sm font-bold text-[#14526B]">
+        {/* 日付 */}
+        <p className="mt-4 text-[13px] font-bold text-[#14526B]">
           {live.date}
         </p>
 
-        <h1 className="mt-2 text-xl font-bold leading-relaxed text-[#14526B]">
+        {/* 公演名 */}
+        <h1 className="mt-1 text-2xl font-bold leading-snug text-[#14526B]">
           {live.title}
         </h1>
 
-        <p className="mt-3 text-sm text-zinc-500">
-          {live.city} ｜ {live.venue}
-        </p>
+        {/* 会場 */}
+        <div className="mt-2 flex items-center gap-1.5 text-xs text-zinc-500">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+            <circle cx="12" cy="10" r="2.5" />
+          </svg>
 
+          <span className="font-semibold text-[#14526B]">
+            {live.city}
+          </span>
+
+          <span className="mx-1 text-zinc-300">|</span>
+
+          <span>{live.venue}</span>
+        </div>
+
+        {/* ツアー */}
         {live.tour && (
-          <p className="mt-3 text-sm text-zinc-600">
+          <p className="mt-2 text-xs text-zinc-500">
             {live.tour}
           </p>
         )}
 
         {/* 対バン */}
         {live.artists && live.artists.length > 0 && (
-          <p className="mt-4 text-sm text-zinc-600">
-            出演：{live.artists.join(" / ")}
+          <p className="mt-2 text-xs text-zinc-500">
+            <span className="mr-2 font-bold text-[#14526B]">
+              w /
+            </span>
+            {live.artists.join(" , ")}
           </p>
         )}
 
         {/* メモ */}
         {live.memo && (
-          <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-zinc-600">
+          <p className="mt-3 whitespace-pre-wrap text-xs leading-6 text-zinc-600">
             {live.memo}
           </p>
         )}
 
-        {/* ================================= */}
         {/* ACCESS */}
-        {/* ================================= */}
-
         {(live.address || live.mapUrl) && (
-          <section className="mt-7 border-t border-zinc-200 pt-5">
+          <section className="mt-5 border-t border-zinc-200 pt-4">
 
-            <h2 className="text-sm font-bold text-[#14526B]">
+            <h2 className="text-xs font-bold text-[#14526B]">
               ACCESS
             </h2>
 
             {live.address && (
-              <p className="mt-3 text-sm leading-6 text-zinc-600">
+              <p className="mt-2 text-xs leading-6 text-zinc-600">
                 {live.address}
               </p>
             )}
@@ -87,9 +112,9 @@ export default async function UpcomingPage({
                 href={live.mapUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-[#14526B] transition-opacity hover:opacity-60"
+                className="mt-2 inline-flex items-center gap-1.5 text-xs font-semibold text-[#14526B] hover:opacity-60"
               >
-                <span>Google Mapsで見る</span>
+                Google Mapsで見る
                 <span aria-hidden="true">↗</span>
               </a>
             )}
@@ -98,7 +123,7 @@ export default async function UpcomingPage({
         )}
 
         {/* セットリスト案内 */}
-        <p className="mt-8 border-t border-zinc-200 pt-5 text-xs text-zinc-400">
+        <p className="mt-5 border-t border-zinc-200 pt-4 text-xs text-zinc-400">
           セットリストは終演後に掲載します。
         </p>
 
