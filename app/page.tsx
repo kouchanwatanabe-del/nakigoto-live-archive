@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { lives } from "../data/lives";
+import { upcomingLives } from "../data/upcomingLives";
 
 type Live = (typeof lives)[number];
 
@@ -59,6 +60,22 @@ export default function Home() {
     setLoaded(true);
   }, []);
 
+  // 今日以降の直近3公演
+  const upcomingTop3 = useMemo(() => {
+    const today = new Date();
+
+    const todayString = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, "0"),
+      String(today.getDate()).padStart(2, "0"),
+    ].join(".");
+
+    return [...upcomingLives]
+      .filter((live) => live.date >= todayString)
+      .sort((a, b) => a.date.localeCompare(b.date))
+      .slice(0, 3);
+  }, []);
+
   // 参戦したライブ
   const attendedLives = useMemo(() => {
     return lives.filter((live) =>
@@ -88,16 +105,13 @@ export default function Home() {
         {/* ============================== */}
 
         <div>
-          
           <p className="text-3xl font-bold text-[#14526B]">
             HOME
           </p>
+
           <h1 className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
             なきごとの非公式ライブログ
           </h1>
-          
-
-          
         </div>
 
         {/* ============================== */}
@@ -116,7 +130,7 @@ export default function Home() {
               href="/lives"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL 
+              VIEW ALL
             </Link>
 
           </div>
@@ -144,17 +158,17 @@ export default function Home() {
                 {/* 都市・会場・矢印 */}
                 <div className="mt-1.5 flex items-center justify-between">
 
-                 <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#14526B]">
-    <span>{live.city}</span>
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#14526B]">
+                    <span>{live.city}</span>
 
-  {live.city && live.venue && (
-    <span className="text-zinc-300">/</span>
-  )}
+                    {live.city && live.venue && (
+                      <span className="text-zinc-300">/</span>
+                    )}
 
-  {live.venue && (
-    <span>{live.venue}</span>
-  )}
-</div>
+                    {live.venue && (
+                      <span>{live.venue}</span>
+                    )}
+                  </div>
 
                   <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
                     ＞
@@ -164,6 +178,80 @@ export default function Home() {
 
               </Link>
             ))}
+
+          </div>
+
+        </section>
+
+        {/* ============================== */}
+        {/* UPCOMING LIVE */}
+        {/* ============================== */}
+
+        <section className="mt-11">
+
+          <div className="mb-3.5 flex items-center justify-between">
+
+            <h2 className="text-[22px] font-bold text-[#14526B]">
+              UPCOMING LIVE
+            </h2>
+
+            <Link
+              href="/lives?view=upcoming"
+              className="text-[13px] font-medium text-[#14526B] hover:underline"
+            >
+              VIEW ALL
+            </Link>
+
+          </div>
+
+          <div className="space-y-2">
+
+            {upcomingTop3.map((live) => (
+              <Link
+                key={live.id}
+                href={`/upcoming/${encodeURIComponent(live.id)}`}
+                className="block rounded-xl border border-zinc-200 bg-white px-4 py-2.5 shadow-sm transition-all duration-200 hover:border-[#14526B] hover:shadow-md"
+              >
+
+                {/* 日付 */}
+                <p className="text-[12px] font-medium leading-tight text-[#14526B]">
+                  {live.date}
+                </p>
+
+                {/* 公演名 */}
+                <h3 className="mt-1 text-[17px] font-bold leading-snug text-[#14526B]">
+                  {live.title}
+                </h3>
+
+                {/* 都市・会場・矢印 */}
+                <div className="mt-1.5 flex items-center justify-between">
+
+                  <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[11px] text-[#14526B]">
+                    <span>{live.city}</span>
+
+                    {live.city && live.venue && (
+                      <span className="text-zinc-300">/</span>
+                    )}
+
+                    {live.venue && (
+                      <span>{live.venue}</span>
+                    )}
+                  </div>
+
+                  <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
+                    ＞
+                  </span>
+
+                </div>
+
+              </Link>
+            ))}
+
+            {upcomingTop3.length === 0 && (
+              <p className="rounded-xl border border-zinc-200 px-4 py-5 text-center text-sm text-zinc-400">
+                現在、今後の予定はありません。
+              </p>
+            )}
 
           </div>
 
@@ -185,7 +273,7 @@ export default function Home() {
               href="/songs"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL 
+              VIEW ALL
             </Link>
 
           </div>
@@ -233,7 +321,6 @@ export default function Home() {
 
         <section className="mt-11">
 
-          {/* COLLECTIONタイトル */}
           <div className="mb-3.5 flex items-center justify-between">
 
             <h2 className="text-[22px] font-bold text-[#14526B]">
@@ -244,7 +331,7 @@ export default function Home() {
               href="/collection"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
-              VIEW ALL 
+              VIEW ALL
             </Link>
 
           </div>
