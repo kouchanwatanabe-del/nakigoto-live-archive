@@ -1,4 +1,25 @@
 export const lives = [
+ {
+  id: "2026-10-11",
+  date: "2026.10.11",
+  title: "FM802 MINAMI WHEEL 2026",
+  city: "大阪",
+  venue: "Live House ANIMA",
+  tour: "",
+  artists: [],
+  setlist: [
+    "憧れとレモンサワー",
+    "アカネ",
+    "グッナイダーリン・イマジナリーベイブ",
+    "メトロポリタン",
+    "短夜",
+    "ひといき",
+    "深夜2時とハイボール",
+  ],
+  encore: [],
+  memo: "リハーサル：愛才",
+},
+  
   {
     id: "2026-09-04",
     date: "2026.09.04",
