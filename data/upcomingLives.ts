@@ -29,16 +29,6 @@ export const upcomingLives: UpcomingLive[] = [
   //    address: "東京都〇〇区〇〇 1-2-3",
   //      //   memo: "",
   // },
-  {
-  id: "2026-10-12-example",
-  date: "2026.10.11",
-  title: "Maxell presents FM802 MINAMI WHEEL 2026",
-  city: "大阪",
-  venue: "Live House ANIMA",
-  tour: "",
-  address: "〒542-0086 大阪府大阪市中央区西心斎橋２丁目１０−２１ B1F",
-    memo: "",
-},
 {
   id: "2026-10-17-example",
   date: "2026.10.17",
