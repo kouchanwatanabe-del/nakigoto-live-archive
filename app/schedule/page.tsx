@@ -608,7 +608,7 @@ export default function SchedulePage() {
 
         <h1 className="text-3xl font-bold">SCHEDULE</h1>
 
-        <p className="mt-2 text-sm text-zinc-500">なきごとの活動予定</p>
+        <p className="mt-2 text-sm text-zinc-500">活動予定</p>
 
         <div className="mt-7 flex flex-wrap gap-2 border-b border-zinc-200 pb-5">
 
