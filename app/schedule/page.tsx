@@ -8,10 +8,6 @@ import {
   useRef,
   useState,
 } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
 
 import { upcomingLives } from "../../data/upcomingLives";
 import {
@@ -19,9 +15,9 @@ import {
   type ScheduleCategory,
 } from "../../data/schedules";
 
-type CategoryFilter = "ALL" | ScheduleCategory;
+type Filter = "ALL" | ScheduleCategory;
 
-type CalendarEvent = {
+type ScheduleEvent = {
   id: string;
   date: string;
   category: ScheduleCategory;
@@ -31,7 +27,7 @@ type CalendarEvent = {
   href?: string;
 };
 
-const categories: CategoryFilter[] = [
+const categories: Filter[] = [
   "ALL",
   "LIVE",
   "RADIO",
@@ -40,7 +36,7 @@ const categories: CategoryFilter[] = [
   "OTHER",
 ];
 
-const categoryStyles: Record<
+const categoryColors: Record<
   ScheduleCategory,
   { bg: string; text: string }
 > = {
@@ -66,11 +62,7 @@ const categoryStyles: Record<
   },
 };
 
-const weekdays = [
-  "日", "月", "火", "水", "木", "金", "土",
-];
-
-function dateKey(date: Date) {
+function formatDate(date: Date) {
   return [
     date.getFullYear(),
     String(date.getMonth() + 1).padStart(2, "0"),
@@ -78,23 +70,25 @@ function dateKey(date: Date) {
   ].join(".");
 }
 
-function monthKey(date: Date) {
-  return date.getFullYear() * 12 + date.getMonth();
-}
-
 function CategoryLabel({
   category,
+  small = false,
 }: {
   category: ScheduleCategory;
+  small?: boolean;
 }) {
-  const style = categoryStyles[category];
+  const color = categoryColors[category];
 
   return (
     <span
-      className="block rounded-[3px] px-0.5 py-[3px] text-center text-[8px] font-bold leading-none tracking-tight"
+      className={`inline-block rounded-[3px] font-bold leading-tight ${
+        small
+          ? "px-1 py-0.5 text-[8px]"
+          : "px-2 py-1 text-[10px]"
+      }`}
       style={{
-        backgroundColor: style.bg,
-        color: style.text,
+        backgroundColor: color.bg,
+        color: color.text,
       }}
     >
       {category}
@@ -103,33 +97,45 @@ function CategoryLabel({
 }
 
 export default function SchedulePage() {
-  const [category, setCategory] =
-    useState<CategoryFilter>("ALL");
+  const [filter, setFilter] = useState<Filter>("ALL");
 
-  const [currentMonth, setCurrentMonth] =
-    useState(() => {
+  const [calendarDate, setCalendarDate] = useState(
+    () => {
       const now = new Date();
+
       return new Date(
         now.getFullYear(),
         now.getMonth(),
         1
       );
-    });
-
-  const [selectedDate, setSelectedDate] =
-    useState(() => dateKey(new Date()));
+    }
+  );
 
   const [today, setToday] = useState("");
+  const [highlightedId, setHighlightedId] =
+    useState<string | null>(null);
 
   const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
 
   useEffect(() => {
-    setToday(dateKey(new Date()));
+    const updateToday = () => {
+      setToday(formatDate(new Date()));
+    };
+
+    updateToday();
+
+    const timer = window.setInterval(
+      updateToday,
+      60 * 1000
+    );
+
+    return () => window.clearInterval(timer);
   }, []);
 
-  // 既存のUPCOMING LIVEと新しい予定を統合
-  const allEvents = useMemo<CalendarEvent[]>(() => {
-    const liveEvents: CalendarEvent[] =
+  // LIVEとその他の予定をまとめる
+  const allEvents = useMemo<ScheduleEvent[]>(() => {
+    const liveEvents: ScheduleEvent[] =
       upcomingLives.map((live) => ({
         id: `live-${live.id}`,
         date: live.date,
@@ -138,13 +144,16 @@ export default function SchedulePage() {
         detail: [live.city, live.venue]
           .filter(Boolean)
           .join(" / "),
-        href: `/upcoming/${encodeURIComponent(live.id)}`,
+        href: `/upcoming/${encodeURIComponent(
+          live.id
+        )}`,
       }));
 
-    const otherEvents: CalendarEvent[] =
+    const otherEvents: ScheduleEvent[] =
       schedules.map((event) => ({
         ...event,
-        href: event.url,
+        id: `schedule-${event.id}`,
+        href: event.url || undefined,
       }));
 
     return [...liveEvents, ...otherEvents].sort(
@@ -158,28 +167,61 @@ export default function SchedulePage() {
     () =>
       allEvents.filter(
         (event) =>
-          category === "ALL" ||
-          event.category === category
+          filter === "ALL" ||
+          event.category === filter
       ),
-    [allEvents, category]
+    [allEvents, filter]
   );
 
-  const eventsByDate = useMemo(() => {
-    const map = new Map<string, CalendarEvent[]>();
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
 
-    for (const event of filteredEvents) {
-      const existing = map.get(event.date) ?? [];
-      existing.push(event);
-      map.set(event.date, existing);
+  const availableYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+
+    const eventYears = allEvents.map((event) =>
+      Number(event.date.slice(0, 4))
+    );
+
+    const minYear = Math.min(
+      currentYear - 1,
+      ...eventYears
+    );
+
+    const maxYear = Math.max(
+      currentYear + 1,
+      ...eventYears
+    );
+
+    return Array.from(
+      { length: maxYear - minYear + 1 },
+      (_, index) => maxYear - index
+    );
+  }, [allEvents]);
+
+  const monthEvents = useMemo(() => {
+    const prefix = `${year}.${String(
+      month + 1
+    ).padStart(2, "0")}.`;
+
+    return filteredEvents.filter((event) =>
+      event.date.startsWith(prefix)
+    );
+  }, [filteredEvents, year, month]);
+
+  const eventsByDate = useMemo(() => {
+    const map = new Map<string, ScheduleEvent[]>();
+
+    for (const event of monthEvents) {
+      const current = map.get(event.date) ?? [];
+      current.push(event);
+      map.set(event.date, current);
     }
 
     return map;
-  }, [filteredEvents]);
+  }, [monthEvents]);
 
-  const year = currentMonth.getFullYear();
-  const month = currentMonth.getMonth();
-
-  const firstWeekday = new Date(
+  const firstDay = new Date(
     year,
     month,
     1
@@ -191,78 +233,93 @@ export default function SchedulePage() {
     0
   ).getDate();
 
-  const cellCount =
-    Math.ceil((firstWeekday + daysInMonth) / 7) * 7;
+  const days: (number | null)[] = [];
 
-  const calendarDays = Array.from(
-    { length: cellCount },
-    (_, index) => index - firstWeekday + 1
-  );
-
-  const selectedEvents =
-    eventsByDate.get(selectedDate) ?? [];
-
-  const monthEvents = filteredEvents.filter(
-    (event) =>
-      event.date.startsWith(
-        `${year}.${String(month + 1).padStart(2, "0")}.`
-      )
-  );
-
-  const availableYears = Array.from(
-    new Set([
-      year,
-      new Date().getFullYear(),
-      ...allEvents.map((event) =>
-        Number(event.date.slice(0, 4))
-      ),
-    ])
-  ).sort((a, b) => b - a);
-
-  function moveMonth(amount: number) {
-    const next = new Date(
-      year,
-      month + amount,
-      1
-    );
-
-    setCurrentMonth(next);
-    setSelectedDate(dateKey(next));
+  for (let i = 0; i < firstDay; i++) {
+    days.push(null);
   }
 
-  function selectMonth(
+  for (let day = 1; day <= daysInMonth; day++) {
+    days.push(day);
+  }
+
+  while (days.length % 7 !== 0) {
+    days.push(null);
+  }
+
+  function changeMonth(amount: number) {
+    setHighlightedId(null);
+
+    setCalendarDate(
+      new Date(year, month + amount, 1)
+    );
+  }
+
+  function jumpToMonth(
     nextYear: number,
     nextMonth: number
   ) {
-    const next = new Date(
-      nextYear,
-      nextMonth,
-      1
-    );
+    setHighlightedId(null);
 
-    setCurrentMonth(next);
-    setSelectedDate(dateKey(next));
+    setCalendarDate(
+      new Date(nextYear, nextMonth, 1)
+    );
   }
 
-  function onTouchEnd(
+  // 日付を押したら下の予定へ移動
+  function scrollToEvent(eventId: string) {
+    const element = document.getElementById(
+      `schedule-event-${eventId}`
+    );
+
+    if (!element) return;
+
+    setHighlightedId(eventId);
+
+    element.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+
+    window.setTimeout(() => {
+      setHighlightedId(null);
+    }, 1400);
+  }
+
+  // スマホで左右スワイプ
+  function handleTouchEnd(
     event: React.TouchEvent<HTMLDivElement>
   ) {
-    if (touchStartX.current === null) return;
+    if (
+      touchStartX.current === null ||
+      touchStartY.current === null
+    ) {
+      return;
+    }
 
-    const distance =
+    const diffX =
       event.changedTouches[0].clientX -
       touchStartX.current;
 
+    const diffY =
+      event.changedTouches[0].clientY -
+      touchStartY.current;
+
     touchStartX.current = null;
+    touchStartY.current = null;
 
-    if (Math.abs(distance) < 60) return;
+    if (Math.abs(diffY) > Math.abs(diffX)) {
+      return;
+    }
 
-    moveMonth(distance < 0 ? 1 : -1);
+    if (Math.abs(diffX) < 55) return;
+
+    changeMonth(diffX < 0 ? 1 : -1);
   }
 
   return (
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
-      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
         <h1 className="text-3xl font-bold">
           SCHEDULE
         </h1>
@@ -271,125 +328,143 @@ export default function SchedulePage() {
           なきごとの活動予定
         </p>
 
-        {/* カテゴリ切り替え */}
+        {/* カテゴリ */}
         <div className="mt-7 flex flex-wrap gap-2">
-          {categories.map((item) => (
+          {categories.map((category) => (
             <button
-              key={item}
+              key={category}
               type="button"
-              onClick={() => setCategory(item)}
+              onClick={() => {
+                setFilter(category);
+                setHighlightedId(null);
+              }}
               className={`rounded-full border px-3 py-2 text-[11px] font-bold transition ${
-                category === item
+                filter === category
                   ? "border-[#14526B] bg-[#14526B] text-white"
                   : "border-zinc-200 bg-white text-[#14526B]"
               }`}
             >
-              {item}
+              {category}
             </button>
           ))}
         </div>
 
-        {/* 年月ナビ */}
-        <div className="mt-8 flex items-center justify-between">
+        {/* 年月切り替え */}
+        <div className="mt-7 flex items-center justify-between px-1">
           <button
             type="button"
             aria-label="前の月"
-            onClick={() => moveMonth(-1)}
-            className="rounded-full p-2"
+            onClick={() => changeMonth(-1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100"
           >
-            <ChevronLeft size={22} />
+            ‹
           </button>
 
-          <div className="flex items-center gap-2">
-            <select
-              aria-label="年を選択"
-              value={year}
-              onChange={(e) =>
-                selectMonth(
-                  Number(e.target.value),
-                  month
-                )
-              }
-              className="bg-white text-base font-bold outline-none"
-            >
-              {availableYears.map((value) => (
-                <option key={value} value={value}>
-                  {value}年
-                </option>
-              ))}
-            </select>
-
-            <select
-              aria-label="月を選択"
-              value={month}
-              onChange={(e) =>
-                selectMonth(
-                  year,
-                  Number(e.target.value)
-                )
-              }
-              className="bg-white text-base font-bold outline-none"
-            >
-              {Array.from(
-                { length: 12 },
-                (_, index) => (
-                  <option
-                    key={index}
-                    value={index}
-                  >
-                    {index + 1}月
+          <div className="flex items-center justify-center gap-1">
+            <div className="relative">
+              <select
+                aria-label="年を選択"
+                value={year}
+                onChange={(e) =>
+                  jumpToMonth(
+                    Number(e.target.value),
+                    month
+                  )
+                }
+                className="cursor-pointer appearance-none bg-transparent py-2 pl-2 pr-5 text-[17px] font-bold tracking-tight text-[#14526B] outline-none"
+              >
+                {availableYears.map((value) => (
+                  <option key={value} value={value}>
+                    {value}年
                   </option>
-                )
-              )}
-            </select>
+                ))}
+              </select>
+
+              <span className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[9px]">
+                ▼
+              </span>
+            </div>
+
+            <div className="relative">
+              <select
+                aria-label="月を選択"
+                value={month}
+                onChange={(e) =>
+                  jumpToMonth(
+                    year,
+                    Number(e.target.value)
+                  )
+                }
+                className="cursor-pointer appearance-none bg-transparent py-2 pl-1 pr-5 text-[17px] font-bold tracking-tight text-[#14526B] outline-none"
+              >
+                {Array.from(
+                  { length: 12 },
+                  (_, index) => (
+                    <option
+                      key={index}
+                      value={index}
+                    >
+                      {index + 1}月
+                    </option>
+                  )
+                )}
+              </select>
+
+              <span className="pointer-events-none absolute right-0 top-1/2 -translate-y-1/2 text-[9px]">
+                ▼
+              </span>
+            </div>
           </div>
 
           <button
             type="button"
             aria-label="次の月"
-            onClick={() => moveMonth(1)}
-            className="rounded-full p-2"
+            onClick={() => changeMonth(1)}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100"
           >
-            <ChevronRight size={22} />
+            ›
           </button>
         </div>
 
         {/* カレンダー */}
         <div
-          className="mt-5 touch-pan-y select-none"
+          className="mt-2 touch-pan-y select-none"
           onTouchStart={(e) => {
             touchStartX.current =
               e.touches[0].clientX;
+
+            touchStartY.current =
+              e.touches[0].clientY;
           }}
-          onTouchEnd={onTouchEnd}
+          onTouchEnd={handleTouchEnd}
+          onTouchCancel={() => {
+            touchStartX.current = null;
+            touchStartY.current = null;
+          }}
         >
-          <div className="grid grid-cols-7">
-            {weekdays.map((day, index) => (
+          {/* 曜日 */}
+          <div className="grid grid-cols-7 border-b border-zinc-100">
+            {[
+              "日", "月", "火", "水",
+              "木", "金", "土",
+            ].map((weekday) => (
               <div
-                key={day}
-                className={`pb-3 text-center text-xs font-medium ${
-                  index === 0
-                    ? "text-rose-400"
-                    : index === 6
-                      ? "text-sky-500"
-                      : "text-zinc-400"
-                }`}
+                key={weekday}
+                className="py-2 text-center text-[10px] font-bold text-zinc-400"
               >
-                {day}
+                {weekday}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 border-l border-t border-zinc-100">
-            {calendarDays.map((day, index) => {
-              const valid =
-                day >= 1 && day <= daysInMonth;
-
-              if (!valid) {
+          {/* 日付 */}
+          <div className="grid grid-cols-7">
+            {days.map((day, index) => {
+              if (day === null) {
                 return (
                   <div
-                    key={index}
-                    className="min-h-[82px] border-b border-r border-zinc-100 bg-zinc-50/50"
+                    key={`empty-${index}`}
+                    className="min-h-[88px] border-b border-zinc-100 bg-zinc-50/30"
                   />
                 );
               }
@@ -400,212 +475,158 @@ export default function SchedulePage() {
                 String(day).padStart(2, "0"),
               ].join(".");
 
-              const events =
+              const dayEvents =
                 eventsByDate.get(date) ?? [];
+
+              const hasEvents =
+                dayEvents.length > 0;
 
               const uniqueCategories = [
                 ...new Set(
-                  events.map((event) => event.category)
+                  dayEvents.map(
+                    (event) => event.category
+                  )
                 ),
               ];
-
-              const selected =
-                selectedDate === date;
-
-              const isToday = today === date;
 
               return (
                 <button
                   key={date}
                   type="button"
-                  onClick={() => setSelectedDate(date)}
-                  className={`min-h-[82px] min-w-0 border-b border-r border-zinc-100 px-0.5 py-1 text-left align-top transition ${
-                    selected
-                      ? "bg-[#14526B]/[0.07]"
+                  onClick={() => {
+                    if (!hasEvents) return;
+
+                    scrollToEvent(dayEvents[0].id);
+                  }}
+                  className={`relative min-h-[88px] min-w-0 border-b border-zinc-100 px-1 py-1.5 text-left transition ${
+                    hasEvents
+                      ? "cursor-pointer bg-[#14526B]/15 active:bg-[#14526B]/20"
                       : "bg-white"
                   }`}
                 >
-                  <span
-                    className={`mx-auto mb-1.5 flex h-6 w-6 items-center justify-center rounded-full text-[11px] ${
-                      isToday
-                        ? "bg-[#14526B] font-bold text-white"
-                        : selected
-                          ? "font-bold text-[#14526B]"
-                          : "text-zinc-600"
+                  {/* 日付 */}
+                  <div
+                    className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
+                      today === date
+                        ? "bg-[#14526B] text-white"
+                        : hasEvents
+                          ? "text-[#14526B]"
+                          : "text-zinc-500"
                     }`}
                   >
                     {day}
-                  </span>
-
-                  <div className="space-y-0.5">
-                    {uniqueCategories.map((item) => (
-                      <CategoryLabel
-                        key={item}
-                        category={item}
-                      />
-                    ))}
                   </div>
+
+                  {/* カテゴリ名 */}
+                  {hasEvents && (
+                    <div className="mt-0.5 flex flex-col items-start gap-1">
+                      {uniqueCategories.map(
+                        (category) => (
+                          <CategoryLabel
+                            key={category}
+                            category={category}
+                            small
+                          />
+                        )
+                      )}
+                    </div>
+                  )}
+
+                  {/* 同日の予定件数 */}
+                  {dayEvents.length > 1 && (
+                    <p className="mt-1 text-[8px] font-medium text-zinc-500">
+                      {dayEvents.length}件
+                    </p>
+                  )}
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* 選択した日の予定 */}
-        <section className="mt-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[20px] font-bold">
-              {selectedDate.replaceAll(".", "/")}
-            </h2>
+        {/* この月の予定 */}
+        <section className="mt-7">
+          <div className="mb-2 flex items-center justify-between">
+            <p className="text-[10px] font-bold tracking-[0.16em] text-zinc-400">
+              {month + 1}月の予定
+            </p>
 
-            <span className="text-xs text-zinc-400">
-              {selectedEvents.length}件
-            </span>
+            <p className="text-[10px] text-zinc-400">
+              {monthEvents.length}件
+            </p>
           </div>
 
-          <div className="mt-4 space-y-3">
-            {selectedEvents.length === 0 ? (
-              <p className="rounded-xl border border-zinc-200 px-4 py-6 text-center text-sm text-zinc-400">
-                この日の予定はありません。
-              </p>
-            ) : (
-              selectedEvents.map((event) => {
-                const style =
-                  categoryStyles[event.category];
-
-                const content = (
-                  <div className="rounded-xl border border-zinc-200 bg-white px-4 py-4 shadow-sm">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="rounded px-2 py-1 text-[10px] font-bold"
-                        style={{
-                          backgroundColor: style.bg,
-                          color: style.text,
-                        }}
-                      >
-                        {event.category}
-                      </span>
-
+          {monthEvents.length > 0 ? (
+            <div className="border-y border-zinc-200">
+              {monthEvents.map((event) => (
+                <div
+                  key={event.id}
+                  id={`schedule-event-${event.id}`}
+                  className={`scroll-mt-24 border-b border-zinc-100 transition-colors duration-500 last:border-b-0 ${
+                    highlightedId === event.id
+                      ? "bg-[#14526B]/10"
+                      : "bg-white"
+                  }`}
+                >
+                  <div className="py-3">
+                    <p className="text-[10px] font-bold text-[#14526B]">
+                      {event.date}
                       {event.time && (
-                        <span className="text-xs text-zinc-500">
+                        <span className="ml-2 text-zinc-400">
                           {event.time}
                         </span>
                       )}
-                    </div>
+                    </p>
 
-                    <h3 className="mt-2 text-[16px] font-bold leading-snug">
-                      {event.title}
-                    </h3>
-
-                    {event.detail && (
-                      <p className="mt-2 text-xs leading-5 text-zinc-500">
-                        {event.detail}
-                      </p>
-                    )}
-
-                    {event.href && (
-                      <p className="mt-2 text-right text-xs font-medium">
-                        詳細を見る →
-                      </p>
-                    )}
-                  </div>
-                );
-
-                return event.href ? (
-                  <Link
-                    key={event.id}
-                    href={event.href}
-                    className="block"
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  <div key={event.id}>
-                    {content}
-                  </div>
-                );
-              })
-            )}
-          </div>
-        </section>
-
-        {/* 月間予定一覧 */}
-        <section className="mt-10">
-          <div className="flex items-center justify-between">
-            <h2 className="text-[20px] font-bold">
-              {month + 1}月の予定
-            </h2>
-
-            <span className="text-xs text-zinc-400">
-              {monthEvents.length}件
-            </span>
-          </div>
-
-          <div className="mt-4 space-y-2">
-            {monthEvents.length === 0 ? (
-              <p className="text-sm text-zinc-400">
-                登録されている予定はありません。
-              </p>
-            ) : (
-              monthEvents.map((event) => {
-                const style =
-                  categoryStyles[event.category];
-
-                const card = (
-                  <div className="flex items-center gap-3 rounded-xl border border-zinc-200 px-3 py-3">
-                    <span className="w-12 shrink-0 text-xs font-bold">
-                      {event.date.slice(5)}
-                    </span>
-
-                    <span
-                      className="w-[3px] self-stretch rounded-full"
-                      style={{
-                        backgroundColor: style.bg,
-                      }}
-                    />
-
-                    <div className="min-w-0 flex-1">
-                      <span
-                        className="text-[10px] font-bold"
-                        style={{
-                          color:
-                            event.category === "LIVE"
-                              ? "#14526B"
-                              : style.text,
-                        }}
-                      >
-                        {event.category}
-                      </span>
-
-                      <p className="mt-0.5 text-sm font-semibold">
-                        {event.title}
-                      </p>
-                    </div>
-
-                    {event.href && (
-                      <ChevronRight
-                        size={16}
-                        className="shrink-0 text-zinc-400"
+                    <div className="mt-1">
+                      <CategoryLabel
+                        category={event.category}
                       />
+                    </div>
+
+                    {event.href ? (
+                      <Link
+                        href={event.href}
+                        className="mt-1.5 block"
+                      >
+                        <h3 className="text-[13px] font-bold leading-[1.4] text-[#14526B]">
+                          {event.title}
+                        </h3>
+
+                        {event.detail && (
+                          <p className="mt-1 text-[12px] leading-snug text-zinc-400">
+                            {event.detail}
+                          </p>
+                        )}
+
+                        <p className="mt-1.5 text-[10px] font-medium text-[#14526B]">
+                          詳細を見る →
+                        </p>
+                      </Link>
+                    ) : (
+                      <div className="mt-1.5">
+                        <h3 className="text-[13px] font-bold leading-[1.4] text-[#14526B]">
+                          {event.title}
+                        </h3>
+
+                        {event.detail && (
+                          <p className="mt-1 text-[12px] leading-snug text-zinc-400">
+                            {event.detail}
+                          </p>
+                        )}
+                      </div>
                     )}
                   </div>
-                );
-
-                return event.href ? (
-                  <Link
-                    key={event.id}
-                    href={event.href}
-                  >
-                    {card}
-                  </Link>
-                ) : (
-                  <div key={event.id}>
-                    {card}
-                  </div>
-                );
-              })
-            )}
-          </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border-t border-zinc-200 py-10 text-center">
+              <p className="text-[13px] text-zinc-400">
+                この月の予定はありません
+              </p>
+            </div>
+          )}
         </section>
       </div>
     </main>
