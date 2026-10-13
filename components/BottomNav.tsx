@@ -67,27 +67,32 @@ export default function BottomNav() {
   // ========================================
 
   const tabs = [
-    {
-      href: "/",
-      label: "HOME",
-      icon: House,
-    },
-    {
-      href: "/lives",
-      label: "LIVE",
-      icon: CalendarDays,
-    },
-    {
-      href: "/songs",
-      label: "SONGS",
-      icon: Music2,
-    },
-    {
-      href: "/collection",
-      label: "MY PAGE",
-      icon: Heart,
-    },
-  ];
+  {
+    href: "/",
+    label: "HOME",
+    icon: House,
+  },
+  {
+    href: "/schedule",
+    label: "SCHEDULE",
+    icon: CalendarDays,
+  },
+  {
+    href: "/lives",
+    label: "LIVE",
+    icon: CalendarDays,
+  },
+  {
+    href: "/songs",
+    label: "SONGS",
+    icon: Music2,
+  },
+  {
+    href: "/collection",
+    label: "MY PAGE",
+    icon: Heart,
+  },
+];
 
   // ========================================
   // 管理者用TABS
@@ -382,16 +387,9 @@ export default function BottomNav() {
       ease-[cubic-bezier(0.22,1,0.36,1)]
     "
     style={{
-      width: "31%",
-      left:
-        activeIndex === 0
-          ? "0%"
-          : activeIndex === 1
-            ? "23%"
-            : activeIndex === 2
-              ? "46%"
-              : "69%",
-    }}
+  width: "32%",
+  left: `${activeIndex * 17}%`,
+}}
   />
 )}
               
@@ -452,13 +450,13 @@ export default function BottomNav() {
                       ${
                         active
                           ? `
-                            w-[31%]
+                            w-[32%]
                             gap-2
                             px-3
                             text-white
                           `
                           : `
-                            w-[23%]
+                            w-[17%]
                             text-zinc-400
 
                             hover:text-[#14526B]
