@@ -117,6 +117,7 @@ function getRecurringEvents(year: number, month: number): ScheduleEvent[] {
         date: dateKey,
         category: "PODCAST",
         title: 'Artistspoken「なきごとのUBUGOE」',
+        time: '23:00',
       });
     }
 
@@ -549,7 +550,7 @@ export default function SchedulePage() {
 
                 }}
 
-                className={`relative flex min-h-[88px] min-w-0 flex-col items-start justify-start border-b border-zinc-100 px-1 py-1.5 text-left ${dayEvents.length ? "bg-[#14526B]/15 active:bg-[#14526B]/20" : "bg-white"}`}
+                className={`relative flex min-h-[88px] min-w-0 flex-col items-start justify-start border-b border-zinc-100 px-1 py-1.5 text-left bg-white active:bg-zinc-50`}
 
               >
 
@@ -717,9 +718,11 @@ export default function SchedulePage() {
 
                     <div className="flex flex-wrap items-center gap-2">
 
-                      <p className="text-[10px] font-bold text-[#14526B]">{event.date}{event.time && <span className="ml-2 text-zinc-400">{event.time}</span>}</p>
+                      <p className="text-[10px] font-bold text-[#14526B]">{event.date}</p>
 
                       <CategoryLabel category={event.category} />
+
+                      {event.time && <span className="text-[10px] font-bold text-zinc-400">{event.time}</span>}
 
                     </div>
 
