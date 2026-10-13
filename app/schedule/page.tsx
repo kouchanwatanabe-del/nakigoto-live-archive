@@ -228,7 +228,7 @@ export default function SchedulePage() {
 
       id: `schedule-${event.id}`,
 
-      href: event.url || undefined,
+      href: `/schedule/${encodeURIComponent(event.id)}`,
 
     }));
 
@@ -250,7 +250,13 @@ export default function SchedulePage() {
       return getRecurringEvents(date.getFullYear(), date.getMonth());
     });
 
-    return [...allEvents, ...recurringEvents]
+    return [
+      ...allEvents,
+      ...recurringEvents.map((event) => ({
+        ...event,
+        href: `/schedule/${encodeURIComponent(event.id)}`,
+      })),
+    ]
       .filter((event) => filter === "ALL" || event.category === filter)
       .sort((a, b) =>
         a.date.localeCompare(b.date) ||
