@@ -329,7 +329,7 @@ export default function SchedulePage() {
         </p>
 
         {/* カテゴリ */}
-        <div className="mt-7 flex flex-wrap gap-2">
+        <div className="mt-7 flex flex-wrap gap-2 border-b border-zinc-200 pb-5">
           {categories.map((category) => (
             <button
               key={category}
@@ -498,7 +498,7 @@ export default function SchedulePage() {
 
                     scrollToEvent(dayEvents[0].id);
                   }}
-                  className={`relative min-h-[88px] min-w-0 border-b border-zinc-100 px-1 py-1.5 text-left transition ${
+                  className={`relative flex min-h-[88px] min-w-0 flex-col items-start justify-start border-b border-zinc-100 px-1 py-1.5 text-left align-top transition ${
                     hasEvents
                       ? "cursor-pointer bg-[#14526B]/15 active:bg-[#14526B]/20"
                       : "bg-white"
