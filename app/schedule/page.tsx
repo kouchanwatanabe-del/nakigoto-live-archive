@@ -570,7 +570,7 @@ export default function SchedulePage() {
                       : "bg-white"
                   }`}
                 >
-                  <div className="py-3">
+                  <div className="py-2">
                     <p className="text-[10px] font-bold text-[#14526B]">
                       {event.date}
                       {event.time && (
@@ -589,7 +589,7 @@ export default function SchedulePage() {
                     {event.href ? (
                       <Link
                         href={event.href}
-                        className="mt-1.5 block"
+                        className="mt-1 block"
                       >
                         <h3 className="text-[13px] font-bold leading-[1.4] text-[#14526B]">
                           {event.title}
@@ -601,9 +601,7 @@ export default function SchedulePage() {
                           </p>
                         )}
 
-                        <p className="mt-1.5 text-[10px] font-medium text-[#14526B]">
-                          詳細を見る →
-                        </p>
+                        
                       </Link>
                     ) : (
                       <div className="mt-1.5">
