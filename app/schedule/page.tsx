@@ -70,6 +70,7 @@ function formatDate(date: Date) {
   ].join(".");
 }
 
+
 function CategoryLabel({
   category,
   small = false,
@@ -81,10 +82,10 @@ function CategoryLabel({
 
   return (
     <span
-      className={`inline-block rounded-[3px] font-bold leading-tight ${
+      className={`block rounded-[3px] font-bold leading-tight ${
         small
-          ? "px-1 py-0.5 text-[8px]"
-          : "px-2 py-1 text-[10px]"
+          ? "w-full overflow-hidden whitespace-nowrap px-0.5 py-[3px] text-[9px] text-center"
+          : "w-fit px-2 py-1 text-[10px]"
       }`}
       style={{
         backgroundColor: color.bg,
@@ -95,6 +96,7 @@ function CategoryLabel({
     </span>
   );
 }
+
 
 export default function SchedulePage() {
   const [filter, setFilter] = useState<Filter>("ALL");
@@ -519,7 +521,7 @@ export default function SchedulePage() {
 
                   {/* カテゴリ名 */}
                   {hasEvents && (
-                    <div className="mt-0.5 flex flex-col items-start gap-1">
+                    <div className="mt-0.5 flex w-full min-w-0 flex-col gap-1">
                       {uniqueCategories.map(
                         (category) => (
                           <CategoryLabel
