@@ -97,7 +97,7 @@ export default function AttendedIconButton({
         className="
           h-9
           w-9
-          rounded-full
+          rounded-md
           bg-zinc-100
         "
       />
@@ -125,7 +125,7 @@ export default function AttendedIconButton({
         items-center
         justify-center
 
-        rounded-full
+        rounded-md
         border
 
         text-[17px]
