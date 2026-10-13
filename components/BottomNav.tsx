@@ -11,6 +11,7 @@ import {
   Heart,
   Users,
   MapPin,
+  Ticket,
 } from "lucide-react";
 
 export default function BottomNav() {
@@ -78,10 +79,10 @@ export default function BottomNav() {
     icon: CalendarDays,
   },
   {
-    href: "/lives",
-    label: "LIVE",
-    icon: CalendarDays,
-  },
+  href: "/lives",
+  label: "LIVE",
+  icon: Ticket,
+},
   {
     href: "/songs",
     label: "SONGS",
