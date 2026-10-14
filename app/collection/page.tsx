@@ -17,6 +17,7 @@ type Tab = "lives" | "heard" | "unheard";
 const isCoverSong = (song: string) => {
   return song.includes("カバー");
 };
+
 // ========================================
 // SONGS一覧に表示しない曲
 // ========================================
@@ -219,7 +220,7 @@ const handleSecretAdminTap = () => {
 </h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-            あなたの参戦記録
+            
           </p>
 
         </div>
