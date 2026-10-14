@@ -135,7 +135,7 @@ export default function Home() {
           </p>
 
           <h1 className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-            なきごとの非公式ライブログ
+            
           </h1>
         </div>
         
