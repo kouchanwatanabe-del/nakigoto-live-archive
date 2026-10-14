@@ -59,6 +59,27 @@ const categoryColors: Record<ScheduleCategory, { bg: string; text: string }> = {
 };
 
 const SWIPE_THRESHOLD = 55;
+const MIN_MONTH = new Date(2026, 9, 1); // 2026年10月
+const MAX_MONTH = (() => {
+  // 追加されたLIVE予定のうち、最も先の公演月まで
+  const latest = upcomingLives.reduce((max, live) => {
+    const value = live.date.slice(0, 7);
+    return value > max ? value : max;
+  }, "2026.10");
+  const [year, month] = latest.split(".").map(Number);
+  return new Date(year, month - 1, 1);
+})();
+
+function monthIndex(date: Date) {
+  return date.getFullYear() * 12 + date.getMonth();
+}
+
+function clampMonth(date: Date) {
+  if (monthIndex(date) < monthIndex(MIN_MONTH)) return new Date(MIN_MONTH);
+  if (monthIndex(date) > monthIndex(MAX_MONTH)) return new Date(MAX_MONTH);
+  return date;
+}
+
 
 function formatDate(date: Date) {
 
@@ -108,9 +129,20 @@ export default function SchedulePage() {
 
     const now = new Date();
 
-    return new Date(now.getFullYear(), now.getMonth(), 1);
+    return clampMonth(new Date(now.getFullYear(), now.getMonth(), 1));
 
   });
+
+  useEffect(() => {
+    const saved = window.sessionStorage.getItem("nakigoto-schedule-month");
+    if (!saved || !/^\d{4}-(0?[0-9]|1[01])$/.test(saved)) return;
+    const [savedYear, savedMonth] = saved.split("-").map(Number);
+    setCalendarDate(clampMonth(new Date(savedYear, savedMonth, 1)));
+  }, []);
+
+  function rememberCalendarMonth() {
+    window.sessionStorage.setItem("nakigoto-schedule-month", `${year}-${month}`);
+  }
 
   const [today, setToday] = useState("");
 
@@ -228,19 +260,12 @@ export default function SchedulePage() {
       );
   }, [allEvents, filter, year, month]);
 
-  const availableYears = useMemo(() => {
-
-    const currentYear = new Date().getFullYear();
-
-    const eventYears = allEvents.map((event) => Number(event.date.slice(0, 4)));
-
-    const minYear = Math.min(currentYear - 1, ...eventYears);
-
-    const maxYear = Math.max(currentYear + 1, ...eventYears);
-
-    return Array.from({ length: maxYear - minYear + 1 }, (_, index) => maxYear - index);
-
-  }, [allEvents]);
+  const availableYears = Array.from(
+    { length: MAX_MONTH.getFullYear() - MIN_MONTH.getFullYear() + 1 },
+    (_, index) => MIN_MONTH.getFullYear() + index
+  );
+  const canGoPrevious = monthIndex(calendarDate) > monthIndex(MIN_MONTH);
+  const canGoNext = monthIndex(calendarDate) < monthIndex(MAX_MONTH);
 
   const monthEvents = useMemo(() => {
 
@@ -304,13 +329,15 @@ export default function SchedulePage() {
 
     setDragX(0);
 
-    setCalendarDate(new Date(nextYear, nextMonth, 1));
+    setCalendarDate(clampMonth(new Date(nextYear, nextMonth, 1)));
 
   }
 
   function animateMonth(direction: -1 | 1) {
 
     if (isAnimating || resetting || !containerWidth) return;
+    if (direction === -1 && !canGoPrevious) return;
+    if (direction === 1 && !canGoNext) return;
 
     pendingDirection.current = direction;
 
@@ -342,7 +369,7 @@ export default function SchedulePage() {
 
       setHighlightedId(null);
 
-      setCalendarDate((current) => new Date(current.getFullYear(), current.getMonth() + direction, 1));
+      setCalendarDate((current) => clampMonth(new Date(current.getFullYear(), current.getMonth() + direction, 1)));
 
     }
 
@@ -386,7 +413,8 @@ export default function SchedulePage() {
 
     setIsDragging(true);
 
-    setDragX(Math.max(-containerWidth, Math.min(containerWidth, dx)));
+    const allowedDx = (dx > 0 && !canGoPrevious) || (dx < 0 && !canGoNext) ? 0 : dx;
+    setDragX(Math.max(-containerWidth, Math.min(containerWidth, allowedDx)));
 
   }
 
@@ -416,9 +444,13 @@ export default function SchedulePage() {
 
       const direction: -1 | 1 = dx < 0 ? 1 : -1;
 
-      pendingDirection.current = direction;
-
-      setDragX(-direction * containerWidth);
+      if ((direction === -1 && !canGoPrevious) || (direction === 1 && !canGoNext)) {
+        pendingDirection.current = 0;
+        setDragX(0);
+      } else {
+        pendingDirection.current = direction;
+        setDragX(-direction * containerWidth);
+      }
 
     } else {
 
@@ -600,7 +632,7 @@ export default function SchedulePage() {
 
         <div className="mt-7 flex items-center justify-between px-1">
 
-          <button type="button" aria-label="前の月" onClick={() => animateMonth(-1)} disabled={isAnimating || resetting} className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100 disabled:opacity-30">‹</button>
+          <button type="button" aria-label="前の月" onClick={() => animateMonth(-1)} disabled={isAnimating || resetting || !canGoPrevious} className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100 disabled:opacity-30">‹</button>
 
           <div className="flex items-center justify-center gap-1">
 
@@ -620,7 +652,9 @@ export default function SchedulePage() {
 
               <select aria-label="月を選択" value={month} onChange={(event) => jumpToMonth(year, Number(event.target.value))} className="cursor-pointer appearance-none bg-transparent py-2 pl-1 pr-5 text-[17px] font-bold tracking-tight text-[#14526B] outline-none">
 
-                {Array.from({ length: 12 }, (_, index) => <option key={index} value={index}>{index + 1}月</option>)}
+                {Array.from({ length: 12 }, (_, index) => index)
+                  .filter((index) => monthIndex(new Date(year, index, 1)) >= monthIndex(MIN_MONTH) && monthIndex(new Date(year, index, 1)) <= monthIndex(MAX_MONTH))
+                  .map((index) => <option key={index} value={index}>{index + 1}月</option>)}
 
               </select>
 
@@ -630,7 +664,7 @@ export default function SchedulePage() {
 
           </div>
 
-          <button type="button" aria-label="次の月" onClick={() => animateMonth(1)} disabled={isAnimating || resetting} className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100 disabled:opacity-30">›</button>
+          <button type="button" aria-label="次の月" onClick={() => animateMonth(1)} disabled={isAnimating || resetting || !canGoNext} className="flex h-10 w-10 items-center justify-center rounded-full text-[25px] font-light text-[#14526B] active:bg-zinc-100 disabled:opacity-30">›</button>
 
         </div>
 
@@ -698,7 +732,7 @@ export default function SchedulePage() {
 
                     {event.href ? (
 
-                      <Link href={event.href} className="mt-1 block">
+                      <Link href={event.href} onClick={rememberCalendarMonth} className="mt-1 block">
 
                         <h3 className="text-[13px] font-bold leading-[1.4] text-[#14526B]">{event.title}</h3>
 

@@ -27,9 +27,13 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
         <Link
           href="/schedule"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-[#14526B]"
+          aria-label="SCHEDULEに戻る"
+          title="SCHEDULEに戻る"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#14526B] transition-colors hover:bg-zinc-100"
         >
-          <span aria-hidden="true">‹</span> SCHEDULEに戻る
+          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="m15 18-6-6 6-6" />
+          </svg>
         </Link>
 
         <div className="mt-8 border-b border-zinc-200 pb-6">
@@ -70,9 +74,14 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
                 href={event.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-md bg-[#14526B] px-5 py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-[#14526B] hover:underline"
               >
-                関連サイトを見る ↗
+                関連サイトを見る
+                <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M13 5h6v6" />
+                  <path d="m19 5-9 9" />
+                  <path d="M19 13v6H5V5h6" />
+                </svg>
               </a>
             </div>
           )}
