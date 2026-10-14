@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { schedules, findRecurringSchedule, type ScheduleCategory } from "../../../data/schedules";
+import BackButton from "../../../components/BackButton";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -25,16 +26,7 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6">
-        <Link
-          href="/schedule"
-          aria-label="SCHEDULEに戻る"
-          title="SCHEDULEに戻る"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-full text-[#14526B] transition-colors hover:bg-zinc-100"
-        >
-          <svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="m15 18-6-6 6-6" />
-          </svg>
-        </Link>
+        <BackButton />
 
         <div className="mt-8 border-b border-zinc-200 pb-6">
           <div className="flex flex-wrap items-center gap-2">
