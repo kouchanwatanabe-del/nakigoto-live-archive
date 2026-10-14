@@ -419,67 +419,50 @@ export default function SchedulePage() {
   }
 
   function handleTouchEnd(event: TouchEvent<HTMLDivElement>) {
-
-    if (touchStartX.current === null || touchStartY.current === null || isAnimating || resetting) return;
+    if (touchStartX.current === null || touchStartY.current === null) return;
 
     const dx = event.changedTouches[0].clientX - touchStartX.current;
-
     const dy = event.changedTouches[0].clientY - touchStartY.current;
 
     touchStartX.current = null;
-
     touchStartY.current = null;
 
     const isHorizontal = horizontalGesture.current && Math.abs(dx) > Math.abs(dy);
-
     horizontalGesture.current = false;
 
-    if (!isDragging) return;
+    if (isAnimating || resetting || !isDragging) return;
 
-    setIsDragging(false);
+    const direction: -1 | 1 = dx < 0 ? 1 : -1;
+    const blocked =
+      (direction === -1 && !canGoPrevious) ||
+      (direction === 1 && !canGoNext);
 
-    setIsAnimating(true);
-
-    if (isHorizontal && Math.abs(dx) >= SWIPE_THRESHOLD) {
-
-      const direction: -1 | 1 = dx < 0 ? 1 : -1;
-
-      if ((direction === -1 && !canGoPrevious) || (direction === 1 && !canGoNext)) {
-        pendingDirection.current = 0;
-        setDragX(0);
-      } else {
-        pendingDirection.current = direction;
-        setDragX(-direction * containerWidth);
-      }
-
-    } else {
-
+    // 端の月や短いスワイプはアニメーション待ちにしない。
+    // 移動距離が0のときは transitionend が発火しないため。
+    if (!isHorizontal || Math.abs(dx) < SWIPE_THRESHOLD || blocked) {
       pendingDirection.current = 0;
-
+      setIsDragging(false);
+      setIsAnimating(false);
       setDragX(0);
-
+      return;
     }
 
+    pendingDirection.current = direction;
+    setIsDragging(false);
+    setIsAnimating(true);
+    setDragX(-direction * containerWidth);
   }
 
   function handleTouchCancel() {
-
     touchStartX.current = null;
-
     touchStartY.current = null;
-
     horizontalGesture.current = false;
-
-    if (!isDragging) return;
-
     pendingDirection.current = 0;
 
+    // キャンセル時も transitionend を待たずに操作可能に戻す
     setIsDragging(false);
-
-    setIsAnimating(true);
-
+    setIsAnimating(false);
     setDragX(0);
-
   }
 
   function scrollToEvent(eventId: string) {
@@ -604,7 +587,7 @@ export default function SchedulePage() {
 
         <h1 className="text-3xl font-bold">SCHEDULE</h1>
 
-        <p className="mt-2 text-sm text-zinc-500"></p>
+        <p className="mt-2 text-sm text-zinc-500">なきごとの活動予定</p>
 
         <div className="mt-7 flex flex-wrap gap-2 border-b border-zinc-200 pb-5">
 
