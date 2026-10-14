@@ -159,11 +159,11 @@ export default function TodaySchedule() {
                         {event.title}
                       </h3>
                       <span
-                        aria-hidden="true"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-lg transition group-hover:bg-white group-hover:text-[#14526B]"
-                      >
-                        →
-                      </span>
+  aria-hidden="true"
+  className="shrink-0 text-[13px] font-light text-white/70"
+>
+  ＞
+</span>
                     </div>
                   </Link>
                 );
