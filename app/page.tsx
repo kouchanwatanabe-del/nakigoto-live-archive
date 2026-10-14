@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { lives } from "../data/lives";
 import { upcomingLives } from "../data/upcomingLives";
+import TodaySchedule from "../components/TodaySchedule";
 
 type Live = (typeof lives)[number];
 // MY PAGEと同じ楽曲除外ルール
@@ -137,10 +138,16 @@ export default function Home() {
             なきごとの非公式ライブログ
           </h1>
         </div>
+        
+{/* ============================== */}
+{/* TODAY'S SCHEDULE */}
+{/* ============================== */}
 
+<TodaySchedule />
         {/* ============================== */}
         {/* 最新ライブ */}
         {/* ============================== */}
+
 
         <section className="mt-8">
 
@@ -220,7 +227,7 @@ export default function Home() {
             </h2>
 
             <Link
-              href="/lives?view=upcoming"
+              href="/schedule"
               className="text-[13px] font-medium text-[#14526B] hover:underline"
             >
               VIEW ALL
