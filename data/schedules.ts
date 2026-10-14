@@ -35,6 +35,7 @@ const regularPrograms = {
     category: "RADIO",
     title: 'ZIP-FM「WEAR MUSIC」',
     time: "25:30〜26:00",
+    url: "https://t.co/cN4mkVK1WF",
   },
 } satisfies Record<string, Pick<Schedule, "category" | "title" | "time" | "url">>;
 
