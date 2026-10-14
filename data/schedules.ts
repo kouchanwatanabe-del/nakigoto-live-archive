@@ -21,6 +21,13 @@ export const schedules: Schedule[] = [
     detail: "Instagram Live｜18:00 あたらよ / 18:30 なきごと",
     url: "https://www.instagram.com/meminor_band/",
   },
+  {
+  id: "2027-02-03-white",
+  date: "2027.02.03",
+  category: "RELEASE",
+  title: "Major 1st Album『WHITE』リリース",
+  detail: "なきごと Major 1st Album『WHITE』リリース",
+},
 ];
 
 // 定期番組の内容はここで一元管理
