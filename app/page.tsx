@@ -182,7 +182,7 @@ export default function Home() {
                 </p>
 
                 {/* 公演名 */}
-                <h3 className="mt-1 text-[17px] font-bold leading-snug text-[#14526B]">
+                <h3 className="mt-1 text-[12px] font-bold leading-snug text-[#14526B]">
                   {live.title}
                 </h3>
 
@@ -250,7 +250,7 @@ export default function Home() {
                 </p>
 
                 {/* 公演名 */}
-                <h3 className="mt-1 text-[17px] font-bold leading-snug text-[#14526B]">
+                <h3 className="mt-1 text-[12px] font-bold leading-snug text-[#14526B]">
                   {live.title}
                 </h3>
 
