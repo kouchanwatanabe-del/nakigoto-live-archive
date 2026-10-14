@@ -352,7 +352,7 @@ export default function SongsPage() {
           </h1>
 
           <p className="mt-2 text-sm leading-6 text-zinc-500 sm:text-base">
-            楽曲一覧
+            
           </p>
         </div>
 

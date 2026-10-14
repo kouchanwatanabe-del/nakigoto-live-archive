@@ -1126,7 +1126,7 @@ export default function LivesPage() {
 
           >
 
-            ライブ・セットリスト一覧
+            
 
           </p>
 
