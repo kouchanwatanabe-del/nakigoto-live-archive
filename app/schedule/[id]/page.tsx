@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { schedules, type Schedule, type ScheduleCategory } from "../../../data/schedules";
+import { schedules, findRecurringSchedule, type ScheduleCategory } from "../../../data/schedules";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -14,53 +14,9 @@ const categoryColors: Record<ScheduleCategory, { bg: string; text: string }> = {
   OTHER: { bg: "#EFEEEB", text: "#77746E" },
 };
 
-function getRecurringSchedule(id: string): Schedule | undefined {
-  const match = /^(ubugoe|wear-music)-(\\d{4})\\.(\\d{2})\\.(\\d{2})$/.exec(id);
-  if (!match) return undefined;
-
-  const [, program, y, m, d] = match;
-  const year = Number(y);
-  const month = Number(m);
-  const day = Number(d);
-  const date = new Date(year, month - 1, day);
-
-  if (
-    date.getFullYear() !== year ||
-    date.getMonth() !== month - 1 ||
-    date.getDate() !== day
-  ) return undefined;
-
-  const dateKey = `${y}.${m}.${d}`;
-
-  if (program === "ubugoe" && date.getDay() === 5) {
-    return {
-      id,
-      date: dateKey,
-      category: "PODCAST",
-      title: 'Artistspoken「なきごとのUBUGOE」',
-      time: "23:00",
-    };
-  }
-
-  if (program === "wear-music" && date.getDay() === 3) {
-    const weekNumber = Math.ceil(day / 7);
-    if (weekNumber === 2 || weekNumber === 4) {
-      return {
-        id,
-        date: dateKey,
-        category: "RADIO",
-        title: 'ZIP-FM「WEAR MUSIC」',
-        time: "25:30〜26:00",
-      };
-    }
-  }
-
-  return undefined;
-}
-
 export default async function ScheduleDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const event = schedules.find((item) => item.id === id) ?? getRecurringSchedule(id);
+  const event = schedules.find((item) => item.id === id) ?? findRecurringSchedule(id);
 
   if (!event) notFound();
 
@@ -78,7 +34,7 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
 
         <div className="mt-8 border-b border-zinc-200 pb-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-bold">{event.date}</span>
+            {event.date && <span className="text-xs font-bold">{event.date}</span>}
             <span
               className="rounded-[3px] px-2 py-1 text-[10px] font-bold"
               style={{ backgroundColor: color.bg, color: color.text }}

@@ -8,7 +8,7 @@ import type { TouchEvent, TransitionEvent } from "react";
 
 import { upcomingLives } from "../../data/upcomingLives";
 
-import { schedules, type ScheduleCategory } from "../../data/schedules";
+import { schedules, getRecurringSchedules, type ScheduleCategory } from "../../data/schedules";
 
 type Filter = "ALL" | ScheduleCategory;
 
@@ -98,44 +98,6 @@ function CategoryLabel({ category, small = false }: { category: ScheduleCategory
 
   );
 
-}
-
-// 定期番組（毎週金曜・毎月第2/第4水曜）
-function getRecurringEvents(year: number, month: number): ScheduleEvent[] {
-  const events: ScheduleEvent[] = [];
-  const lastDay = new Date(year, month + 1, 0).getDate();
-  let wednesdayCount = 0;
-
-  for (let day = 1; day <= lastDay; day++) {
-    const date = new Date(year, month, day);
-    const dateKey = formatDate(date);
-    const weekday = date.getDay();
-
-    if (weekday === 5) {
-      events.push({
-        id: `ubugoe-${dateKey}`,
-        date: dateKey,
-        category: "PODCAST",
-        title: 'Artistspoken「なきごとのUBUGOE」',
-        time: '23:00',
-      });
-    }
-
-    if (weekday === 3) {
-      wednesdayCount += 1;
-      if (wednesdayCount === 2 || wednesdayCount === 4) {
-        events.push({
-          id: `wear-music-${dateKey}`,
-          date: dateKey,
-          category: "RADIO",
-          title: 'ZIP-FM「WEAR MUSIC」',
-          time: "25:30〜26:00",
-        });
-      }
-    }
-  }
-
-  return events;
 }
 
 export default function SchedulePage() {
@@ -247,14 +209,16 @@ export default function SchedulePage() {
   const filteredEvents = useMemo(() => {
     const recurringEvents = [-1, 0, 1].flatMap((offset) => {
       const date = new Date(year, month + offset, 1);
-      return getRecurringEvents(date.getFullYear(), date.getMonth());
+      return getRecurringSchedules(date.getFullYear(), date.getMonth());
     });
 
     return [
       ...allEvents,
       ...recurringEvents.map((event) => ({
         ...event,
-        href: `/schedule/${encodeURIComponent(event.id)}`,
+        href: event.id.startsWith("ubugoe-")
+          ? "/schedule/ubugoe"
+          : `/schedule/${encodeURIComponent(event.id)}`,
       })),
     ]
       .filter((event) => filter === "ALL" || event.category === filter)
@@ -608,7 +572,7 @@ export default function SchedulePage() {
 
         <h1 className="text-3xl font-bold">SCHEDULE</h1>
 
-        <p className="mt-2 text-sm text-zinc-500">活動予定</p>
+        <p className="mt-2 text-sm text-zinc-500">なきごとの活動予定</p>
 
         <div className="mt-7 flex flex-wrap gap-2 border-b border-zinc-200 pb-5">
 
