@@ -232,3 +232,36 @@ body {
 .intro-cat-running .intro-cat-speed-lines {
   opacity: 0.3;
 }
+
+@keyframes homeFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.home-reveal {
+  animation: homeFadeUp 0.7s ease-out both;
+}
+
+.home-reveal-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.home-reveal-delay-2 {
+  animation-delay: 0.25s;
+}
+
+.home-reveal-delay-3 {
+  animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-reveal {
+    animation: none;
+  }
+}

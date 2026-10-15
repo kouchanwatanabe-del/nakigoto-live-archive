@@ -121,6 +121,18 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
+      <style>{`
+        @keyframes nakigotoHomeEnter {
+          from { opacity: 0; transform: translate3d(0, 18px, 0); }
+          to { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .home-enter {
+          animation: nakigotoHomeEnter 650ms cubic-bezier(.22, 1, .36, 1) both;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .home-enter { animation: none !important; }
+        }
+      `}</style>
 
       {/* HOMEコンテンツ */}
       <div className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
@@ -129,7 +141,7 @@ export default function Home() {
         {/* ページヘッダー */}
         {/* ============================== */}
 
-        <div>
+        <div className="home-enter" style={{ animationDelay: "0ms" }}>
           <p className="text-3xl font-bold text-[#14526B]">
             HOME
           </p>
@@ -143,13 +155,15 @@ export default function Home() {
 {/* TODAY'S SCHEDULE */}
 {/* ============================== */}
 
-<TodaySchedule />
+<div className="home-enter" style={{ animationDelay: "100ms" }}>
+          <TodaySchedule />
+        </div>
         {/* ============================== */}
         {/* 最新ライブ */}
         {/* ============================== */}
 
 
-        <section className="mt-8">
+        <section className="home-enter mt-8" style={{ animationDelay: "200ms" }}>
 
           <div className="mb-3.5 flex items-center justify-between text-[#14526B]">
 
@@ -218,7 +232,7 @@ export default function Home() {
         {/* UPCOMING LIVE */}
         {/* ============================== */}
 
-        <section className="mt-11">
+        <section className="home-enter mt-11" style={{ animationDelay: "300ms" }}>
 
           <div className="mb-3.5 flex items-center justify-between">
 
@@ -292,7 +306,7 @@ export default function Home() {
         {/* 頻出曲 */}
         {/* ============================== */}
 
-        <section className="mt-11">
+        <section className="home-enter mt-11" style={{ animationDelay: "400ms" }}>
 
           <div className="mb-3.5 flex items-center justify-between">
 
@@ -350,7 +364,7 @@ export default function Home() {
         {/* COLLECTION */}
         {/* ============================== */}
 
-        <section className="mt-11">
+        <section className="home-enter mt-11" style={{ animationDelay: "500ms" }}>
 
           <div className="mb-3.5 flex items-center justify-between">
 

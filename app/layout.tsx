@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import BottomNav from "../components/BottomNav";
-import IntroAnimation from "../components/IntroAnimation";
 import PageTransition from "../components/PageTransition";
 import SiteHeader from "../components/SiteHeader";
 import SiteDisclaimer from "../components/SiteDisclaimer";
@@ -27,7 +26,7 @@ export default function RootLayout({
     <html lang="ja">
       <body className={`${inter.className} min-h-dvh bg-white`}>
 
-        <IntroAnimation />
+        
 
         <SiteHeader />
         <TabScroll />
