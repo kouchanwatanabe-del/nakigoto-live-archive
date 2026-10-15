@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "なきごと LIVE LOG",
+  title: "なきごと UNOFFICIAL FANSITE",
   description: "なきごとのライブ・セットリスト・ツアー記録",
 };
 
