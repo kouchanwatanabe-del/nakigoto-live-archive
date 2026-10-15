@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -42,8 +43,22 @@ export default function IntroAnimation() {
           なきごと
         </h1>
 
-        <div className="mx-auto mt-5 h-[2px] w-40 overflow-hidden rounded-full bg-zinc-100">
-          <div className="intro-line h-full bg-[#14526B]" />
+        {/* 5つの丸が順番に跳ねるアニメーション */}
+        <div
+          className="mt-5 flex items-center justify-center gap-2"
+          role="status"
+          aria-label="読み込み中"
+        >
+          {[0, 1, 2, 3, 4].map((i) => (
+            <span
+              key={i}
+              className="h-2.5 w-2.5 animate-bounce rounded-full bg-[#14526B]"
+              style={{
+                animationDelay: `${i * 120}ms`,
+                animationDuration: "1.2s",
+              }}
+            />
+          ))}
         </div>
       </div>
     </div>
