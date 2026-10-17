@@ -1,26 +1,23 @@
 export const lives = [
- {
-  id: "2026-10-11",
-  date: "2026.10.11",
-  title: "FM802 MINAMI WHEEL 2026",
-  city: "大阪",
-  venue: "Live House ANIMA",
+  {
+  id: "2026-10-17",
+  date: "2026.10.17",
+  title: "murffin discs 20th Anniversary “murffin Carnival!!” 前夜祭",
+  city: "東京",
+  venue: "shibuya eggman",
   tour: "",
   artists: [],
   setlist: [
     "憧れとレモンサワー",
-    "アカネ",
-    "グッナイダーリン・イマジナリーベイブ",
+    "ウーロンハイと春に",
+    "移ろう季節に花束を",
     "メトロポリタン",
-    "短夜",
-    "ひといき",
-    "深夜2時とハイボール",
   ],
   encore: [],
-  memo: "リハーサル：愛才",
+  memo: "osageとのコラボステージ",
 },
-  
   {
+    
     id: "2026-09-04",
     date: "2026.09.04",
     title: "自主企画 ” ニンゲン's 感謝祭”",
@@ -7506,7 +7503,7 @@ encore: [
   date: "2018.12.30",
   title: "CHIKAMATSU presents countdown 18→19",
   city: "東京",
-  venue: "下北沢 チカマツ",
+  venue: "下北沢 近松",
   tour: "",
   artists: [
     "Broken my toxbox",
@@ -7692,7 +7689,7 @@ encore: [
   date: "2018.11.03",
   title: "KNOCKOUT 2018 autumn",
   city: "東京",
-  venue: "下北沢近松",
+  venue: "下北沢 近松",
   tour: "",
   artists: [],
   setlist: [
