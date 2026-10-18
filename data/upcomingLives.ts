@@ -29,6 +29,23 @@ export const upcomingLives: UpcomingLive[] = [
   //    address: "東京都〇〇区〇〇 1-2-3",
   //      //   memo: "",
   // },
+  {
+  id: "2026-12-28",
+  date: "2026.12.28",
+  title: "murffin discs 20th Anniversary “murffin Carnival!!” 後夜祭",
+  city: "東京",
+  venue: "shibuya eggman",
+  tour: "",
+  artists: [
+    "Ivy to Fraudulent Game",
+    "SAKANAMON",
+    "Czecho No Republic",
+    "osage",
+    "She Side Ship",
+  ],
+  address: "〒150-0041 東京都渋谷区神南１丁目６−８ B1",
+  memo: "",
+},
 {
   id: "2026-10-17-example",
   date: "2026.10.17",

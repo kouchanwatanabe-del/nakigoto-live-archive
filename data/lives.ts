@@ -1,5 +1,24 @@
 export const lives = [
   {
+  id: "2026-10-18",
+  date: "2026.10.18",
+  title: "murffin discs 20th Anniversary “murffin carnival!!”",
+  city: "東京",
+  venue: "国立代々木競技場 第一体育館",
+  tour: "",
+  artists: [],
+  setlist: [
+    "憧れとレモンサワー",
+    "アカネ",
+    "マリッジブルー",
+    "グッナイダーリン・イマジナリーベイブ",
+    "メトロポリタン",
+    "癖",
+  ],
+  encore: [],
+  memo: "リハーサル：知らない惑星、愛才、Summer麺",
+},
+  {
   id: "2026-10-17",
   date: "2026.10.17",
   title: "murffin discs 20th Anniversary “murffin Carnival!!” 前夜祭",
