@@ -81,6 +81,23 @@ export default function UpcomingLiveList({
                 {live.tour}
               </p>
             )}
+            {(live.open || live.start) && (
+  <p className="mt-1.5 text-[11px] text-zinc-500">
+    {live.open && (
+      <span>
+        <span className="font-semibold text-[#14526B]">OPEN</span>{" "}
+        {live.open}
+      </span>
+    )}
+    {live.open && live.start && <span className="mx-2">/</span>}
+    {live.start && (
+      <span>
+        <span className="font-semibold text-[#14526B]">START</span>{" "}
+        {live.start}
+      </span>
+    )}
+  </p>
+)}
 
             {live.artists && live.artists.length > 0 && (
               <p className="mt-1.5 text-[11px] text-zinc-500">
