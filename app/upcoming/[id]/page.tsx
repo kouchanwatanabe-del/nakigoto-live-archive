@@ -70,6 +70,24 @@ export default async function UpcomingPage({
             {live.tour}
           </p>
         )}
+        {/* 開場・開演時間 */}
+{(live.open || live.start) && (
+  <div className="mt-3 flex items-center gap-5 text-xs text-zinc-600">
+    {live.open && (
+      <div className="flex items-center gap-2">
+        <span className="font-bold text-[#14526B]">OPEN</span>
+        <span>{live.open}</span>
+      </div>
+    )}
+
+    {live.start && (
+      <div className="flex items-center gap-2">
+        <span className="font-bold text-[#14526B]">START</span>
+        <span>{live.start}</span>
+      </div>
+    )}
+  </div>
+)}
 
         {/* 対バン */}
         {live.artists && live.artists.length > 0 && (
