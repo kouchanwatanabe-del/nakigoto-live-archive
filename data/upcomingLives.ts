@@ -6,6 +6,8 @@ export type UpcomingLive = {
   title: string;
   city: string;
   venue: string;
+  open?: string;
+  start?: string;
   tour: string;
   memo: string;
   artists?: string[];
@@ -43,6 +45,8 @@ export const upcomingLives: UpcomingLive[] = [
     "osage",
     "She Side Ship",
   ],
+  open: "14:30",
+  start: "15:00",
   address: "〒150-0041 東京都渋谷区神南１丁目６−８ B1",
   memo: "",
 },
@@ -74,6 +78,8 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "Live spece Read",
   tour: "",
   artists: ["バチカン市国に愛されたい", "ミーマイナー"],
+  open: "16:00",
+  start: "16:30",
   address: "〒730-0021 広島県広島市中区胡町４−２４ クリタビル B1",
     memo: "",
 },
@@ -85,6 +91,8 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "福岡BEAT STATION",
   tour: "",
   artists: ["バチカン市国に愛されたい", "ミーマイナー"],
+  open: "16:00",
+  start: "16:30",
   address: "〒810-0004 福岡県福岡市中央区渡辺通４丁目１１−４",
    memo: "",
 },
@@ -96,6 +104,8 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "SHIBUYA CLUB QUATTRO",
   tour: "",
   artists: ["ミーマイナー", "あたらよ"],
+  open: "18:00",
+  start: "19:00",
   address: "〒150-0042 東京都渋谷区宇田川町３２−１３ 4・5F",
     memo: "",
 },
@@ -108,6 +118,8 @@ export const upcomingLives: UpcomingLive[] = [
   tour: "",
   artists: ["Bray me"],
   address: "〒530-0027 大阪府大阪市北区堂山町１−５ B1F",
+  open: "18:00",
+  start: "18:30",
    memo: "",
 },
 {
@@ -118,8 +130,10 @@ export const upcomingLives: UpcomingLive[] = [
   venue: "安来節演芸館",
   tour: "",
   artists: ["homme","カナタ"],
+  open: "15:30",
+  start: "16:30",
   address: "〒692-0064 島根県安来市古川町５３４",
-   memo: "",
+   memo: "当日13時30分から選考入場整理券配布（先着100名）",
 },
 
 {
@@ -129,6 +143,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "大阪",
   venue: "Yogibo HOLY MOUNTAIN",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒556-0011 大阪府大阪市浪速区難波中２丁目１１−１",
    memo: "",
 },
@@ -139,6 +155,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "広島",
   venue: "広島ALMIGHTY",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒730-0021 広島県広島市中区胡町２−２０ B1F",
    memo: "",
 },
@@ -149,6 +167,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "岡山",
   venue: "CRAZYMAMA 2nd room",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒700-0901 岡山県岡山市北区本町１０−１６ ５階",
    memo: "",
 },
@@ -159,6 +179,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "愛知",
   venue: "ell.FITS ALL",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒460-0011 愛知県名古屋市中区大須２丁目１０−４３ ３階",
   memo: "",
 },
@@ -169,6 +191,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "香川",
   venue: "高松TOONICE",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒760-0050 香川県高松市亀井町８−８",
   memo: "",
 },
@@ -179,6 +203,8 @@ export const upcomingLives: UpcomingLive[] = [
   city: "福岡",
   venue: "福岡OP’s",
   tour: "RGB ONEMAN TOUR2027",
+  open: "17:00",
+  start: "17:30",
   address: "〒810-0001 福岡県福岡市中央区天神３丁目４−１９ B1F",
    memo: "",
 },
