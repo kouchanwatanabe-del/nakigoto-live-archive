@@ -107,7 +107,7 @@ function CategoryLabel({ category, small = false, label }: { category: ScheduleC
 
       className={small
 
-        ? "block w-full truncate rounded-[3px] px-0.5 py-[3px] text-center text-[9px] font-bold leading-tight"
+        ? "block w-full rounded-[3px] px-0.5 py-[3px] text-center text-[9px] font-bold leading-tight"
 
         : "inline-block rounded-[3px] px-2 py-1 text-[10px] font-bold leading-tight"}
 
@@ -115,7 +115,16 @@ function CategoryLabel({ category, small = false, label }: { category: ScheduleC
 
     >
 
-      {label ?? category}
+      {small && category === "LIVE" && label?.startsWith("LIVE・") ? (
+        <span className="flex flex-col items-center gap-0.5">
+          <span>LIVE</span>
+          <span className="block w-full break-words text-[8px] leading-tight">
+            {label.slice(5)}
+          </span>
+        </span>
+      ) : (
+        label ?? category
+      )}
 
     </span>
 
