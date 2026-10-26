@@ -26,6 +26,8 @@ type ScheduleEvent = {
 
   detail?: string;
 
+  city?: string;
+
   href?: string;
 
 };
@@ -95,7 +97,7 @@ function formatDate(date: Date) {
 
 }
 
-function CategoryLabel({ category, small = false }: { category: ScheduleCategory; small?: boolean }) {
+function CategoryLabel({ category, small = false, label }: { category: ScheduleCategory; small?: boolean; label?: string }) {
 
   const color = categoryColors[category];
 
@@ -113,7 +115,7 @@ function CategoryLabel({ category, small = false }: { category: ScheduleCategory
 
     >
 
-      {category}
+      {label ?? category}
 
     </span>
 
@@ -211,6 +213,8 @@ export default function SchedulePage() {
       title: live.title,
 
       detail: [live.city, live.venue].filter(Boolean).join(" / "),
+
+      city: live.city,
 
       href: `/upcoming/${encodeURIComponent(live.id)}`,
 
@@ -551,7 +555,14 @@ export default function SchedulePage() {
 
                     {uniqueCategories.map((category) => (
 
-                      <CategoryLabel key={category} category={category} small />
+                      <CategoryLabel
+                         key={category}
+                         category={category}
+                         small
+                         label={category === "LIVE"
+                           ? `LIVE・${[...new Set(dayEvents.filter((event) => event.category === "LIVE").map((event) => event.city).filter(Boolean))].join("・") || "未設定"}`
+                           : category}
+                       />
 
                     ))}
 
