@@ -14,7 +14,7 @@ type TodayEvent = {
 };
 
 const categoryColors: Record<ScheduleCategory, { bg: string; text: string }> = {
-  LIVE: { bg: "#14526B", text: "#FFFFFF" },
+  LIVE: { bg: "#D6EBF1", text: "#14526B" },
   RADIO: { bg: "#E5EDF1", text: "#557889" },
   PODCAST: { bg: "#EEEAF3", text: "#817995" },
   RELEASE: { bg: "#E4EFEB", text: "#527C72" },
@@ -97,7 +97,7 @@ export default function TodaySchedule() {
 
   return (
     <section className="mt-8">
-      <div className="relative overflow-hidden rounded-xl bg-[#14526B] px-4 py-3 text-white shadow-sm sm:px-5 sm:py-4">
+      <div className="relative overflow-hidden rounded-xl bg-[#14526B] px-5 py-5 text-white shadow-sm sm:px-6 sm:py-6">
         {/* 画像なしで、D案のライブ感を光のグラデーションで表現 */}
         <div
           aria-hidden="true"
@@ -110,14 +110,12 @@ export default function TodaySchedule() {
 
         <div className="relative z-10">
           <div className="flex items-start justify-between gap-3">
-            <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
-  <h2 className="text-[24px] font-bold leading-none tracking-tight">
-    TODAY
-  </h2>
-  <span className="text-[11px] font-medium text-white/80 sm:text-[12px]">
-    {dateLabel ? `${dateLabel}の予定` : "今日の予定"}
-  </span>
-</div>
+            <div>
+              <h2 className="text-[26px] font-bold leading-none tracking-tight">TODAY</h2>
+              <p className="mt-2 text-[12px] font-medium text-white/80">
+                {dateLabel ? `${dateLabel}の予定` : "今日の予定"}
+              </p>
+            </div>
             <Link
               href="/schedule"
               className="shrink-0 pt-1 text-[12px] font-semibold text-white hover:underline"
@@ -136,14 +134,14 @@ export default function TodaySchedule() {
               </Link>
             </div>
           ) : (
-            <div className="mt-3 space-y-2">
+            <div className="mt-6 space-y-3">
               {events.map((event) => {
                 const colors = categoryColors[event.category];
                 return (
                   <Link
                     key={event.id}
                     href={event.href}
-                    className="group block rounded-lg border border-white/15 bg-white/10 px-3 py-2.5 transition hover:bg-white/20"
+                    className="group block rounded-lg border border-white/15 bg-white/10 px-3.5 py-3 transition hover:bg-white/20"
                   >
                     <div className="flex items-center gap-2">
                       <span
@@ -161,11 +159,11 @@ export default function TodaySchedule() {
                         {event.title}
                       </h3>
                       <span
-  aria-hidden="true"
-  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-[20px] font-light text-white transition group-hover:bg-white group-hover:text-[#14526B]"
->
-  ›
-</span>
+                        aria-hidden="true"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-lg transition group-hover:bg-white group-hover:text-[#14526B]"
+                      >
+                        →
+                      </span>
                     </div>
                   </Link>
                 );
