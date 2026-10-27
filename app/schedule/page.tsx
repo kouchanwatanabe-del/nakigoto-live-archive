@@ -107,7 +107,7 @@ function CategoryLabel({ category, small = false, label }: { category: ScheduleC
 
       className={small
 
-        ? "block w-full rounded-[3px] px-0.5 py-[3px] text-center text-[9px] font-bold leading-tight"
+        ? `block w-full min-w-0 rounded-[3px] px-0.5 py-[3px] text-center font-bold leading-tight ${category === "PODCAST" ? "whitespace-nowrap text-[8px] tracking-[-0.04em]" : "text-[9px]"}`
 
         : "inline-block rounded-[3px] px-2 py-1 text-[10px] font-bold leading-tight"}
 
