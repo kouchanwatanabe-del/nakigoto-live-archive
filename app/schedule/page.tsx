@@ -106,25 +106,15 @@ function CategoryLabel({ category, small = false, label }: { category: ScheduleC
     <span
 
       className={small
-
-        ? `block w-full min-w-0 rounded-[3px] px-0.5 py-[3px] text-center font-bold leading-tight ${category === "PODCAST" ? "whitespace-nowrap text-[8px] tracking-[-0.04em]" : "text-[9px]"}`
-
+        ? "block w-full min-w-0 rounded-[3px] px-0.5 py-[3px] text-center text-[8px] font-bold leading-tight tracking-[-0.04em] whitespace-nowrap"
         : "inline-block rounded-[3px] px-2 py-1 text-[10px] font-bold leading-tight"}
-
       style={{ backgroundColor: color.bg, color: color.text }}
 
     >
 
-      {small && category === "LIVE" && label?.startsWith("LIVE・") ? (
-        <span className="flex flex-col items-center gap-0.5">
-          <span>LIVE</span>
-          <span className="block w-full break-words text-[8px] leading-tight">
-            {label.slice(5)}
-          </span>
-        </span>
-      ) : (
-        label ?? category
-      )}
+      {small && category === "LIVE" && label?.startsWith("LIVE・")
+        ? label.slice(5)
+        : label ?? category}
 
     </span>
 
