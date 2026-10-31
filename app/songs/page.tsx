@@ -227,7 +227,7 @@ export default function SongsPage() {
 }, []);
 
   // ========================================
-  // セトリ統計（登録済み・過去公演のみ）
+  // セトリ統計（登録済み・過去公演のみ。SONG LIST の除外指定は統計に適用しない）
   // ========================================
   const statistics = useMemo(() => {
     const today = new Date();
@@ -236,7 +236,6 @@ export default function SongsPage() {
       .filter((live) => {
         const dateKey = live.date.replace(/\D/g, "").slice(0, 8);
         return dateKey.length === 8 && dateKey <= todayKey &&
-          live.excludeFromSongHistory !== true &&
           Array.isArray(live.setlist) && live.setlist.length > 0;
       })
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
