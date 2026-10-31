@@ -85,7 +85,7 @@ function StatsRanking({
   onSongClick,
 }: {
   title: string;
-  subtitle: string;
+  subtitle?: string;
   ranking: RankedSong[];
   total: number;
   onSongClick: () => void;
@@ -93,12 +93,12 @@ function StatsRanking({
   return (
     <section className="mt-8">
       <h2 className="text-lg font-bold tracking-wide text-[#14526B]">{title}</h2>
-      <p className="mt-1 text-xs leading-5 text-zinc-500">{subtitle}</p>
+      {subtitle && <p className="mt-1 text-xs leading-5 text-zinc-500">{subtitle}</p>}
       {ranking.length === 0 ? (
         <p className="mt-4 rounded-xl bg-zinc-50 p-5 text-sm text-zinc-500">集計できる公演がありません</p>
       ) : (
         <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200">
-          {ranking.map((song, index) => (
+          {ranking.slice(0, 10).map((song, index) => (
             <Link
               key={song.name}
               href={`/songs/${encodeURIComponent(song.name)}`}
@@ -675,14 +675,12 @@ export default function SongsPage() {
             />
             <StatsRanking
               title="OPENING SONGS"
-              subtitle={`全${statistics.totalShows}公演の本編1曲目`}
               ranking={statistics.openingRanking}
               total={statistics.totalShows}
               onSongClick={saveScrollPosition}
             />
             <StatsRanking
               title="CLOSING SONGS"
-              subtitle={`全${statistics.totalShows}公演の本編最終曲（アンコール除外）`}
               ranking={statistics.closingRanking}
               total={statistics.totalShows}
               onSongClick={saveScrollPosition}
