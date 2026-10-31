@@ -51,7 +51,7 @@ function isFestivalOrTaiban(live: (typeof lives)[number]): boolean {
   const item = live as typeof live & {
     eventType?: "jisyukikaku" | "fes" | "other";
   };
-  return item.eventType === "fes";
+  return typeof item.eventType === "string" && item.eventType.trim().toLowerCase() === "fes";
 }
 
 function rankSongs(names: string[]): RankedSong[] {
@@ -240,6 +240,16 @@ export default function SongsPage() {
       })
       .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
 
+    const eventTypeCounts = lives.reduce((acc, live) => {
+      const value = (live as typeof live & { eventType?: string }).eventType;
+      const key = typeof value === "string" ? value.trim() : "(未設定)";
+      acc[key] = (acc[key] ?? 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    const fesTotal = lives.filter(isFestivalOrTaiban).length;
+    const fesWithSetlist = lives.filter((live) => isFestivalOrTaiban(live) && Array.isArray(live.setlist) && live.setlist.length > 0).length;
+    const fesHistoryCount = history.filter(isFestivalOrTaiban).length;
+
     const recentAll = history.slice(0, 10);
     const recentFestival = history.filter(isFestivalOrTaiban).slice(0, 10);
     const played = (selected: typeof history) =>
@@ -253,6 +263,7 @@ export default function SongsPage() {
       openingRanking: rankSongs(history.map((live) => live.setlist[0]).filter(Boolean)),
       closingRanking: rankSongs(history.map((live) => live.setlist[live.setlist.length - 1]).filter(Boolean)),
       totalShows: history.length,
+      diagnostic: { total: lives.length, history: history.length, fesTotal, fesWithSetlist, fesHistoryCount, eventTypeCounts },
     };
   }, []);
 
@@ -660,6 +671,17 @@ export default function SongsPage() {
               total={statistics.recentFestival.length}
               onSongClick={saveScrollPosition}
             />
+            {statistics.festivalRanking.length === 0 && (
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs leading-6 text-zinc-700">
+                <p className="font-bold">集計診断（原因確認用）</p>
+                <p>読み込み公演数：{statistics.diagnostic.total}</p>
+                <p>日付・セトリ条件を満たす公演：{statistics.diagnostic.history}</p>
+                <p>fes指定の公演：{statistics.diagnostic.fesTotal}</p>
+                <p>fes指定かつセトリあり：{statistics.diagnostic.fesWithSetlist}</p>
+                <p>fes指定かつ集計条件を満たす：{statistics.diagnostic.fesHistoryCount}</p>
+                <p>eventType内訳：{JSON.stringify(statistics.diagnostic.eventTypeCounts)}</p>
+              </div>
+            )}
             <StatsRanking
               title="OPENING SONGS"
               ranking={statistics.openingRanking}
