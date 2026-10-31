@@ -91,6 +91,26 @@ export const lives = [
   encore: [],
   memo: "osageとのコラボステージ",
 },
+{
+  id: "2026-10-11",
+  date: "2026.10.11",
+  title: "Maxell presents FM802 MINAMI WHEEL 2026",
+  city: "大阪",
+  venue: "Live House ANIMA",
+  tour: "",
+  artists: [],
+  setlist: [
+    "憧れとレモンサワー",
+    "アカネ",
+    "グッナイダーリン・イマジナリーベイブ",
+    "メトロポリタン",
+    "短夜",
+    "ひといき",
+    "深夜2時とハイボール",
+  ],
+  encore: [],
+  memo: "",
+},
   {
     
     id: "2026-09-04",
