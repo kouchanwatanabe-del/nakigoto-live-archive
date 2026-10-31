@@ -40,7 +40,93 @@ const FILTER_STORAGE_KEY = "songSearchFilters";
 const SCROLL_STORAGE_KEY = "songSearchScrollPosition";
 const RESTORE_STORAGE_KEY = "songShouldRestoreScroll";
 
+
+type SongsTab = "list" | "stats";
+
+type RankedSong = { name: string; count: number };
+
+// イベント分類を厳密にしたい公演は lives.ts に eventType を追加
+// eventType: "festival" | "taiban" | "one-man" | "self-produced" | "other"
+function isFestivalOrTaiban(live: (typeof lives)[number]): boolean {
+  const item = live as typeof live & {
+    eventType?: string;
+    artists?: string[];
+  };
+  if (item.eventType) {
+    return item.eventType === "festival" || item.eventType === "taiban";
+  }
+
+  const name = `${live.title} ${live.tour ?? ""}`;
+  if (/ワンマン|ONE[ -]?MAN|FC限定|ファンクラブ|自主企画|人間日和|ニンゲン.s感謝祭|SIKI ORIORI|Summer祭/i.test(name)) {
+    return false;
+  }
+  if (/フェス|FES|FEST|ROCK IN JAPAN|COUNTDOWN JAPAN|JAPAN JAM|MINAMI WHEEL|TOKYO CALLING|MURO FESTIVAL|MONSTER baSH|NUMBER SHOT|ツタロック|対バン|2MAN|TWO[ -]?MAN|3MAN|MUSIC YOKAJA/i.test(name)) {
+    return true;
+  }
+  return (item.artists ?? []).some((artist) => artist !== "なきごと");
+}
+
+function rankSongs(names: string[]): RankedSong[] {
+  const counts = new Map<string, number>();
+  names.forEach((name) => {
+    if (!name || hiddenSongs.includes(name)) return;
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  });
+  return [...counts].map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count ||
+      (songReadings[a.name] ?? a.name).localeCompare(songReadings[b.name] ?? b.name, "ja"));
+}
+
+function StatsRanking({
+  title,
+  subtitle,
+  ranking,
+  total,
+  onSongClick,
+}: {
+  title: string;
+  subtitle: string;
+  ranking: RankedSong[];
+  total: number;
+  onSongClick: () => void;
+}) {
+  return (
+    <section className="mt-8">
+      <h2 className="text-lg font-bold tracking-wide text-[#14526B]">{title}</h2>
+      <p className="mt-1 text-xs leading-5 text-zinc-500">{subtitle}</p>
+      {ranking.length === 0 ? (
+        <p className="mt-4 rounded-xl bg-zinc-50 p-5 text-sm text-zinc-500">集計できる公演がありません</p>
+      ) : (
+        <div className="mt-4 overflow-hidden rounded-2xl border border-zinc-200">
+          {ranking.map((song, index) => (
+            <Link
+              key={song.name}
+              href={`/songs/${encodeURIComponent(song.name)}`}
+              onClick={onSongClick}
+              className={`block px-4 py-3 transition hover:bg-zinc-50 ${index ? "border-t border-zinc-100" : ""}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="w-7 shrink-0 text-xs tabular-nums text-zinc-400">{String(index + 1).padStart(2, "0")}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <span className="text-sm font-semibold text-[#14526B]">{song.name}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-zinc-500">{song.count}{total > 0 ? ` / ${total}公演` : "回"}</span>
+                  </div>
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
+                    <div className="h-full rounded-full bg-[#14526B]" style={{ width: `${total > 0 ? song.count / total * 100 : song.count / ranking[0].count * 100}%` }} />
+                  </div>
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default function SongsPage() {
+  const [tab, setTab] = useState<SongsTab>("list");
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] =
     useState<SortType>("count");
@@ -62,6 +148,7 @@ export default function SongsPage() {
     if (savedFilters) {
       try {
         const parsed = JSON.parse(savedFilters);
+        if (parsed.tab === "list" || parsed.tab === "stats") setTab(parsed.tab);
 
         if (typeof parsed.keyword === "string") {
           setKeyword(parsed.keyword);
@@ -95,11 +182,13 @@ export default function SongsPage() {
       JSON.stringify({
         keyword,
         sortType,
+        tab,
       })
     );
   }, [
     keyword,
     sortType,
+    tab,
     filtersLoaded,
   ]);
 
@@ -148,6 +237,37 @@ export default function SongsPage() {
     };
   });
 }, []);
+
+  // ========================================
+  // セトリ統計（登録済み・過去公演のみ）
+  // ========================================
+  const statistics = useMemo(() => {
+    const today = new Date();
+    const todayKey = `${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}`;
+    const history = lives
+      .filter((live) => {
+        const dateKey = live.date.replace(/\D/g, "").slice(0, 8);
+        return dateKey.length === 8 && dateKey <= todayKey &&
+          live.excludeFromSongHistory !== true &&
+          Array.isArray(live.setlist) && live.setlist.length > 0;
+      })
+      .sort((a, b) => b.date.localeCompare(a.date) || b.id.localeCompare(a.id));
+
+    const recentAll = history.slice(0, 10);
+    const recentFestival = history.filter(isFestivalOrTaiban).slice(0, 10);
+    const played = (selected: typeof history) =>
+      rankSongs(selected.flatMap((live) => [...new Set([...live.setlist, ...(live.encore ?? [])])]));
+
+    return {
+      recentAll,
+      recentFestival,
+      allRanking: played(recentAll),
+      festivalRanking: played(recentFestival),
+      openingRanking: rankSongs(history.map((live) => live.setlist[0]).filter(Boolean)),
+      closingRanking: rankSongs(history.map((live) => live.setlist[live.setlist.length - 1]).filter(Boolean)),
+      totalShows: history.length,
+    };
+  }, []);
 
   // ========================================
   // 検索 + 並び替え
@@ -357,6 +477,21 @@ export default function SongsPage() {
           </p>
         </div>
 
+        <div className="mt-7 grid grid-cols-2 gap-2 rounded-2xl bg-zinc-100 p-1">
+          {(["list", "stats"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => { setTab(value); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+              className={`rounded-xl px-2 py-3 text-xs font-bold tracking-wide transition sm:text-sm ${tab === value ? "bg-[#14526B] text-white shadow-sm" : "text-zinc-500 hover:text-[#14526B]"}`}
+            >
+              {value === "list" ? "SONG LIST" : "SETLIST STATS"}
+            </button>
+          ))}
+        </div>
+
+        {tab === "list" ? (
+          <>
         {/* ================================= */}
         {/* 検索 */}
         {/* ================================= */}
@@ -520,6 +655,39 @@ export default function SongsPage() {
             </button>
 
           </div>
+        )}
+          </>
+        ) : (
+          <>
+            <StatsRanking
+              title="LAST 10 SHOWS"
+              subtitle={`全公演・直近${statistics.recentAll.length}公演（アンコール含む）`}
+              ranking={statistics.allRanking}
+              total={statistics.recentAll.length}
+              onSongClick={saveScrollPosition}
+            />
+            <StatsRanking
+              title="FESTIVAL & SUPPORT"
+              subtitle={`フェス・対バンの直近${statistics.recentFestival.length}公演（アンコール含む）`}
+              ranking={statistics.festivalRanking}
+              total={statistics.recentFestival.length}
+              onSongClick={saveScrollPosition}
+            />
+            <StatsRanking
+              title="OPENING SONGS"
+              subtitle={`全${statistics.totalShows}公演の本編1曲目`}
+              ranking={statistics.openingRanking}
+              total={statistics.totalShows}
+              onSongClick={saveScrollPosition}
+            />
+            <StatsRanking
+              title="CLOSING SONGS"
+              subtitle={`全${statistics.totalShows}公演の本編最終曲（アンコール除外）`}
+              ranking={statistics.closingRanking}
+              total={statistics.totalShows}
+              onSongClick={saveScrollPosition}
+            />
+          </>
         )}
 
       </div>
