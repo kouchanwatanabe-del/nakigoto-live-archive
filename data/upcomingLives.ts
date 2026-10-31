@@ -301,5 +301,28 @@ export const upcomingLives: UpcomingLive[] = [
   address: "〒150-0041 東京都渋谷区神南１丁目６−８ B1",
   memo: "",
 },
+{
+  id: "2026-10-11",
+  date: "2026.10.11",
+  title: "Maxell presents FM802 MINAMI WHEEL 2026",
+  city: "大阪",
+  venue: "Live House ANIMA",
+  tour: "",
+  start: "18:00",
+  address: "〒542-0086 大阪府大阪市中央区西心斎橋２丁目１０−２１ B1F",
+  memo: "",
+},
+{
+  id: "2026-10-04",
+  date: "2026.10.04",
+  title: "FC限定ライブ ”人間日和 vol.2”",
+  city: "東京",
+  venue: "新代田FEVER",
+  tour: "",
+  open: "17:00",
+  start: "17:30",
+  address: "〒156-0042 東京都世田谷区羽根木１丁目１−１４ 新代田ビル B1F",
+  memo: "",
+},
 ];
 
