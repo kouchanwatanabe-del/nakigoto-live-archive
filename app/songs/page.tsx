@@ -98,7 +98,7 @@ function StatsRanking({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
                     <span className="text-sm font-semibold text-[#14526B]">{song.name}</span>
-                    <span className="shrink-0 text-xs tabular-nums text-zinc-500">{song.count}{total > 0 ? ` / ${total}公演` : "回"}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-zinc-500">{song.count}</span>
                   </div>
                   <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-zinc-100">
                     <div className="h-full rounded-full bg-[#14526B]" style={{ width: `${total > 0 ? song.count / total * 100 : song.count / ranking[0].count * 100}%` }} />
@@ -667,7 +667,7 @@ export default function SongsPage() {
             />
             <StatsRanking
               title="FESTIVAL"
-              subtitle={`j自主企画を除く直近${statistics.recentFestival.length}公演`}
+              subtitle={`自主企画を除く直近${statistics.recentFestival.length}公演`}
               ranking={statistics.festivalRanking}
               total={statistics.recentFestival.length}
               onSongClick={saveScrollPosition}
