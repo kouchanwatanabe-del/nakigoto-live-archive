@@ -45,25 +45,13 @@ type SongsTab = "list" | "stats";
 
 type RankedSong = { name: string; count: number };
 
-// イベント分類を厳密にしたい公演は lives.ts に eventType を追加
-// eventType: "festival" | "taiban" | "one-man" | "self-produced" | "other"
+// lives.ts の eventType で分類（公演名による推測はしない）
+// jisyukikaku: 自主企画 / fes: フェス・対バン / other: その他
 function isFestivalOrTaiban(live: (typeof lives)[number]): boolean {
   const item = live as typeof live & {
-    eventType?: string;
-    artists?: string[];
+    eventType?: "jisyukikaku" | "fes" | "other";
   };
-  if (item.eventType) {
-    return item.eventType === "festival" || item.eventType === "taiban";
-  }
-
-  const name = `${live.title} ${live.tour ?? ""}`;
-  if (/ワンマン|ONE[ -]?MAN|FC限定|ファンクラブ|自主企画|人間日和|ニンゲン.s感謝祭|SIKI ORIORI|Summer祭/i.test(name)) {
-    return false;
-  }
-  if (/フェス|FES|FEST|ROCK IN JAPAN|COUNTDOWN JAPAN|JAPAN JAM|MINAMI WHEEL|TOKYO CALLING|MURO FESTIVAL|MONSTER baSH|NUMBER SHOT|ツタロック|対バン|2MAN|TWO[ -]?MAN|3MAN|MUSIC YOKAJA/i.test(name)) {
-    return true;
-  }
-  return (item.artists ?? []).some((artist) => artist !== "なきごと");
+  return item.eventType === "fes";
 }
 
 function rankSongs(names: string[]): RankedSong[] {
@@ -661,14 +649,14 @@ export default function SongsPage() {
           <>
             <StatsRanking
               title="LAST 10 SHOWS"
-              subtitle={`直近${statistics.recentAll.length}公演`}
+              subtitle={`全公演・直近${statistics.recentAll.length}公演（アンコール含む）`}
               ranking={statistics.allRanking}
               total={statistics.recentAll.length}
               onSongClick={saveScrollPosition}
             />
             <StatsRanking
-              title="FESTIVAL & GIGS"
-              subtitle={`自主企画を除く直近${statistics.recentFestival.length}公演`}
+              title="FESTIVAL / TAIBAN"
+              subtitle={`フェス・対バンの直近${statistics.recentFestival.length}公演（アンコール含む）`}
               ranking={statistics.festivalRanking}
               total={statistics.recentFestival.length}
               onSongClick={saveScrollPosition}
