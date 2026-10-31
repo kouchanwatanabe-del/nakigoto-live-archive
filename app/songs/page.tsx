@@ -114,13 +114,7 @@ function StatsRanking({
 }
 
 export default function SongsPage() {
-  console.log(
-  "SONGSが読み込んだライブデータ",
-  lives.slice(0, 5).map((live) => ({
-    title: live.title,
-    eventType: live.eventType,
-  }))
-);
+  
   const [tab, setTab] = useState<SongsTab>("list");
   const [keyword, setKeyword] = useState("");
   const [sortType, setSortType] =

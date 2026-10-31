@@ -6,6 +6,7 @@ export const lives = [
   city: "福岡",
   venue: "福岡BEAT STATION",
   tour: "",
+  eventType: "fes",
   artists: [
     "バチカン市国に愛されたい",
     "ミーマイナー",
@@ -32,6 +33,7 @@ export const lives = [
   city: "広島",
   venue: "Live spece Reed",
   tour: "",
+  eventType: "fes",
   artists: [
     "バチカン市国に愛されたい",
     "ミーマイナー",
@@ -58,6 +60,7 @@ export const lives = [
   city: "東京",
   venue: "国立代々木競技場 第一体育館",
   tour: "",
+  eventType: "fes",
   artists: [],
   setlist: [
     "憧れとレモンサワー",
@@ -77,6 +80,7 @@ export const lives = [
   city: "東京",
   venue: "shibuya eggman",
   tour: "",
+  eventType: "other",
   artists: [],
   setlist: [
     "憧れとレモンサワー",
@@ -95,6 +99,7 @@ export const lives = [
     city: "東京",
     venue: "shibuya eggman",
     tour: "3ヶ月連続自主企画コンセプトワンマンライブ",
+    eventType: "jisyukikaku",
     artists: [
   ],
     setlist: [
@@ -132,6 +137,7 @@ export const lives = [
   city: "栃木",
   venue: "HEAVEN'S ROCK 宇都宮 VJ-2",
   tour: "",
+  eventType: "fes",
   artists: [
   "汐れいら",
   "ココラシカ",
@@ -157,6 +163,7 @@ export const lives = [
   city: "京都",
   venue: "KYOTO MUSE",
   tour: "",
+  eventType: "fes",
   artists: [
   "クレナズム",
   "猫は液体",
@@ -189,6 +196,7 @@ export const lives = [
   city: "宮城",
   venue: "LIVE HOUSE enn 2nd",
   tour: "",
+  eventType: "fes",
   setlist: [
     "短夜",
     "たぶん、愛",
@@ -208,6 +216,7 @@ export const lives = [
   city: "東京",
   venue: "shibuya eggman",
   tour: "3ヶ月連続自主企画コンセプトワンマンライブ",
+  eventType: "jisyukikaku",
   setlist: [
     "シャーデンフロイデ",
     "ユーモラル討論会",
@@ -241,6 +250,7 @@ export const lives = [
   city: "東京",
   venue: "shibuya eggman",
   tour: "3ヶ月連続自主企画コンセプトワンマンライブ",
+  eventType: "jisyukikaku",
   setlist: [
     "sniper",
     "忘却炉",
@@ -275,6 +285,7 @@ export const lives = [
   city: "愛知",
   venue: "NAGOYA ReNY limited",
   tour: "",
+  eventType: "fes",
   setlist: [
     "癖",
     "ミッドナイトシンドローム",
@@ -292,6 +303,7 @@ export const lives = [
   city: "東京",
   venue: "Zepp Shinjuku(TOKYO)",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   setlist: [
     "あいかわらず",
     "癖",
@@ -328,6 +340,7 @@ export const lives = [
   city: "岡山",
   venue: "岡山IMAGE",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "Conton Candy",
   ],
@@ -357,6 +370,7 @@ export const lives = [
   city: "広島",
   venue: "Live space Reed",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "Conton Candy",
   ],
@@ -386,6 +400,7 @@ export const lives = [
   city: "宮城",
   venue: "LIVE HOUSE enn 2nd",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "berry meet",
   ],
@@ -415,6 +430,7 @@ export const lives = [
   city: "大阪",
   venue: "Yogibo META VALLEY",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "13.3g",
   ],
@@ -444,6 +460,7 @@ export const lives = [
   city: "広島",
   venue: "福山 みろくの里",
   tour: "",
+  eventType: "fes",
   artists: [
   "osage",
   "Ivy to Fraudulent Game",
@@ -473,6 +490,7 @@ export const lives = [
   city: "愛知",
   venue: "名古屋CLUB QUATTRO",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "紫 今",
   ],
@@ -503,6 +521,7 @@ export const lives = [
   city: "石川",
   venue: "LIVE HOUSE vanvanV4",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "YUTORI-SEDAI",
   ],
@@ -533,6 +552,7 @@ export const lives = [
   city: "新潟",
   venue: "GOLDEN PIGS BLACK",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "YUTORI-SEDAI",
   ],
@@ -563,6 +583,7 @@ export const lives = [
   city: "北海道",
   venue: "KLUB COUNTER ACTION",
   tour: "",
+  eventType: "fes",
   setlist: [
     "愛才",
     "グッナイダーリン・イマジナリーベイブ",
@@ -581,6 +602,7 @@ export const lives = [
   city: "北海道",
   venue: "KLUB COUNTER ACTION",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
   "Ivy to Fraudulent Game",
   "SAKANAMON",
@@ -610,6 +632,7 @@ export const lives = [
   city: "大阪",
   venue: "梅田BANGBOO",
   tour: "",
+  eventType: "fes",
   setlist: [
     "憧れとレモンサワー",
     "グッナイダーリン・イマジナリーベイブ",
@@ -628,6 +651,7 @@ export const lives = [
   city: "福岡",
   venue: "LIVEHOUSE CB",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "Sakurashimeji",
   ],
@@ -658,6 +682,7 @@ export const lives = [
   city: "兵庫",
   venue: "神戸 太陽と虎",
   tour: "ビタースイートベイビーツアー2026",
+  eventType: "jisyukikaku",
   artists: [
     "Hakubi",
   ],
