@@ -98,6 +98,7 @@ export const lives = [
   city: "大阪",
   venue: "Live House ANIMA",
   tour: "",
+  eventType: "fes",
   artists: [],
   setlist: [
     "憧れとレモンサワー",
