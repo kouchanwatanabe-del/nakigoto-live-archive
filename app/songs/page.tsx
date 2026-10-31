@@ -661,14 +661,14 @@ export default function SongsPage() {
           <>
             <StatsRanking
               title="LAST 10 SHOWS"
-              subtitle={`全公演・直近${statistics.recentAll.length}公演（アンコール含む）`}
+              subtitle={`直近${statistics.recentAll.length}公演`}
               ranking={statistics.allRanking}
               total={statistics.recentAll.length}
               onSongClick={saveScrollPosition}
             />
             <StatsRanking
-              title="FESTIVAL & SUPPORT"
-              subtitle={`フェス・対バンの直近${statistics.recentFestival.length}公演（アンコール含む）`}
+              title="FESTIVAL & GIGS"
+              subtitle={`自主企画を除く直近${statistics.recentFestival.length}公演`}
               ranking={statistics.festivalRanking}
               total={statistics.recentFestival.length}
               onSongClick={saveScrollPosition}
