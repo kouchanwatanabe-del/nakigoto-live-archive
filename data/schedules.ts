@@ -28,6 +28,16 @@ export const schedules: Schedule[] = [
   title: "Major 1st Album『WHITE』リリース",
   detail: "なきごと Major 1st Album『WHITE』リリース",
 },
+
+{
+  id: "2026-11-08-fm802-neonpop",
+  date: "2026.11.08",
+  category: "RADIO",
+  title: "FM802「NEO(N)POP」",
+  time: "20:00台",
+  detail: "19:00〜21:00放送。20時台にゲスト生出演",
+  url: "https://funky802.com/site/blog/1719",
+},
 ];
 
 // 定期番組の内容はここで一元管理
