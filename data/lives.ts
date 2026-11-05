@@ -1,5 +1,28 @@
 export const lives = [
   {
+  id: "2026-11-05",
+  date: "2026.11.05",
+  title: "ミーマイナー東名阪対バンツアー「紀元前」",
+  city: "東京",
+  venue: "SHIBUYA CLUB QUATTRO",
+  tour: "",
+  eventType: "fes",
+  artists: [
+    "ミーマイナー",
+    "あたらよ",
+  ],
+  setlist: [
+    "癖",
+    "アカネ",
+    "ばかみたい",
+    "メトロポリタン",
+    "短夜",
+    "憧れとレモンサワー",
+  ],
+  encore: [],
+  memo: "「ばかみたい」新曲解禁／「憧れとレモンサワー」急遽変更",
+},
+  {
   id: "2026-10-25",
   date: "2026.10.25",
   title: "【福岡】MUSIC YOKAJA Vol.1",
