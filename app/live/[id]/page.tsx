@@ -1,20 +1,35 @@
+
 import Link from "next/link";
-import { lives } from "../../../data/lives";
+import { getAllLives } from "../../../lib/live-data";
 import AttendedButton from "../../../components/AttendedButton";
 import BackButton from "../../../components/BackButton";
 
-type LiveId = (typeof lives)[number]["id"];
 
 export default async function LivePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  
+const { id } = await params;
 
-  const live = lives.find(
-    (live) => live.id === (id as LiveId)
+let lives;
+
+try {
+  lives = await getAllLives();
+} catch (error) {
+  console.error("ライブ情報の取得に失敗しました", error);
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-white px-6 text-center text-zinc-500">
+      ライブ情報を取得できませんでした
+    </main>
   );
+}
+
+const live = lives.find(
+  (live) => live.id === id
+);
 
   if (!live) {
     return (
