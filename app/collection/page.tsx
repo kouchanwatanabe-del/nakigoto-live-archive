@@ -274,7 +274,7 @@ const handleSecretAdminTap = () => {
           </div>
 
           <span className="text-[#14526B]">
-            →
+            ›
           </span>
 
         </Link>
