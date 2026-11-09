@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { lives } from "../data/lives";
+import { getAllLives, type Live } from "../lib/live-data";
 import { upcomingLives } from "../data/upcomingLives";
 import TodaySchedule from "../components/TodaySchedule";
 
-type Live = (typeof lives)[number];
 // MY PAGEと同じ楽曲除外ルール
 const hiddenSongs = [
   "ミュージックプランクトン(SAKANAMONカバー)",
@@ -35,37 +34,57 @@ const hiddenSongs = [
 const isCountedSong = (song: string) =>
   !song.includes("カバー") && !hiddenSongs.includes(song);
 
-// 日付が新しい順に並べて、最新3件だけ取得
-const latestLives = [...lives]
-  .sort((a, b) => b.date.localeCompare(a.date))
-  .slice(0, 3);
-
-// 楽曲ごとの演奏公演数を集計
-const songCounts = lives.reduce<Record<string, number>>(
-  (counts, live) => {
-    const songs = [
-      ...live.setlist,
-      ...(live.encore ?? []),
-    ];
-
-    // 同じライブで同じ曲が複数回あっても1公演として数える
-    const uniqueSongs = [...new Set(songs)];
-
-    uniqueSongs.forEach((song) => {
-      counts[song] = (counts[song] ?? 0) + 1;
-    });
-
-    return counts;
-  },
-  {}
-);
-
-// 演奏公演数が多い順に上位3曲
-const frequentSongs = Object.entries(songCounts)
-  .sort((a, b) => b[1] - a[1])
-  .slice(0, 3);
-
 export default function Home() {
+  const [lives, setLives] = useState<Live[]>([]);
+  const [livesLoaded, setLivesLoaded] = useState(false);
+  const [livesError, setLivesError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    getAllLives()
+      .then((data) => {
+        if (active) setLives(data);
+      })
+      .catch((error) => {
+        if (active) {
+          setLivesError(
+            error instanceof Error
+              ? error.message
+              : "ライブ情報の取得に失敗しました"
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLivesLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // 最新3公演
+  const latestLives = useMemo(
+    () => [...lives].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3),
+    [lives]
+  );
+
+  // 曲ごとの演奏公演数（同じ公演内の重複演奏は1回として数える）
+  const frequentSongs = useMemo(() => {
+    const songCounts = lives.reduce<Record<string, number>>((counts, live) => {
+      const songs = [...live.setlist, ...live.encore];
+      for (const song of new Set(songs)) {
+        counts[song] = (counts[song] ?? 0) + 1;
+      }
+      return counts;
+    }, {});
+
+    return Object.entries(songCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3);
+  }, [lives]);
+
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -109,7 +128,7 @@ export default function Home() {
     return lives.filter((live) =>
       attendedIds.includes(live.id)
     );
-  }, [attendedIds]);
+  }, [attendedIds, lives]);
 
   // 参戦ライブで聴いた曲
   const heardSongs = useMemo(() => {
@@ -120,6 +139,22 @@ export default function Home() {
 
   return [...new Set(songs.filter(isCountedSong))];
 }, [attendedLives]);
+
+  if (!livesLoaded) {
+    return (
+      <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
+        ライブ情報を読み込み中...
+      </main>
+    );
+  }
+
+  if (livesError) {
+    return (
+      <main className="min-h-screen bg-white px-6 py-10">
+        <p role="alert" className="text-sm text-red-600">{livesError}</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-white pb-28 text-[#14526B]">
