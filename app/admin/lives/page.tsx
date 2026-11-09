@@ -23,6 +23,7 @@ export default function AdminLivesPage() {
 
     void checkLogin();
   }, [router]);
+  
 
   if (checking) {
     return (
@@ -56,5 +57,5 @@ export default function AdminLivesPage() {
       </div>
     </main>
   );
-  
+
 }
