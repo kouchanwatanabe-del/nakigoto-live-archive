@@ -219,7 +219,7 @@ useEffect(() => {
 
         <Link
           href="/collection"
-          className="text-[20px] font-medium text-[#14526B] hover:underline"
+          className="text-[28px] font-medium text-[#14526B] hover:underline"
         >
           ‹
         </Link>
