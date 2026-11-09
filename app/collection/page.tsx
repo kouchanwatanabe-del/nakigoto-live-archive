@@ -522,7 +522,7 @@ const handleSecretAdminTap = () => {
                       href="/lives"
                       className="mt-3 inline-block text-[13px] font-medium text-[#14526B] hover:underline"
                     >
-                      ライブを探す →
+                      ライブを探す ›
                     </Link>
 
                   </div>
