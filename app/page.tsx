@@ -252,7 +252,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
+                  <span className="ml-3 shrink-0 text-[28px] text-zinc-400">
                     ›
                   </span>
 
@@ -320,7 +320,7 @@ export default function Home() {
                     )}
                   </div>
 
-                  <span className="ml-3 shrink-0 text-[12px] text-zinc-400">
+                  <span className="ml-3 shrink-0 text-[28px] text-zinc-400">
                     ›
                   </span>
 
@@ -386,7 +386,7 @@ export default function Home() {
                 </span>
 
                 {/* 矢印 */}
-                <span className="ml-3 text-[13px] text-zinc-300">
+                <span className="ml-3 text-[28px] text-zinc-300">
                   ›
                 </span>
 
