@@ -6,7 +6,7 @@ import {
   useMemo,
   useState,
 } from "react";
-import { lives } from "../../data/lives";
+import { getAllLives, type Live } from "../../lib/live-data";
 import { songReadings } from "../../data/songReadings";
 
 type SortType = "count" | "name";
@@ -47,7 +47,7 @@ type RankedSong = { name: string; count: number };
 
 // lives.ts の eventType で分類（公演名による推測はしない）
 // jisyukikaku: 自主企画 / fes: フェス・対バン / other: その他
-function isFestivalOrTaiban(live: (typeof lives)[number]): boolean {
+function isFestivalOrTaiban(live: Live): boolean {
   const item = live as typeof live & {
     eventType?: "jisyukikaku" | "fes" | "other";
   };
@@ -114,6 +114,34 @@ function StatsRanking({
 }
 
 export default function SongsPage() {
+  const [lives, setLives] = useState<Live[]>([]);
+  const [livesLoaded, setLivesLoaded] = useState(false);
+  const [livesError, setLivesError] = useState("");
+
+  useEffect(() => {
+    let active = true;
+
+    getAllLives()
+      .then((data) => {
+        if (active) setLives(data);
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setLivesError(
+            error instanceof Error
+              ? error.message
+              : "ライブ情報の取得に失敗しました"
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLivesLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
   
   const [tab, setTab] = useState<SongsTab>("list");
   const [keyword, setKeyword] = useState("");
@@ -225,7 +253,7 @@ export default function SongsPage() {
       count,
     };
   });
-}, []);
+}, [lives]);
 
   // ========================================
   // セトリ統計（登録済み・過去公演のみ。SONG LIST の除外指定は統計に適用しない）
@@ -266,7 +294,7 @@ export default function SongsPage() {
       totalShows: history.length,
       diagnostic: { total: lives.length, history: history.length, fesTotal, fesWithSetlist, fesHistoryCount, eventTypeCounts },
     };
-  }, []);
+  }, [lives]);
 
   // ========================================
   // 検索 + 並び替え
@@ -342,7 +370,7 @@ export default function SongsPage() {
   // ========================================
 
   useEffect(() => {
-    if (!filtersLoaded) return;
+    if (!filtersLoaded || !livesLoaded) return;
     if (scrollRestored) return;
 
     const shouldRestore =
@@ -405,6 +433,7 @@ export default function SongsPage() {
     };
   }, [
     filtersLoaded,
+    livesLoaded,
     scrollRestored,
     displayedSongs.length,
   ]);
@@ -447,6 +476,24 @@ export default function SongsPage() {
       behavior: "smooth",
     });
   };
+
+  if (!livesLoaded) {
+    return (
+      <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
+        楽曲情報を読み込み中...
+      </main>
+    );
+  }
+
+  if (livesError) {
+    return (
+      <main className="min-h-screen bg-white px-6 py-10">
+        <p role="alert" className="text-sm text-red-600">
+          {livesError}
+        </p>
+      </main>
+    );
+  }
 
   return (
     <main

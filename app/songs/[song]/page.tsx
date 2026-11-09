@@ -1,4 +1,4 @@
-import { lives } from "../../../data/lives";
+import { getAllLives } from "../../../lib/live-data";
 import SongLiveList from "../../../components/SongLiveList";
 import BackButton from "../../../components/BackButton";
 
@@ -7,8 +7,24 @@ export default async function SongPage({
 }: {
   params: Promise<{ song: string }>;
 }) {
-  const { song } = await params;
-  const songName = decodeURIComponent(song);
+  
+const { song } = await params;
+const songName = decodeURIComponent(song);
+
+let lives;
+
+try {
+  lives = await getAllLives();
+} catch (error) {
+  console.error("ライブ情報の取得に失敗しました", error);
+
+  return (
+    <main className="flex min-h-screen items-center justify-center bg-white px-6 text-center text-zinc-500">
+      ライブ情報を取得できませんでした
+    </main>
+  );
+}
+
 
   // ========================================
   // この曲が演奏されたライブ
