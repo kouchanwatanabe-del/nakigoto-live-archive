@@ -10,7 +10,7 @@ import {
 
 } from "react";
 
-import { lives } from "../../data/lives";
+import { getAllLives, type Live } from "../../lib/live-data";
 
 import LiveList from "../../components/LiveList";
 
@@ -18,7 +18,7 @@ import LiveCalendar from "../../components/LiveCalendar";
 
 
 
-type Live = (typeof lives)[number];
+
 
 type SetlistFilter =
 
@@ -51,6 +51,41 @@ const VIEW_STORAGE_KEY =
   "liveViewMode";
 
 export default function LivesPage() {
+
+  
+const [lives, setLives] = useState<Live[]>([]);
+const [livesLoaded, setLivesLoaded] = useState(false);
+const [livesError, setLivesError] = useState("");
+
+useEffect(() => {
+  let active = true;
+
+  getAllLives()
+    .then((data) => {
+      if (active) {
+        setLives(data);
+      }
+    })
+    .catch((error) => {
+      if (active) {
+        setLivesError(
+          error instanceof Error
+            ? error.message
+            : "ライブ情報の取得に失敗しました"
+        );
+      }
+    })
+    .finally(() => {
+      if (active) {
+        setLivesLoaded(true);
+      }
+    });
+
+  return () => {
+    active = false;
+  };
+}, []);
+
 
   // ========================================
 
@@ -500,7 +535,7 @@ export default function LivesPage() {
 
       );
 
-    }, []);
+    }, [lives]);
 
   // ========================================
 
@@ -566,7 +601,7 @@ export default function LivesPage() {
 
       );
 
-    }, [year]);
+    }, [year, lives]);
 
   // ========================================
 
@@ -834,6 +869,8 @@ export default function LivesPage() {
 
       attendedIds,
 
+      lives,
+
     ]);
 
   // ========================================
@@ -844,11 +881,9 @@ export default function LivesPage() {
 
   useEffect(() => {
 
-    if (!filtersLoaded) {
-
-      return;
-
-    }
+    if (!filtersLoaded || !livesLoaded) {
+  return;
+}
 
     if (scrollRestored) {
 
@@ -980,6 +1015,8 @@ export default function LivesPage() {
 
     filtersLoaded,
 
+    livesLoaded,
+
     scrollRestored,
 
     filteredLives.length,
@@ -1041,7 +1078,23 @@ export default function LivesPage() {
   // JSX
 
   // ========================================
+if (!livesLoaded) {
+  return (
+    <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
+      ライブ情報を読み込み中...
+    </main>
+  );
+}
 
+if (livesError) {
+  return (
+    <main className="min-h-screen bg-white px-6 py-10">
+      <p role="alert" className="text-sm text-red-600">
+        {livesError}
+      </p>
+    </main>
+  );
+}
   return (
 
     <main
