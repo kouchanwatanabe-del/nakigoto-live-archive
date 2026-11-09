@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
     setLoading(false);
 
     if (error) {
-      setError("ログインに失敗しました。入力内容を確認してください。");
+      setError(`ログインに失敗しました：${error.message}`);
       return;
     }
 
