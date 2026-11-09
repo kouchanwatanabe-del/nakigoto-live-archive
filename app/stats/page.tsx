@@ -10,14 +10,13 @@ import {
   CalendarDays,
 } from "lucide-react";
 
-import { lives } from "../../data/lives";
-
-type Live = (typeof lives)[number];
+import { getAllLives, type Live } from "../../lib/live-data";
 
 export default function StatsPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
-
+const [lives, setLives] = useState<Live[]>([]);
+const [loadError, setLoadError] = useState("");
   // ========================================
   // 参戦記録を読み込む
   // ========================================
@@ -35,6 +34,31 @@ export default function StatsPage() {
 
     setLoaded(true);
   }, []);
+  
+useEffect(() => {
+  let active = true;
+
+  getAllLives()
+    .then((data) => {
+      if (active) {
+        setLives(data);
+      }
+    })
+    .catch((error) => {
+      if (active) {
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "ライブ情報を取得できませんでした"
+        );
+      }
+    });
+
+  return () => {
+    active = false;
+  };
+}, []);
+
 
   // ========================================
   // 参戦したライブ
@@ -48,7 +72,7 @@ export default function StatsPage() {
       .sort((a, b) =>
         b.date.localeCompare(a.date)
       );
-  }, [attendedIds]);
+  }, [attendedIds, lives]);
 
   // ========================================
   // 楽曲ごとの聴いた回数
