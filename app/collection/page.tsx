@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { lives } from "../../data/lives";
+import { getAllLives, type Live } from "../../lib/live-data";
 import SetlistImporter from "../../components/SetlistImporter";
-
-type Live = (typeof lives)[number];
 
 type Tab = "lives" | "heard" | "unheard";
 
@@ -52,6 +50,8 @@ const isHiddenSong = (song: string) => {
 export default function CollectionPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const [lives, setLives] = useState<Live[]>([]);
+  const [loadError, setLoadError] = useState("");
 const [secretTapCount, setSecretTapCount] = useState(0);
 const [adminMode, setAdminMode] = useState(false);
 
@@ -73,7 +73,32 @@ const savedAdminMode =
   localStorage.getItem("adminMode") === "true";
 
 setAdminMode(savedAdminMode);
-    setLoaded(true);
+  }, []);
+
+  // 既存データとSupabaseの公演をまとめて取得
+  useEffect(() => {
+    let active = true;
+
+    getAllLives()
+      .then((data) => {
+        if (active) setLives(data);
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setLoadError(
+            error instanceof Error
+              ? error.message
+              : "ライブ情報の取得に失敗しました"
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   // ========================================
@@ -264,7 +289,13 @@ const handleSecretAdminTap = () => {
           </div>
         )}
 
-        {loaded && (
+        {loaded && loadError && (
+          <p role="alert" className="mt-8 text-sm text-red-600">
+            {loadError}
+          </p>
+        )}
+
+        {loaded && !loadError && (
           <>
 
             {/* ================================= */}
