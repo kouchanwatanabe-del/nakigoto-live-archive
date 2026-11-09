@@ -14,10 +14,7 @@ import {
 
 } from "react";
 
-import { lives } from "../data/lives";
-
-
-type Live = (typeof lives)[number];
+import type { Live } from "../lib/live-data";
 
 type Props = {
 
@@ -58,7 +55,7 @@ const CALENDAR_DATE_STORAGE_KEY =
 
 export default function LiveCalendar({
 
-  filteredLives = lives,
+  filteredLives = [],
 
 
 }: Props) {
@@ -126,13 +123,9 @@ export default function LiveCalendar({
 
       }
 
-      const latest =
-
-        [...lives].sort((a, b) =>
-
-          b.date.localeCompare(a.date)
-
-        )[0];
+      const latest = [...filteredLives].sort(
+  (a, b) => b.date.localeCompare(a.date)
+)[0];
 
       if (!latest) {
 

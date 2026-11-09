@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { lives } from "../data/lives";
+import type { Live } from "../lib/live-data";
 import AttendedIconButton from "./AttendedIconButton";
-type Live = (typeof lives)[number];
+
 type Props = {
   filteredLives: Live[];
   attendedOnly?: boolean;
