@@ -1,5 +1,5 @@
 "use client";
-
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -217,12 +217,11 @@ useEffect(() => {
         {/* 戻る */}
         {/* ================================= */}
 
-        <Link
-          href="/collection"
-          className="text-[28px] font-medium text-[#14526B] hover:underline"
-        >
-          ‹
-        </Link>
+        <ChevronLeft
+  size={24}
+  strokeWidth={1.8}
+  className="text-[#14526B]"
+/>
 
         {/* ================================= */}
         {/* ヘッダー */}
@@ -234,9 +233,9 @@ useEffect(() => {
             MY LIVE LOG
           </p>
 
-          <h1 className="mt-2 text-3xl font-black text-[#14526B]">
-            MY STATS
-          </h1>
+          <h1 className="text-3xl font-bold text-[#14526B]">
+  MY STATS
+</h1>
 
           <p className="mt-2 text-[14px] text-zinc-500">
             あなたのライブ統計
