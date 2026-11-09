@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { lives } from "../data/lives";
-
-type Live = (typeof lives)[number];
+import type { Live } from "../lib/live-data";
 
 type Props = {
   playedLives: Live[];
