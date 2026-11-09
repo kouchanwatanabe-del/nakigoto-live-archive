@@ -229,9 +229,7 @@ useEffect(() => {
 
         <div className="mt-7">
 
-          <p className="text-[11px] font-medium tracking-[0.2em] text-zinc-400">
-            MY LIVE LOG
-          </p>
+         
 
           <h1 className="text-3xl font-bold text-[#14526B]">
   MY STATS
