@@ -7,10 +7,31 @@ import { supabase } from "../../../lib/supabase";
 
 type EventType = "fes" | "jisyukikaku" | "other";
 
+type DbLive = {
+  id: string;
+  date: string;
+  title: string;
+  city: string;
+  venue: string;
+  tour: string | null;
+  event_type: string | null;
+  artists: string[] | null;
+  address: string | null;
+  setlist: string[] | null;
+  encore: string[] | null;
+  memo: string | null;
+};
+
 export default function AdminLivesPage() {
   const router = useRouter();
 
   const [checking, setChecking] = useState(true);
+  const [records, setRecords] = useState<DbLive[]>([]);
+  const [loadingRecords, setLoadingRecords] = useState(false);
+  const [listError, setListError] = useState("");
+  const [search, setSearch] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -42,6 +63,96 @@ export default function AdminLivesPage() {
     void checkLogin();
   }, [router]);
 
+  const loadRecords = async () => {
+    setLoadingRecords(true);
+    setListError("");
+    try {
+      const result: DbLive[] = [];
+      const pageSize = 500;
+      for (let offset = 0; ; offset += pageSize) {
+        const { data, error: fetchError } = await supabase
+          .from("lives")
+          .select("id,date,title,city,venue,tour,event_type,artists,address,setlist,encore,memo")
+          .order("date", { ascending: false })
+          .range(offset, offset + pageSize - 1);
+        if (fetchError) throw fetchError;
+        const page = (data ?? []) as DbLive[];
+        result.push(...page);
+        if (page.length < pageSize) break;
+      }
+      setRecords(result);
+    } catch (err) {
+      setListError(err instanceof Error ? err.message : "一覧の取得に失敗しました。");
+    } finally {
+      setLoadingRecords(false);
+    }
+  };
+
+  const resetForm = () => {
+    setEditingId(null);
+    setDate("");
+    setTitle("");
+    setCity("");
+    setVenue("");
+    setTour("");
+    setEventType("fes");
+    setArtists("");
+    setAddress("");
+    setSetlist("");
+    setEncore("");
+    setMemo("");
+  };
+
+  const startEdit = (live: DbLive) => {
+    setEditingId(live.id);
+    setDate(live.date.replaceAll(".", "-"));
+    setTitle(live.title);
+    setCity(live.city);
+    setVenue(live.venue);
+    setTour(live.tour ?? "");
+    setEventType(
+      live.event_type === "jisyukikaku" || live.event_type === "other"
+        ? live.event_type
+        : "fes"
+    );
+    setArtists((live.artists ?? []).join("\n"));
+    setAddress(live.address ?? "");
+    setSetlist((live.setlist ?? []).join("\n"));
+    setEncore((live.encore ?? []).join("\n"));
+    setMemo(live.memo ?? "");
+    setMessage("");
+    setError("");
+    document.getElementById("live-form")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleDelete = async (live: DbLive) => {
+    if (!window.confirm(`「${live.title}」（${live.date}）を削除しますか？\nこの操作は元に戻せません。`)) return;
+    setDeletingId(live.id);
+    setListError("");
+    try {
+      const { data, error: deleteError } = await supabase
+        .from("lives")
+        .delete()
+        .eq("id", live.id)
+        .select("id");
+      if (deleteError) throw deleteError;
+      if (!data?.length) throw new Error("削除できませんでした。管理者権限を確認してください。");
+      if (editingId === live.id) resetForm();
+      await loadRecords();
+    } catch (err) {
+      setListError(err instanceof Error ? err.message : "削除に失敗しました。");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const filteredRecords = records.filter((live) =>
+    [live.date, live.title, live.city, live.venue, live.tour ?? ""]
+      .join(" ")
+      .toLocaleLowerCase()
+      .includes(search.trim().toLocaleLowerCase())
+  );
+
   const toLines = (value: string) =>
     value
       .split("\n")
@@ -55,43 +166,38 @@ export default function AdminLivesPage() {
     setSaving(true);
 
     try {
-      // 既存の公演IDと衝突しにくいUUIDを使用
-      const id = crypto.randomUUID();
+       const payload = {
+         date: date.replaceAll("-", "."),
+         title: title.trim(),
+         city: city.trim(),
+         venue: venue.trim(),
+         tour: tour.trim(),
+         event_type: eventType,
+         artists: toLines(artists),
+         address: address.trim(),
+         setlist: toLines(setlist),
+         encore: toLines(encore),
+         memo: memo.trim(),
+       };
 
-      const { error: insertError } = await supabase
-        .from("lives")
-        .insert({
-          id,
-          date: date.replaceAll("-", "."),
-          title: title.trim(),
-          city: city.trim(),
-          venue: venue.trim(),
-          tour: tour.trim(),
-          event_type: eventType,
-          artists: toLines(artists),
-          address: address.trim(),
-          setlist: toLines(setlist),
-          encore: toLines(encore),
-          memo: memo.trim(),
-        });
-
-      if (insertError) {
-        throw insertError;
-      }
-
-      setMessage("ライブを登録しました！");
-
-      setDate("");
-      setTitle("");
-      setCity("");
-      setVenue("");
-      setTour("");
-      setEventType("fes");
-      setArtists("");
-      setAddress("");
-      setSetlist("");
-      setEncore("");
-      setMemo("");
+       if (editingId) {
+         const { data, error: updateError } = await supabase
+           .from("lives")
+           .update(payload)
+           .eq("id", editingId)
+           .select("id");
+         if (updateError) throw updateError;
+         if (!data?.length) throw new Error("更新できませんでした。管理者権限を確認してください。");
+         setMessage("ライブを更新しました！");
+       } else {
+         const { error: insertError } = await supabase
+           .from("lives")
+           .insert({ id: crypto.randomUUID(), ...payload });
+         if (insertError) throw insertError;
+         setMessage("ライブを登録しました！");
+       }
+       resetForm();
+       await loadRecords();
     } catch (err) {
       setError(
         err instanceof Error
@@ -142,7 +248,7 @@ export default function AdminLivesPage() {
           </button>
         </div>
 
-        <section className="mt-8 border-t border-zinc-200 pt-6">
+        <section id="live-form" className="mt-8 border-t border-zinc-200 pt-6">
           <h2 className="text-lg font-bold text-[#14526B]">
             NEW LIVE
           </h2>
@@ -152,6 +258,12 @@ export default function AdminLivesPage() {
             曲名・出演者は1行につき1件入力してください。
           </p>
 
+          {editingId && (
+            <button type="button" onClick={() => { resetForm(); setError(""); setMessage(""); }}
+              className="mt-4 rounded-lg border border-zinc-200 px-3 py-2 text-xs text-zinc-600">
+              編集をキャンセルして新規登録に戻る
+            </button>
+          )}
           <form onSubmit={handleSave} className="mt-6 space-y-5">
             <div>
               <label htmlFor="date" className={labelClass}>
@@ -331,9 +443,58 @@ export default function AdminLivesPage() {
               disabled={saving}
               className="w-full rounded-xl bg-[#14526B] px-4 py-4 text-sm font-bold text-white disabled:opacity-50"
             >
-              {saving ? "保存中..." : "SAVE LIVE"}
+              {saving ? "保存中..." : editingId ? "UPDATE LIVE" : "SAVE LIVE"}
             </button>
           </form>
+        </section>
+
+        <section className="mt-12 border-t border-zinc-200 pt-6">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-lg font-bold text-[#14526B]">REGISTERED LIVES</h2>
+            <button type="button" onClick={() => void loadRecords()}
+              disabled={loadingRecords}
+              className="rounded-lg border border-zinc-200 px-3 py-2 text-xs text-zinc-600 disabled:opacity-50">
+              再読み込み
+            </button>
+          </div>
+          <p className="mt-2 text-xs text-zinc-500">
+            Supabaseに登録された公演のみ表示します（{records.length}件）。
+            data/lives.ts の公演は対象外です。
+          </p>
+          <input
+            aria-label="登録済みライブを検索"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="日付・公演名・都市・会場・ツアーで検索"
+            className={fieldClass + " mt-4"}
+          />
+          {listError && <p role="alert" className="mt-3 text-sm text-red-600">{listError}</p>}
+          {loadingRecords && <p className="mt-4 text-sm text-zinc-500">一覧を読み込み中...</p>}
+          {!loadingRecords && filteredRecords.length === 0 && (
+            <p className="mt-4 text-sm text-zinc-500">該当する公演はありません。</p>
+          )}
+          <div className="mt-4 divide-y divide-zinc-200 border-y border-zinc-200">
+            {filteredRecords.map((live) => (
+              <div key={live.id} className="flex items-center justify-between gap-3 py-4">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-[#14526B]">{live.date}</p>
+                  <p className="mt-1 text-sm font-bold text-[#14526B]">{live.title}</p>
+                  <p className="mt-1 text-xs text-zinc-500">{live.city} / {live.venue}</p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button type="button" onClick={() => startEdit(live)}
+                    className="rounded-lg border border-[#14526B] px-3 py-2 text-xs font-semibold text-[#14526B]">
+                    編集
+                  </button>
+                  <button type="button" onClick={() => void handleDelete(live)}
+                    disabled={deletingId !== null || saving}
+                    className="rounded-lg border border-red-200 px-3 py-2 text-xs font-semibold text-red-600 disabled:opacity-50">
+                    {deletingId === live.id ? "削除中" : "削除"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
       </div>
     </main>
