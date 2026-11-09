@@ -221,7 +221,7 @@ useEffect(() => {
           href="/collection"
           className="text-[13px] font-medium text-[#14526B] hover:underline"
         >
-          ← MY PAGE
+          ‹
         </Link>
 
         {/* ================================= */}
