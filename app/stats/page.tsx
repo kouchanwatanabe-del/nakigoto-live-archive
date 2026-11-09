@@ -217,11 +217,13 @@ useEffect(() => {
         {/* 戻る */}
         {/* ================================= */}
 
-        <ChevronLeft
-  size={24}
-  strokeWidth={1.8}
-  className="text-[#14526B]"
-/>
+        <Link
+  href="/collection"
+  aria-label="MY PAGEに戻る"
+  className="inline-flex items-center justify-center text-[#14526B]"
+>
+  <ChevronLeft size={24} strokeWidth={1.8} />
+</Link>
 
         {/* ================================= */}
         {/* ヘッダー */}
