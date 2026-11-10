@@ -133,7 +133,7 @@ export const upcomingLives: UpcomingLive[] = [
   open: "15:30",
   start: "16:30",
   address: "〒692-0064 島根県安来市古川町５３４",
-   memo: "当日13時30分から選考入場整理券配布（先着100名）",
+   memo: "当日13時30分から先行入場整理券配布（先着100名）",
 },
 
 {
