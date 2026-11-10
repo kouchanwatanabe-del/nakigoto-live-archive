@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getAllLives, type Live } from "../../lib/live-data";
 import SetlistImporter from "../../components/SetlistImporter";
+import LiveLoading from "../../components/LiveLoading";
 
 type Tab = "lives" | "heard" | "unheard";
 
@@ -219,6 +220,10 @@ const handleSecretAdminTap = () => {
 
   setSecretTapCount(nextCount);
 };
+  if (!loaded) {
+    return <LiveLoading />;
+  }
+
   return (
     <main className="min-h-screen bg-white pb-28 text-zinc-900">
 
@@ -282,12 +287,6 @@ const handleSecretAdminTap = () => {
         {/* ================================= */}
         {/* 読み込み中 */}
         {/* ================================= */}
-
-        {!loaded && (
-          <div className="mt-8 text-[13px] text-zinc-400">
-            読み込み中...
-          </div>
-        )}
 
         {loaded && loadError && (
           <p role="alert" className="mt-8 text-sm text-red-600">
