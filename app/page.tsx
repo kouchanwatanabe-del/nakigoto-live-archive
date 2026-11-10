@@ -143,7 +143,7 @@ export default function Home() {
 }, [attendedLives]);
 
   
-const minimumLoading = useMinimumLoading(!livesLoaded, 400);
+const minimumLoading = useMinimumLoading(!livesLoaded, 300);
 
 if (minimumLoading) {
   return <LiveLoading />;
