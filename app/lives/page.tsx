@@ -16,6 +16,9 @@ import LiveList from "../../components/LiveList";
 
 import LiveCalendar from "../../components/LiveCalendar";
 
+import LiveLoading from "../../components/LiveLoading";
+
+
 
 
 
@@ -1079,11 +1082,7 @@ useEffect(() => {
 
   // ========================================
 if (!livesLoaded) {
-  return (
-    <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
-      ライブ情報を読み込み中...
-    </main>
-  );
+  return <LiveLoading />;
 }
 
 if (livesError) {
