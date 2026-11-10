@@ -11,12 +11,14 @@ import {
 } from "lucide-react";
 
 import { getAllLives, type Live } from "../../lib/live-data";
+import LiveLoading from "../../components/LiveLoading";
 
 export default function StatsPage() {
   const [attendedIds, setAttendedIds] = useState<string[]>([]);
   const [loaded, setLoaded] = useState(false);
 const [lives, setLives] = useState<Live[]>([]);
 const [loadError, setLoadError] = useState("");
+const [livesLoaded, setLivesLoaded] = useState(false);
   // ========================================
   // 参戦記録を読み込む
   // ========================================
@@ -52,6 +54,9 @@ useEffect(() => {
             : "ライブ情報を取得できませんでした"
         );
       }
+    })
+    .finally(() => {
+      if (active) setLivesLoaded(true);
     });
 
   return () => {
@@ -197,14 +202,14 @@ useEffect(() => {
   // 読み込み中
   // ========================================
 
-  if (!loaded) {
+  if (!loaded || !livesLoaded) {
+    return <LiveLoading />;
+  }
+
+  if (loadError) {
     return (
-      <main className="min-h-screen bg-white pb-28">
-        <div className="mx-auto max-w-3xl px-6 py-10">
-          <p className="text-sm text-zinc-400">
-            読み込み中...
-          </p>
-        </div>
+      <main className="min-h-screen bg-white px-6 py-10">
+        <p role="alert" className="text-sm text-red-600">{loadError}</p>
       </main>
     );
   }
