@@ -6,6 +6,7 @@ import { getAllLives, type Live } from "../lib/live-data";
 import { upcomingLives } from "../data/upcomingLives";
 import TodaySchedule from "../components/TodaySchedule";
 import LiveLoading from "../components/LiveLoading";
+import { useMinimumLoading } from "../components/useMinimumLoading";
 
 // MY PAGEと同じ楽曲除外ルール
 const hiddenSongs = [
@@ -141,11 +142,13 @@ export default function Home() {
   return [...new Set(songs.filter(isCountedSong))];
 }, [attendedLives]);
 
-  if (!livesLoaded) {
-    return (
-      <LiveLoading />
-    );
-  }
+  
+const minimumLoading = useMinimumLoading(!livesLoaded, 800);
+
+if (minimumLoading) {
+  return <LiveLoading />;
+}
+
 
   if (livesError) {
     return (
