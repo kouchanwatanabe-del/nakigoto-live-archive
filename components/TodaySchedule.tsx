@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { upcomingLives } from "../data/upcomingLives";
@@ -159,11 +160,11 @@ export default function TodaySchedule() {
                         {event.title}
                       </h3>
                       <span
-                        aria-hidden="true"
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-lg transition group-hover:bg-white group-hover:text-[#14526B]"
-                      >
-                        →
-                      </span>
+  aria-hidden="true"
+  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-white transition group-hover:bg-white group-hover:text-[#14526B]"
+>
+  <ChevronRight size={24} strokeWidth={1.8} />
+</span>
                     </div>
                   </Link>
                 );
