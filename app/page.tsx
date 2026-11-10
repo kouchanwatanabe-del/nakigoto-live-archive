@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllLives, type Live } from "../lib/live-data";
 import { upcomingLives } from "../data/upcomingLives";
 import TodaySchedule from "../components/TodaySchedule";
-import LiveLoading from "../components/LiveLoading";
 import { useMinimumLoading } from "../components/useMinimumLoading";
+import LiveLoading from "../components/LiveLoading";
 
 // MY PAGEと同じ楽曲除外ルール
 const hiddenSongs = [
@@ -142,13 +142,13 @@ export default function Home() {
   return [...new Set(songs.filter(isCountedSong))];
 }, [attendedLives]);
 
-  
-const minimumLoading = useMinimumLoading(!livesLoaded, 350);
+  const minimumLoading = useMinimumLoading(!livesLoaded, 350);
 
-if (minimumLoading) {
-  return <LiveLoading />;
-}
-
+  if (minimumLoading) {
+    return (
+      <LiveLoading />
+    );
+  }
 
   if (livesError) {
     return (

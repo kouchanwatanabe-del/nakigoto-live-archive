@@ -8,6 +8,7 @@ import {
 } from "react";
 import { getAllLives, type Live } from "../../lib/live-data";
 import { songReadings } from "../../data/songReadings";
+import { useMinimumLoading } from "../../components/useMinimumLoading";
 import LiveLoading from "../../components/LiveLoading";
 
 type SortType = "count" | "name";
@@ -478,9 +479,11 @@ export default function SongsPage() {
     });
   };
 
-  if (!livesLoaded) {
-  return <LiveLoading />;
-}
+  const minimumLoading = useMinimumLoading(!livesLoaded, 350);
+
+  if (minimumLoading) {
+    return <LiveLoading />;
+  }
 
   if (livesError) {
     return (

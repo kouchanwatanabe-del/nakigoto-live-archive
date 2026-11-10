@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { getAllLives, type Live } from "../../lib/live-data";
+import { useMinimumLoading } from "../../components/useMinimumLoading";
 import LiveLoading from "../../components/LiveLoading";
 
 export default function StatsPage() {
@@ -202,7 +203,9 @@ useEffect(() => {
   // 読み込み中
   // ========================================
 
-  if (!loaded || !livesLoaded) {
+  const minimumLoading = useMinimumLoading(!loaded || !livesLoaded, 350);
+
+  if (minimumLoading) {
     return <LiveLoading />;
   }
 

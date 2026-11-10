@@ -16,6 +16,7 @@ import LiveList from "../../components/LiveList";
 
 import LiveCalendar from "../../components/LiveCalendar";
 
+import { useMinimumLoading } from "../../components/useMinimumLoading";
 import LiveLoading from "../../components/LiveLoading";
 
 
@@ -1081,7 +1082,9 @@ useEffect(() => {
   // JSX
 
   // ========================================
-if (!livesLoaded) {
+const minimumLoading = useMinimumLoading(!livesLoaded, 350);
+
+  if (minimumLoading) {
   return <LiveLoading />;
 }
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { getAllLives, type Live } from "../../lib/live-data";
 import SetlistImporter from "../../components/SetlistImporter";
+import { useMinimumLoading } from "../../components/useMinimumLoading";
 import LiveLoading from "../../components/LiveLoading";
 
 type Tab = "lives" | "heard" | "unheard";
@@ -220,7 +221,9 @@ const handleSecretAdminTap = () => {
 
   setSecretTapCount(nextCount);
 };
-  if (!loaded) {
+  const minimumLoading = useMinimumLoading(!loaded, 350);
+
+  if (minimumLoading) {
     return <LiveLoading />;
   }
 
