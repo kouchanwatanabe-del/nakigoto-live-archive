@@ -8,6 +8,7 @@ import {
 } from "react";
 import { getAllLives, type Live } from "../../lib/live-data";
 import { songReadings } from "../../data/songReadings";
+import LiveLoading from "../../components/LiveLoading";
 
 type SortType = "count" | "name";
 
@@ -478,12 +479,8 @@ export default function SongsPage() {
   };
 
   if (!livesLoaded) {
-    return (
-      <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
-        楽曲情報を読み込み中...
-      </main>
-    );
-  }
+  return <LiveLoading />;
+}
 
   if (livesError) {
     return (
