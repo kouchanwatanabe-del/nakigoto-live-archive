@@ -24,11 +24,11 @@ export default function LiveLoading() {
       </div>
 
       <p className="mt-6 text-lg font-bold tracking-[0.12em] text-[#14526B]">
-        LIVE ARCHIVE
+        NOW LOADING
       </p>
 
       <p className="mt-2 text-xs text-zinc-400">
-        ライブ情報を読み込み中...
+        Please wait...
       </p>
     </div>
   );
