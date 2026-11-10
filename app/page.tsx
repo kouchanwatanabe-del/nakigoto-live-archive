@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getAllLives, type Live } from "../lib/live-data";
 import { upcomingLives } from "../data/upcomingLives";
 import TodaySchedule from "../components/TodaySchedule";
+import LiveLoading from "../components/LiveLoading";
 
 // MY PAGEと同じ楽曲除外ルール
 const hiddenSongs = [
@@ -142,9 +143,7 @@ export default function Home() {
 
   if (!livesLoaded) {
     return (
-      <main className="min-h-screen bg-white px-6 py-10 text-sm text-zinc-500">
-        ライブ情報を読み込み中...
-      </main>
+      <LiveLoading />
     );
   }
 
