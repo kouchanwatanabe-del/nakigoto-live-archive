@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { getAllLives, type Live } from "../lib/live-data";
-import { upcomingLives } from "../data/upcomingLives";
+import { getAllUpcomingLives } from "../lib/upcoming-data";
+import type { UpcomingLive } from "../data/upcomingLives";
 import TodaySchedule from "../components/TodaySchedule";
 import { useMinimumLoading } from "../components/useMinimumLoading";
 import LiveLoading from "../components/LiveLoading";
@@ -40,6 +41,9 @@ export default function Home() {
   const [lives, setLives] = useState<Live[]>([]);
   const [livesLoaded, setLivesLoaded] = useState(false);
   const [livesError, setLivesError] = useState("");
+  const [upcoming, setUpcoming] = useState<UpcomingLive[]>([]);
+  const [upcomingLoaded, setUpcomingLoaded] = useState(false);
+  const [upcomingError, setUpcomingError] = useState("");
 
   useEffect(() => {
     let active = true;
@@ -59,6 +63,31 @@ export default function Home() {
       })
       .finally(() => {
         if (active) setLivesLoaded(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+
+    getAllUpcomingLives()
+      .then((data) => {
+        if (active) setUpcoming(data);
+      })
+      .catch((error) => {
+        if (active) {
+          setUpcomingError(
+            error instanceof Error
+              ? error.message
+              : "今後のライブ情報の取得に失敗しました"
+          );
+        }
+      })
+      .finally(() => {
+        if (active) setUpcomingLoaded(true);
       });
 
     return () => {
@@ -119,11 +148,11 @@ export default function Home() {
       String(today.getDate()).padStart(2, "0"),
     ].join(".");
 
-    return [...upcomingLives]
+    return [...upcoming]
       .filter((live) => live.date >= todayString)
       .sort((a, b) => a.date.localeCompare(b.date))
       .slice(0, 3);
-  }, []);
+  }, [upcoming]);
 
   // 参戦したライブ
   const attendedLives = useMemo(() => {
@@ -142,7 +171,7 @@ export default function Home() {
   return [...new Set(songs.filter(isCountedSong))];
 }, [attendedLives]);
 
-  const minimumLoading = useMinimumLoading(!livesLoaded, 350);
+  const minimumLoading = useMinimumLoading(!livesLoaded || !upcomingLoaded, 350);
 
   if (minimumLoading) {
     return (
@@ -150,10 +179,10 @@ export default function Home() {
     );
   }
 
-  if (livesError) {
+  if (livesError || upcomingError) {
     return (
       <main className="min-h-screen bg-white px-6 py-10">
-        <p role="alert" className="text-sm text-red-600">{livesError}</p>
+        <p role="alert" className="text-sm text-red-600">{livesError || upcomingError}</p>
       </main>
     );
   }

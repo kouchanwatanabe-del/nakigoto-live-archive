@@ -3,7 +3,8 @@
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { upcomingLives } from "../data/upcomingLives";
+import { upcomingLives, type UpcomingLive } from "../data/upcomingLives";
+import { getAllUpcomingLives } from "../lib/upcoming-data";
 import { schedules, type ScheduleCategory } from "../data/schedules";
 
 type TodayEvent = {
@@ -32,6 +33,8 @@ function formatDate(date: Date) {
 
 export default function TodaySchedule() {
   const [today, setToday] = useState("");
+  const [allUpcomingLives, setAllUpcomingLives] = useState<UpcomingLive[]>(upcomingLives);
+  const [upcomingError, setUpcomingError] = useState("");
 
   useEffect(() => {
     const update = () => setToday(formatDate(new Date()));
@@ -40,10 +43,31 @@ export default function TodaySchedule() {
     return () => window.clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    let active = true;
+    getAllUpcomingLives()
+      .then((data) => {
+        if (active) {
+          setAllUpcomingLives(data);
+          setUpcomingError("");
+        }
+      })
+      .catch((error: unknown) => {
+        if (active) {
+          setUpcomingError(
+            error instanceof Error ? error.message : "公演情報を取得できませんでした"
+          );
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
+
   const events = useMemo<TodayEvent[]>(() => {
     if (!today) return [];
 
-    const liveEvents: TodayEvent[] = upcomingLives
+    const liveEvents: TodayEvent[] = allUpcomingLives
       .filter((live) => live.date === today)
       .map((live) => ({
         id: `live-${live.id}`,
@@ -82,7 +106,6 @@ export default function TodaySchedule() {
         category: "RADIO",
         title: 'ZIP-FM「WEAR MUSIC」',
         time: "25:30〜26:00",
-        // 日付付きIDは既存の詳細ページでも認識できる
         href: `/schedule/wear-music-${today}`,
       });
     }
@@ -90,7 +113,7 @@ export default function TodaySchedule() {
     return [...liveEvents, ...otherEvents, ...recurring].sort(
       (a, b) => (a.time ?? "").localeCompare(b.time ?? "")
     );
-  }, [today]);
+  }, [today, allUpcomingLives]);
 
   const dateLabel = today
     ? `${Number(today.slice(5, 7))}月${Number(today.slice(8, 10))}日`
@@ -99,7 +122,6 @@ export default function TodaySchedule() {
   return (
     <section className="mt-8">
       <div className="relative overflow-hidden rounded-xl bg-[#14526B] px-5 py-5 text-white shadow-sm sm:px-6 sm:py-6">
-        {/* 画像なしで、D案のライブ感を光のグラデーションで表現 */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
@@ -124,6 +146,12 @@ export default function TodaySchedule() {
               VIEW ALL
             </Link>
           </div>
+
+          {upcomingError && (
+            <p role="alert" className="mt-4 text-xs text-white/80">
+              最新のライブ情報を取得できませんでした。既存の予定を表示しています。
+            </p>
+          )}
 
           {!today ? (
             <p className="mt-7 text-sm text-white/75">予定を読み込み中...</p>
@@ -160,11 +188,11 @@ export default function TodaySchedule() {
                         {event.title}
                       </h3>
                       <span
-  aria-hidden="true"
-  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-white transition group-hover:bg-white group-hover:text-[#14526B]"
->
-  <ChevronRight size={24} strokeWidth={1.8} />
-</span>
+                        aria-hidden="true"
+                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/60 text-white transition group-hover:bg-white group-hover:text-[#14526B]"
+                      >
+                        <ChevronRight size={24} strokeWidth={1.8} />
+                      </span>
                     </div>
                   </Link>
                 );

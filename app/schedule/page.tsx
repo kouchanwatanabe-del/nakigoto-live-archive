@@ -6,7 +6,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { TouchEvent, TransitionEvent } from "react";
 
-import { upcomingLives } from "../../data/upcomingLives";
+import { upcomingLives, type UpcomingLive } from "../../data/upcomingLives";
+import { getAllUpcomingLives } from "../../lib/upcoming-data";
 
 import { schedules, getRecurringSchedules, type ScheduleCategory } from "../../data/schedules";
 
@@ -76,9 +77,9 @@ function monthIndex(date: Date) {
   return date.getFullYear() * 12 + date.getMonth();
 }
 
-function clampMonth(date: Date) {
+function clampMonth(date: Date, maxMonth: Date = MAX_MONTH) {
   if (monthIndex(date) < monthIndex(MIN_MONTH)) return new Date(MIN_MONTH);
-  if (monthIndex(date) > monthIndex(MAX_MONTH)) return new Date(MAX_MONTH);
+  if (monthIndex(date) > monthIndex(maxMonth)) return new Date(maxMonth);
   return date;
 }
 
@@ -125,6 +126,29 @@ function CategoryLabel({ category, small = false, label }: { category: ScheduleC
 export default function SchedulePage() {
 
   const [filter, setFilter] = useState<Filter>("ALL");
+  const [allUpcomingLives, setAllUpcomingLives] = useState<UpcomingLive[]>(upcomingLives);
+
+  useEffect(() => {
+    let active = true;
+    getAllUpcomingLives()
+      .then((data) => {
+        if (active) setAllUpcomingLives(data);
+      })
+      .catch((error) => {
+        console.error("UPCOMING LIVEの取得に失敗しました", error);
+      });
+    return () => { active = false; };
+  }, []);
+
+  const maxMonth = useMemo(() => {
+    const latest = allUpcomingLives.reduce((max, live) => {
+      const value = live.date.slice(0, 7);
+      return value > max ? value : max;
+    }, "2026.10");
+    const [year, month] = latest.split(".").map(Number);
+    return new Date(year, month - 1, 1);
+  }, [allUpcomingLives]);
+
 
   const [calendarDate, setCalendarDate] = useState(() => {
 
@@ -136,10 +160,14 @@ export default function SchedulePage() {
 
   useEffect(() => {
     const saved = window.sessionStorage.getItem("nakigoto-schedule-month");
-    if (!saved || !/^\d{4}-(0?[0-9]|1[01])$/.test(saved)) return;
+    if (!saved || !/^\d{4}-(0?[1-9]|1[0-2])$/.test(saved)) return;
     const [savedYear, savedMonth] = saved.split("-").map(Number);
-    setCalendarDate(clampMonth(new Date(savedYear, savedMonth, 1)));
+    setCalendarDate(clampMonth(new Date(savedYear, savedMonth - 1, 1)));
   }, []);
+
+  useEffect(() => {
+    setCalendarDate((current) => clampMonth(current, maxMonth));
+  }, [maxMonth]);
 
   function rememberCalendarMonth() {
     window.sessionStorage.setItem("nakigoto-schedule-month", `${year}-${month}`);
@@ -201,7 +229,7 @@ export default function SchedulePage() {
 
   const allEvents = useMemo<ScheduleEvent[]>(() => {
 
-    const liveEvents: ScheduleEvent[] = upcomingLives.map((live) => ({
+    const liveEvents: ScheduleEvent[] = allUpcomingLives.map((live) => ({
 
       id: `live-${live.id}`,
 
@@ -235,7 +263,7 @@ export default function SchedulePage() {
 
     );
 
-  }, []);
+  }, [allUpcomingLives]);
 
   const year = calendarDate.getFullYear();
   const month = calendarDate.getMonth();
@@ -264,11 +292,11 @@ export default function SchedulePage() {
   }, [allEvents, filter, year, month]);
 
   const availableYears = Array.from(
-    { length: MAX_MONTH.getFullYear() - MIN_MONTH.getFullYear() + 1 },
+    { length: maxMonth.getFullYear() - MIN_MONTH.getFullYear() + 1 },
     (_, index) => MIN_MONTH.getFullYear() + index
   );
   const canGoPrevious = monthIndex(calendarDate) > monthIndex(MIN_MONTH);
-  const canGoNext = monthIndex(calendarDate) < monthIndex(MAX_MONTH);
+  const canGoNext = monthIndex(calendarDate) < monthIndex(maxMonth);
 
   const monthEvents = useMemo(() => {
 
@@ -332,7 +360,7 @@ export default function SchedulePage() {
 
     setDragX(0);
 
-    setCalendarDate(clampMonth(new Date(nextYear, nextMonth, 1)));
+    setCalendarDate(clampMonth(new Date(nextYear, nextMonth, 1), maxMonth));
 
   }
 
@@ -372,7 +400,7 @@ export default function SchedulePage() {
 
       setHighlightedId(null);
 
-      setCalendarDate((current) => clampMonth(new Date(current.getFullYear(), current.getMonth() + direction, 1)));
+      setCalendarDate((current) => clampMonth(new Date(current.getFullYear(), current.getMonth() + direction, 1), maxMonth));
 
     }
 
@@ -646,7 +674,7 @@ export default function SchedulePage() {
               <select aria-label="月を選択" value={month} onChange={(event) => jumpToMonth(year, Number(event.target.value))} className="cursor-pointer appearance-none bg-transparent py-2 pl-1 pr-5 text-[17px] font-bold tracking-tight text-[#14526B] outline-none">
 
                 {Array.from({ length: 12 }, (_, index) => index)
-                  .filter((index) => monthIndex(new Date(year, index, 1)) >= monthIndex(MIN_MONTH) && monthIndex(new Date(year, index, 1)) <= monthIndex(MAX_MONTH))
+                  .filter((index) => monthIndex(new Date(year, index, 1)) >= monthIndex(MIN_MONTH) && monthIndex(new Date(year, index, 1)) <= monthIndex(maxMonth))
                   .map((index) => <option key={index} value={index}>{index + 1}月</option>)}
 
               </select>
