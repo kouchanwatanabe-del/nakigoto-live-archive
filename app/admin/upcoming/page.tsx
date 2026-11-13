@@ -200,7 +200,10 @@ export default function AdminUpcomingPage() {
             <p className="text-xs font-bold tracking-widest text-[#14526B]">ADMIN</p>
             <h1 className="mt-2 text-2xl font-bold text-[#14526B]">UPCOMING LIVE MANAGER</h1>
           </div>
-          <Link href="/admin/lives" className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-[#14526B]">LIVE MANAGER</Link>
+          <div className="flex flex-wrap justify-end gap-2">
+            <Link href="/admin" className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-[#14526B]">ADMIN MENU</Link>
+            <Link href="/admin/lives" className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-[#14526B]">LIVE MANAGER</Link>
+          </div>
         </div>
 
         <section id="upcoming-form" className="mt-8 border-t border-zinc-200 pt-6">

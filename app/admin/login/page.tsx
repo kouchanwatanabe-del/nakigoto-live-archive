@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
       return;
     }
 
-    router.replace("/admin/lives");
+    router.replace("/admin");
   };
 
   return (

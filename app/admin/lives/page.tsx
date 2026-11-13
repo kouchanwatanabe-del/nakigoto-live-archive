@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "../../../lib/supabase";
 
 type EventType = "fes" | "jisyukikaku" | "other";
@@ -236,16 +237,30 @@ export default function AdminLivesPage() {
             </h1>
           </div>
 
-          <button
-            type="button"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              router.replace("/admin/login");
-            }}
-            className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-500"
-          >
-            LOGOUT
-          </button>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <Link
+              href="/admin"
+              className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-[#14526B]"
+            >
+              ADMIN MENU
+            </Link>
+            <Link
+              href="/admin/upcoming"
+              className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-[#14526B]"
+            >
+              UPCOMING LIVE
+            </Link>
+            <button
+              type="button"
+              onClick={async () => {
+                await supabase.auth.signOut();
+                router.replace("/admin/login");
+              }}
+              className="rounded-xl border border-zinc-200 px-3 py-2 text-xs text-zinc-500"
+            >
+              LOGOUT
+            </button>
+          </div>
         </div>
 
         <section id="live-form" className="mt-8 border-t border-zinc-200 pt-6">
